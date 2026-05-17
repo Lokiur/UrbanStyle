@@ -1,0 +1,43 @@
+{% extends './base.html' %}
+
+<title>{%block title%} Index {%endblock%}</title>
+
+{%block body%}
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Reporte</title>
+    <style>
+        body { font-family: sans-serif; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid black; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <h1>Reporte de Datos</h1>
+    <p>Fecha de Generación: {{ fecha }}</p>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Valor</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in datos %}
+            <tr>
+                <td>{{ item.id }}</td>
+                <td>{{ item.nombre }}</td>
+                <td>{{ item.valor }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
+{%endblock%}

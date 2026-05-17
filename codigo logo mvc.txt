@@ -1,0 +1,15 @@
+<div class="app-brand demo">
+    <a href="{{ url_for('home') }}" class="app-brand-link">
+      <span class="app-brand-logo demo">
+        <img
+          src="{{ url_for('static', filename ='assets/imgs/logo.png') }}"
+          alt="Logo" />
+      </span>
+    </a>
+
+    <a
+      href="javascript:void(0);"
+      class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
+      <i class="bx bx-chevron-left bx-sm align-middle"></i>
+    </a>
+  </div>
