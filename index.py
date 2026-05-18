@@ -1,173 +1,138 @@
 import os
 
-import mysql.connector
 from flask import Flask, redirect, render_template, request, session, url_for
 
 import database as db
+
+# =============================
+# CONFIGURACIÓN GENERAL
+# =============================
 
 template_dir = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
 template_dir = os.path.join(template_dir, "UrbanStyle", "templates")
 
 app = Flask(__name__, template_folder=template_dir)
+app.secret_key = "supersecretkey"
 
-# ingreso el login entrada al sistema progrma login flask
-
-app.secret_key = "supersecretkey"  # Clave para manejar las sesiones
-
-# Configuración de la conexión a la base de datos MySQL
-# db = mysql.connector.connect(
-#  host="localhost",
-#  user="root",
-#  password="",
-#  database="empresapy"
-# )
-# cursor = db.cursor(dictionary=True)
-
+# Cursor global
 cursor = db.database.cursor(dictionary=True)
 
+# =============================
+# LOGIN
+# =============================
 
-# Ruta para mostrar el formulario de login
+
 @app.route("/")
 def index():
     return render_template("login.html")
 
 
-# Ruta para manejar el login
 @app.route("/login", methods=["POST"])
 def login():
     username = request.form["username"]
     password = request.form["password"]
 
     cursor.execute(
-        "SELECT * FROM users WHERE username=%s AND password=%s", (username, password)
+        """
+        SELECT id, username, rol
+        FROM users
+        WHERE username = %s
+        AND password = %s
+        AND estado = 'activo'
+        """,
+        (username, password),
     )
-    user = cursor.fetchone()
 
-    if user:
-        session["username"] = user["username"]
+    usuario = cursor.fetchone()
+
+    if usuario:
+        session["user_id"] = usuario["id"]
+        session["username"] = usuario["username"]
+        session["rol"] = usuario["rol"]
         return redirect("/dashboard")
-    else:
-        return render_template(
-            "login.html", message="Credenciales incorrectas, inténtalo de nuevo."
-        )
+
+    return render_template(
+        "login.html", message="Credenciales incorrectas o usuario inactivo"
+    )
 
 
-# Ruta protegida: solo accesible si el usuario ha iniciado sesión
 @app.route("/dashboard")
 def dashboard():
     if "username" in session:
-        # return f"Bienvenido, {session['username']}! Has iniciado sesión."
         return redirect("/home")
-    else:
-        return redirect("/")
-
-
-# Ruta para cerrar la sesión
-@app.route("/logout")
-def logout():
-    session.pop("username", None)
     return redirect("/")
 
 
-# termino la copia del login flask
-"""
-@app.route('/')
-
-def principal ():
-    return  " Bienvenido a mi página Web en Python"
-
-@app.route('/contacto')
-
-def contacto ():
-    return  " esta es la página de contacto"
-
-"""
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/")
 
 
-@app.route("/")
-def principal():
-    return render_template("index.html")
+# =============================
+# HOME (MVC)
+# =============================
 
 
-@app.route("/lenguajes")
-def mostrarLenguajes():
-    MisLenguajes = ("PHP", "PYTHON", "Java", "c#", "JavaScrip", "Perl", "Ruby", "Rust")
-    return render_template("lenguajes.html", lenguajes=MisLenguajes)
-
-
-"""
-
-@app.route('/login')
-
-def login ():
-     return render_template ('login.html')
-
-"""
-
-
-@app.route("/contacto")
-def contacto():
-    return render_template("contacto.html")
-
-
-# Ruta para mi currículum
-@app.route("/micurriculum")
-def micurriculum():
-    return render_template("micurriculum.html")
-
-
-# Rutas de la aplicación MVC modelo vista controlador
 @app.route("/home")
 def home():
-    cursor = db.database.cursor()
+    if "username" not in session:
+        return redirect("/")
 
+    cursor = db.database.cursor(dictionary=True)
     cursor.execute("SELECT * FROM users")
-    myresult = cursor.fetchall()
-    # Convertir los datos a diccionario
-    insertObject = []
-    columnNames = [column[0] for column in cursor.description]
-    for record in myresult:
-        insertObject.append(dict(zip(columnNames, record)))
+    usuarios = cursor.fetchall()
     cursor.close()
-    return render_template("indexmvc.html", data=insertObject)
+
+    return render_template("indexmvc.html", data=usuarios)
 
 
-# Ruta para guardar usuarios en la bdd
-@app.route("/user", methods=["POST"])
+# =============================
+# CREAR USUARIO
+# =============================
+
+
+@app.route("/usuario", methods=["POST"])
 def addUser():
     username = request.form["username"]
     name = request.form["name"]
     apellidos = request.form["apellidos"]
     password = request.form["password"]
-    usuario_email = request.form["usuario_email"]
+    email = request.form.get("usuario_email")  # ← nombre del form, NO se toca
     celular = request.form["celular"]
     fechanaci = request.form["fechanaci"]
 
-    if (
-        username
-        and name
-        and apellidos
-        and password
-        and usuario_email
-        and celular
-        and fechanaci
-    ):
+    if all([username, name, apellidos, password, email, celular, fechanaci]):
         cursor = db.database.cursor()
-        sql = "INSERT INTO users (username, name, apellidos, password, usuario_email, celular, fechanaci) VALUES (%s, %s, %s, %s, %s, %s, %s)"
-        data = (username, name, apellidos, password, usuario_email, celular, fechanaci)
-        cursor.execute(sql, data)
+        cursor.execute(
+            """
+            INSERT INTO users
+            (username, name, apellidos, email, password, celular, fechanaci, rol, estado)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,'usuario','activo')
+            """,
+            (username, name, apellidos, email, password, celular, fechanaci),
+        )
         db.database.commit()
+
     return redirect(url_for("home"))
+
+
+# =============================
+# ELIMINAR USUARIO
+# =============================
 
 
 @app.route("/delete/<string:id>")
 def delete(id):
     cursor = db.database.cursor()
-    sql = "DELETE FROM users WHERE id=%s"
-    data = (id,)
-    cursor.execute(sql, data)
+    cursor.execute("DELETE FROM users WHERE id = %s", (id,))
     db.database.commit()
     return redirect(url_for("home"))
+
+
+# =============================
+# EDITAR USUARIO
+# =============================
 
 
 @app.route("/edit/<string:id>", methods=["POST"])
@@ -176,36 +141,55 @@ def edit(id):
     name = request.form["name"]
     apellidos = request.form["apellidos"]
     password = request.form["password"]
-    usuario_email = request.form["usuario_email"]
+    email = request.form.get("usuario_email")
     celular = request.form["celular"]
     fechanaci = request.form["fechanaci"]
 
-    if (
-        username
-        and name
-        and apellidos
-        and password
-        and usuario_email
-        and celular
-        and fechanaci
-    ):
+    if all([username, name, apellidos, password, email, celular, fechanaci]):
         cursor = db.database.cursor()
-        sql = "UPDATE users SET username = %s, name = %s, apellidos = %s, password = %s, usuario_email = %s, celular = %s, fechanaci = %s WHERE id = %s"
-        data = (
-            username,
-            name,
-            apellidos,
-            password,
-            usuario_email,
-            celular,
-            fechanaci,
-            id,
+        cursor.execute(
+            """
+            UPDATE users
+            SET username=%s,
+                name=%s,
+                apellidos=%s,
+                password=%s,
+                email=%s,
+                celular=%s,
+                fechanaci=%s
+            WHERE id=%s
+            """,
+            (username, name, apellidos, password, email, celular, fechanaci, id),
         )
-        cursor.execute(sql, data)
         db.database.commit()
+
     return redirect(url_for("home"))
 
 
-# Ejecutando el objeto Flask
+# =============================
+# RUTAS EXTRA (SIN MODIFICAR)
+# =============================
+
+
+@app.route("/lenguajes")
+def mostrarLenguajes():
+    MisLenguajes = ("PHP", "PYTHON", "Java", "c#", "JavaScript", "Perl", "Ruby", "Rust")
+    return render_template("lenguajes.html", lenguajes=MisLenguajes)
+
+
+@app.route("/contacto")
+def contacto():
+    return render_template("contacto.html")
+
+
+@app.route("/micurriculum")
+def micurriculum():
+    return render_template("micurriculum.html")
+
+
+# =============================
+# RUN
+# =============================
+
 if __name__ == "__main__":
     app.run(debug=True, port=5600)

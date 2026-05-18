@@ -32,7 +32,7 @@
   </div>
 
 <body style="background-color: #f09329">
-    
+
     <h1 class="text-center mt-5 mb-5 text-primary" style="background-color: #f9f8fc" >EMPRESA URBANSTYLE</h1>
 
     <nav class="navbar navbar-expand-lg bg-*" style="background-color: #0790a8e7;">
@@ -43,7 +43,7 @@
 
                 <nav class="navbar navbar-expand-lg bg-*" style="background-color: #d1e8ebe7;">
 
-                <form action="/user" method="POST" style="background-color: #45e026">
+                <form action="/usuario" method="POST" style="background-color: #45e026">
                     <div class="row mb-3">
                         <div class="col">
                             <label >Nombre Usua.</label>
@@ -63,7 +63,7 @@
                         </div>
                         <div class="col">
                             <label>Correo Eléctro.</label>
-                            <input type="text" class="form-control mb-3" name="usuario_email" style="background-color: #faf7f7">
+                            <input type="text" class="form-control mb-3" name="email" style="background-color: #faf7f7">
                         </div>
                         <div class="col">
                             <label>Celular</label>
@@ -100,7 +100,7 @@
                             <th scope="col">Borrar</th>
                         </tr>
                     </thead>
-                
+
                 <tbody>
                     {% for d in data %}
                         <tr style="background-color: #bea4e9">
@@ -109,7 +109,7 @@
                             <td>{{d.name}}</td>
                             <td>{{d.apellidos}}</td>
                             <td><!--{{d.password}}  -->********</td>
-                            <td>{{d.usuario_email}}</td>
+                            <td>{{d.email}}</td>
                             <td>{{d.celular}}</td>
                             <td>{{d.fechanaci}}</td>
                             <td><button class="btn btn-primary btn-sm" id="btn-edit{{d.id}}" data-bs-toggle="modal" data-bs-target="#modal{{d.id}}">Editar</button></td>
@@ -136,12 +136,12 @@
                                         <label>Contraseña</label>
                                         <input type="password" class="form-control mb-3" name="password" value="{{d.password}}">
                                         <label>Correo Eléctronico</label>
-                                        <input type="text" class="form-control mb-3" name="usuario_email" value="{{d.usuario_email}}">
+                                        <input type="text" class="form-control mb-3" name="usuario_email" value="{{d.email}}">
                                         <label>Celular</label>
                                         <input type="text" class="form-control mb-3" name="celular" value="{{d.celular}}">
                                         <label>Fecha Nacimiento</label>
                                         <input type="date" class="form-control mb-3" name="fechanaci" value="{{d.fechanaci}}">
-                                  
+
                                 </div>
                                 <div class="modal-footer">
                                   <button type="submit" class="btn btn-primary">Salvar los Cambios</button>
@@ -164,7 +164,7 @@
             </div>
         </div>
     </div>
-  
+
 </nav>
 </body>
 </html>
