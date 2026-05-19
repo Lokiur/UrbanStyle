@@ -1,5 +1,5 @@
 
-sudo /opt/lampp/lampp start
+sudo /opt/lampp/lampp start 2>/dev/null
 
 
 test -d venv || echo "Creando entorno virtual"
