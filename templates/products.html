@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Productos</title>
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/style.css') }}"
+  >
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/products.css') }}"
+  >
+
+</head>
+
+<body>
+
+  <!-- NAVBAR -->
+
+  <nav>
+
+    <a href="{{ url_for('index') }}">Tienda</a>
+
+    <a href="{{ url_for('categories') }}">Categorías</a>
+
+    <a href="{{ url_for('products') }}">Nuevo</a>
+
+    <a href="{{ url_for('offers') }}">Ofertas</a>
+
+    <a href="{{ url_for('about') }}">Sobre Nosotros</a>
+
+  </nav>
+
+  <!-- PRODUCTS -->
+
+  <section class="products" id="products">
+
+    <div class="section-title">
+
+      <span>PRODUCTOS</span>
+
+      <h2>Más Vendidos</h2>
+
+      <p>
+        Los favoritos de nuestra comunidad urbana
+      </p>
+
+    </div>
+
+    <div class="products-grid">
+
+      {% for producto in productos %}
+
+      <div class="product-card">
+
+        <div class="product-info">
+
+          <h3>{{ producto.nombre }}</h3>
+
+          <p>
+            {{ producto.descripcion }}
+          </p>
+
+          <div class="price">
+            $ {{ producto.precio }}
+          </div>
+
+          <button>
+            Agregar al carrito
+          </button>
+
+        </div>
+
+      </div>
+
+      {% endfor %}
+
+    </div>
+
+  </section>
+
+</body>
+</html> 

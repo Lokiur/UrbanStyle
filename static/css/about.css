@@ -1,0 +1,57 @@
+/* ABOUT */
+
+.about{
+  padding:120px 80px;
+
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+
+  gap:80px;
+}
+
+.about-image{
+  width:50%;
+}
+
+.about-image img{
+  width:100%;
+  border-radius:30px;
+}
+
+.about-content{
+  width:50%;
+}
+
+.about-content span{
+  color:#4da3ff;
+  font-weight:bold;
+  letter-spacing:2px;
+}
+
+.about-content h2{
+  font-size:60px;
+  margin:25px 0;
+}
+
+.about-content p{
+  font-size:20px;
+  line-height:1.8;
+
+  opacity:.7;
+
+  margin-bottom:25px;
+}
+
+.about-content button{
+  padding:18px 35px;
+
+  border:none;
+  border-radius:50px;
+
+  background:#4da3ff;
+
+  color:white;
+
+  cursor:pointer;
+}

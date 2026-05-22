@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Sobre Nosotros</title>
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/style.css') }}"
+  >
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/about.css') }}"
+  >
+
+</head>
+
+<body>
+
+  <nav>
+
+    <a href="{{ url_for('index') }}">Tienda</a>
+
+    <a href="{{ url_for('categories') }}">Categorías</a>
+
+    <a href="{{ url_for('products') }}">Nuevo</a>
+
+    <a href="{{ url_for('offers') }}">Ofertas</a>
+
+    <a href="{{ url_for('about') }}">Sobre Nosotros</a>
+
+  </nav>
+
+  <section class="about">
+
+    <div class="about-image">
+
+      <img
+        src="{{ url_for('static', filename='img/urbanstyle.png') }}"
+        alt="UrbanStyle"
+      >
+
+    </div>
+
+    <div class="about-content">
+
+      <span>SOBRE NOSOTROS</span>
+
+      <h2>
+        Moda Urbana Que Inspira
+      </h2>
+
+      <p>
+        UrbanStyle nace con el objetivo de combinar estilo,
+        comodidad y autenticidad en cada prenda.
+      </p>
+
+      <p>
+        Diseñamos ropa para personas que buscan expresar
+        su personalidad a través de la moda streetwear.
+      </p>
+
+      <button>
+        Conocer más
+      </button>
+
+    </div>
+
+  </section>
+
+</body>
+</html>

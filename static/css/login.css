@@ -1,0 +1,205 @@
+@import url('https://fonts.googleapis.com/css2?family=Oswald&display=swap');
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Oswald', sans-serif;
+}
+
+/* BODY */
+
+body{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: #060c21;
+    padding: 20px;
+}
+
+/* CONTENEDOR LOGIN */
+
+.form{
+    position: relative;
+    background: #060c21;
+    border: 1px solid #000;
+    width: 350px;
+    max-width: 100%;
+    padding: 40px 40px 60px;
+    border-radius: 10px;
+    text-align: center;
+    z-index: 1;
+}
+
+/* EFECTO BORDE */
+
+.form::before{
+    content: '';
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    bottom: -2px;
+    left: -2px;
+
+    background: linear-gradient(315deg,#143b48,#2113e971);
+
+    z-index: -1;
+
+    transform: skew(2deg,1deg);
+
+    border-radius: 10px;
+}
+
+/* LOGO */
+
+.form .logo img{
+    width: 130px;
+    margin-bottom: 20px;
+}
+
+/* TITULO */
+
+.form h2{
+    color: #fff;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 5px;
+}
+
+/* CONTENEDOR INPUTS */
+
+.form .input{
+    margin-top: 40px;
+    text-align: left;
+}
+
+/* INPUT BOX */
+
+.form .input .inputBox{
+    margin-top: 20px;
+}
+
+/* LABELS */
+
+.form .input .inputBox label{
+    display: block;
+    color: #fff;
+    margin-bottom: 5px;
+    font-size: 18px;
+    letter-spacing: 1px;
+}
+
+/* INPUTS */
+
+.form .input .inputBox input{
+    position: relative;
+    width: 100%;
+    height: 45px;
+
+    border: none;
+    outline: none;
+
+    padding: 5px 15px;
+
+    background: linear-gradient(315deg,#261da371,#261da371);
+
+    color: #fff;
+    font-size: 16px;
+
+    border-radius: 10px;
+}
+
+/* PLACEHOLDER */
+
+.form .input .inputBox input::placeholder{
+    color: rgba(255,255,255,0.7);
+}
+
+/* BOTON */
+
+.form .input .inputBox input[type="submit"]{
+    cursor: pointer;
+    margin-top: 20px;
+    letter-spacing: 1px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+/* HOVER BOTON */
+
+.form .input .inputBox input[type="submit"]:hover{
+    background: linear-gradient(315deg,#12113d,#1c29a3);
+    transform: scale(1.03);
+}
+
+/* CLICK BOTON */
+
+.form .input .inputBox input[type="submit"]:active{
+    color: rgba(255,255,255,0.6);
+
+    background: linear-gradient(
+        315deg,
+        #261da371,
+        #0f0e538c
+    );
+}
+
+/* MENSAJE ERROR */
+
+.error-message{
+    margin-top: 20px;
+    padding: 12px;
+    background: rgba(255,0,0,0.2);
+    border: 1px solid #261da371;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 14px;
+}
+
+/* TEXTO FORGOT */
+
+.forgot{
+    margin-top: 20px;
+    color: #fff;
+    font-size: 14px;
+    letter-spacing: 1px;
+}
+
+/* LINKS */
+
+.forgot a,
+.logout a{
+    color: #261da371;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+/* HOVER LINKS */
+
+.forgot a:hover,
+.logout a:hover{
+    color: #fff;
+}
+
+/* LOGOUT */
+
+.logout{
+    margin-top: 20px;
+    color: white;
+}
+
+/* RESPONSIVE */
+
+@media(max-width: 400px){
+
+    .form{
+        width: 100%;
+        padding: 30px 20px 40px;
+    }
+
+    .form h2{
+        font-size: 22px;
+        letter-spacing: 2px;
+    }
+}

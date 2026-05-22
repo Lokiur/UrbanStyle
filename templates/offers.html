@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Ofertas</title>
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/style.css') }}"
+  >
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/offers.css') }}"
+  >
+
+</head>
+
+<body>
+
+<nav>
+
+  <a href="{{ url_for('index') }}">Tienda</a>
+
+  <a href="{{ url_for('categories') }}">Categorías</a>
+
+  <a href="{{ url_for('products') }}">Nuevo</a>
+
+  <a href="{{ url_for('offers') }}">Ofertas</a>
+
+  <a href="{{ url_for('about') }}">Sobre Nosotros</a>
+
+</nav>
+
+<section class="offers">
+
+  <div class="offers-content">
+
+    <span>OFERTA LIMITADA</span>
+
+    <h2>
+      30% OFF En La Nueva Colección
+    </h2>
+
+    <p>
+      Aprovecha descuentos exclusivos por tiempo limitado
+    </p>
+
+    <button>
+      Comprar ahora
+    </button>
+
+  </div>
+
+  <div class="offers-image">
+
+    <img
+      src="{{ url_for('static', filename='img/oferta.png') }}"
+      alt="Oferta"
+    >
+
+  </div>
+
+</section>
+
+</body>
+</html>
