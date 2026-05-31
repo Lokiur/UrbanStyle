@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Registro | UrbanStyle</title>
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/login.css') }}"
+  >
+
+</head>
+
+<body>
+
+  <div class="form">
+
+    <!-- TITULO -->
+
+    <h2>Crear Cuenta</h2>
+
+    <!-- FORMULARIO -->
+
+    <form method="POST">
+
+      <div class="input">
+
+        <!-- USUARIO -->
+
+        <div class="inputBox">
+
+          <label>Usuario</label>
+
+          <input
+            type="text"
+            name="username"
+            placeholder="Ingrese un usuario"
+            required
+          >
+
+        </div>
+
+        <!-- NOMBRE -->
+
+        <div class="inputBox">
+
+          <label>Nombre</label>
+
+          <input
+            type="text"
+            name="name"
+            placeholder="Ingrese su nombre"
+            required
+          >
+
+        </div>
+
+        <!-- EMAIL -->
+
+        <div class="inputBox">
+
+          <label>Correo</label>
+
+          <input
+            type="email"
+            name="email"
+            placeholder="Ingrese su correo"
+            required
+          >
+
+        </div>
+
+        <!-- PASSWORD -->
+
+        <div class="inputBox">
+
+          <label>Contraseña</label>
+
+          <input
+            type="password"
+            name="password"
+            placeholder="Ingrese una contraseña"
+            required
+          >
+
+        </div>
+
+        <!-- BOTON -->
+
+        <div class="inputBox">
+
+          <input
+            type="submit"
+            value="Registrarse"
+          >
+
+        </div>
+
+      </div>
+
+    </form>
+
+    <!-- LOGIN -->
+
+    <p class="forgot">
+
+      ¿Ya tienes cuenta?
+
+      <a href="{{ url_for('login') }}">
+        Iniciar sesión
+      </a>
+
+    </p>
+
+  </div>
+
+</body>
+</html>
