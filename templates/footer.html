@@ -8,53 +8,110 @@
 
     <div class="footer-brand">
 
-      <h2>UrbanStyle</h2>
+      <div class="footer-logo">
+
+        <i class="fa-solid fa-bolt"></i>
+
+        <h2>UrbanStyle</h2>
+
+      </div>
 
       <p>
-        Moda urbana premium para quienes viven el estilo.
+        Moda urbana premium diseñada para quienes buscan
+        autenticidad, estilo y comodidad en cada outfit.
       </p>
 
     </div>
 
-    <!-- LINKS -->
+    <!-- NAVEGACION -->
 
-    <div>
+    <div class="footer-links">
 
       <h3>Navegación</h3>
 
       <ul>
-        <li><a href="#">Inicio</a></li>
-        <li><a href="#">Productos</a></li>
-        <li><a href="#">Ofertas</a></li>
+
+        <li>
+          <a href="{{ url_for('index') }}">
+            Inicio
+          </a>
+        </li>
+
+        <li>
+          <a href="{{ url_for('products') }}">
+            Productos
+          </a>
+        </li>
+
+        <li>
+          <a href="{{ url_for('offers') }}">
+            Ofertas
+          </a>
+        </li>
+
+        <li>
+          <a href="{{ url_for('about') }}">
+            Sobre Nosotros
+          </a>
+        </li>
+
       </ul>
 
     </div>
 
-    <!-- SUPPORT -->
+    <!-- SOPORTE -->
 
-    <div>
+    <div class="footer-links">
 
       <h3>Soporte</h3>
 
       <ul>
-        <li><a href="#">Contacto</a></li>
-        <li><a href="#">FAQ</a></li>
-        <li><a href="#">Términos</a></li>
+
+        <li>
+          <a href="#">
+            Contacto
+          </a>
+        </li>
+
+        <li>
+          <a href="#">
+            Preguntas Frecuentes
+          </a>
+        </li>
+
+        <li>
+          <a href="#">
+            Términos y Condiciones
+          </a>
+        </li>
+
       </ul>
 
     </div>
 
-    <!-- SOCIAL -->
+    <!-- REDES -->
 
-    <div>
+    <div class="footer-social">
 
-      <h3>Redes</h3>
+      <h3>Síguenos</h3>
 
       <div class="social-icons">
 
-        <i class="fa-brands fa-instagram"></i>
-        <i class="fa-brands fa-tiktok"></i>
-        <i class="fa-brands fa-facebook"></i>
+        <a href="#">
+          <i class="fa-brands fa-instagram"></i>
+        </a>
+
+        <a href="#">
+          <i class="fa-brands fa-tiktok"></i>
+        </a>
+
+        <a href="#">
+          <i class="fa-brands fa-facebook-f"></i>
+        </a>
+
+        <a href="#">
+          <i class="fa-brands fa-x-twitter"></i>
+        </a>
 
       </div>
 
@@ -62,8 +119,14 @@
 
   </div>
 
+  <!-- FOOTER BOTTOM -->
+
   <div class="footer-bottom">
-    © 2026 UrbanStyle - Todos los derechos reservados
+
+    <p>
+      © 2026 UrbanStyle | Todos los derechos reservados
+    </p>
+
   </div>
 
 </footer>
