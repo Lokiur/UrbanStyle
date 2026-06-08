@@ -10,7 +10,9 @@
     content="width=device-width, initial-scale=1.0"
   >
 
-  <title>Categorías</title>
+  <title>Categorías | UrbanStyle</title>
+
+  <!-- CSS -->
 
   <link
     rel="stylesheet"
@@ -22,29 +24,186 @@
     href="{{ url_for('static', filename='css/categories.css') }}"
   >
 
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/footer.css') }}"
+  >
+
+  <!-- FONT AWESOME -->
+
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+  />
+
 </head>
 
 <body>
 
-  <nav>
+  <!-- NAVBAR -->
 
-    <a href="{{ url_for('index') }}">Tienda</a>
+  <header class="navbar">
 
-    <a href="{{ url_for('categories') }}">Categorías</a>
+    <div class="logo">
 
-    <a href="{{ url_for('products') }}">Nuevo</a>
+      <i class="fa-solid fa-bolt"></i>
 
-    <a href="{{ url_for('offers') }}">Ofertas</a>
+      <span>UrbanStyle</span>
 
-    <a href="{{ url_for('about') }}">Sobre Nosotros</a>
+    </div>
 
-  </nav>
+    <nav>
+
+      <a href="{{ url_for('index') }}">
+        Tienda
+      </a>
+
+      <a href="{{ url_for('categories') }}">
+        Categorías
+      </a>
+
+      <a href="{{ url_for('products') }}">
+        Nuevo
+      </a>
+
+      <a href="{{ url_for('offers') }}">
+        Ofertas
+      </a>
+
+      <a href="{{ url_for('about') }}">
+        Sobre Nosotros
+      </a>
+
+      <a href="{{ url_for('login') }}">
+        Login
+      </a>
+
+    </nav>
+
+  </header>
+
+  <!-- CATEGORIES -->
 
   <section class="categories">
 
-    <h1>Categorías</h1>
+    <div class="section-title">
+
+      <span>CATEGORÍAS</span>
+
+      <h2>Explora Nuestro Estilo</h2>
+
+      <p>
+        Descubre prendas urbanas diseñadas para cada ocasión
+      </p>
+
+    </div>
+
+    <div class="categories-grid">
+
+      <!-- CAMISETAS -->
+
+      <a
+        href="{{ url_for('categoria_productos', id=1) }}"
+        class="category-card"
+      >
+
+        <img
+          src="{{ url_for('static', filename='img/camiseta.png') }}"
+          alt="Camisetas"
+        >
+
+        <div class="category-overlay">
+
+          <h3>Camisetas</h3>
+
+          <button>
+            Ver colección
+          </button>
+
+        </div>
+
+      </a>
+
+      <!-- SUDADERAS -->
+
+      <a
+        href="{{ url_for('categoria_productos', id=2) }}"
+        class="category-card"
+      >
+
+        <img
+          src="{{ url_for('static', filename='img/sudaderas.jpg') }}"
+          alt="Sudaderas"
+        >
+
+        <div class="category-overlay">
+
+          <h3>Sudaderas</h3>
+
+          <button>
+            Ver colección
+          </button>
+
+        </div>
+
+      </a>
+
+      <!-- CHAQUETAS -->
+
+      <a
+        href="{{ url_for('categoria_productos', id=3) }}"
+        class="category-card"
+      >
+
+        <img
+          src="{{ url_for('static', filename='img/chaqueta.png') }}"
+          alt="Chaquetas"
+        >
+
+        <div class="category-overlay">
+
+          <h3>Chaquetas</h3>
+
+          <button>
+            Ver colección
+          </button>
+
+        </div>
+
+      </a>
+
+      <!-- ACCESORIOS -->
+
+      <a
+        href="{{ url_for('categoria_productos', id=4) }}"
+        class="category-card"
+      >
+
+        <img
+          src="{{ url_for('static', filename='img/gorras.png') }}"
+          alt="Accesorios"
+        >
+
+        <div class="category-overlay">
+
+          <h3>Accesorios</h3>
+
+          <button>
+            Ver colección
+          </button>
+
+        </div>
+
+      </a>
+
+    </div>
 
   </section>
 
+  <!-- FOOTER -->
+
+  {% include 'footer.html' %}
+
 </body>
+
 </html>
