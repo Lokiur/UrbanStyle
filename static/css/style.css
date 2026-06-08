@@ -392,3 +392,67 @@ nav a:hover{
   font-size:14px;
   opacity:.7;
 }
+
+.profile-container{
+  position:relative;
+  display:inline-block;
+}
+
+.profile-pic{
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  object-fit:cover;
+  cursor:pointer;
+  border:2px solid #fff;
+  transition:.3s;
+}
+
+.profile-pic:hover{
+  transform:scale(1.05);
+}
+
+.profile-menu{
+  display:none;
+  position:absolute;
+  right:0;
+  top:55px;
+  min-width:180px;
+  overflow:hidden;
+  z-index:1000;
+  background:#111;
+  color:#fff;
+  border-radius:12px;
+  box-shadow:0 10px 25px rgba(0,0,0,.4);
+  animation:fadeIn .2s ease-in-out;
+}
+
+.profile-menu a{
+  display:block;
+  padding:12px 15px;
+  color:#fff;
+  font-size:15px;
+  text-decoration:none;
+  transition:.3s;
+}
+
+.profile-menu a:hover{
+  background:#ff3b3b;
+  color:#fff;
+}
+
+.login-btn{
+  color:inherit;
+}
+
+@keyframes fadeIn{
+  from{
+    opacity:0;
+    transform:translateY(-10px);
+  }
+
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}

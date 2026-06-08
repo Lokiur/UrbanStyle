@@ -69,9 +69,13 @@
         Sobre Nosotros
       </a>
 
+      {% if 'user' not in session %}
+
       <a href="{{ url_for('login') }}">
         Login
       </a>
+
+      {% endif %}
 
     </nav>
 
@@ -82,6 +86,35 @@
       <i class="fa-regular fa-heart"></i>
 
       <i class="fa-solid fa-bag-shopping"></i>
+
+      {% if 'user' in session %}
+
+      <div class="profile-container">
+
+        <img
+          src="{{ url_for('static', filename='img/user.png') }}"
+          class="profile-pic"
+          alt="Usuario"
+          onclick="toggleMenu()"
+        >
+
+        <div id="profileMenu" class="profile-menu">
+
+          <a href="{{ url_for('logout') }}">
+            Cerrar sesión
+          </a>
+
+        </div>
+
+      </div>
+
+      {% else %}
+
+      <a href="{{ url_for('login') }}" class="login-btn">
+        <i class="fa-regular fa-user"></i>
+      </a>
+
+      {% endif %}
 
     </div>
 
@@ -197,7 +230,7 @@
 
   {% include 'footer.html' %}
 
-  <script src="script.js"></script>
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 
 </body>
 
