@@ -10,9 +10,7 @@
     content="width=device-width, initial-scale=1.0"
   >
 
-  <title>Ofertas | UrbanStyle</title>
-
-  <!-- CSS -->
+  <title>Ofertas</title>
 
   <link
     rel="stylesheet"
@@ -24,102 +22,54 @@
     href="{{ url_for('static', filename='css/offers.css') }}"
   >
 
-  <link
-    rel="stylesheet"
-    href="{{ url_for('static', filename='css/footer.css') }}"
-  >
-
-  <!-- FONT AWESOME -->
-
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-  />
-
 </head>
 
 <body>
 
-  <!-- NAVBAR -->
+<nav>
 
-  <header class="navbar">
+  <a href="{{ url_for('index') }}">Tienda</a>
 
-    <div class="logo">
+  <a href="{{ url_for('categories') }}">Categorías</a>
 
-      <i class="fa-solid fa-bolt"></i>
+  <a href="{{ url_for('products') }}">Nuevo</a>
 
-      <span>UrbanStyle</span>
+  <a href="{{ url_for('offers') }}">Ofertas</a>
 
-    </div>
+  <a href="{{ url_for('about') }}">Sobre Nosotros</a>
 
-    <nav>
+</nav>
 
-      <a href="{{ url_for('index') }}">
-        Tienda
-      </a>
+<section class="offers">
 
-      <a href="{{ url_for('categories') }}">
-        Categorías
-      </a>
+  <div class="offers-content">
 
-      <a href="{{ url_for('products') }}">
-        Nuevo
-      </a>
+    <span>OFERTA LIMITADA</span>
 
-      <a href="{{ url_for('offers') }}">
-        Ofertas
-      </a>
+    <h2>
+      30% OFF En La Nueva Colección
+    </h2>
 
-      <a href="{{ url_for('about') }}">
-        Sobre Nosotros
-      </a>
+    <p>
+      Aprovecha descuentos exclusivos por tiempo limitado
+    </p>
 
-      <a href="{{ url_for('login') }}">
-        Login
-      </a>
+    <button>
+      Comprar ahora
+    </button>
 
-    </nav>
+  </div>
 
-  </header>
+  <div class="offers-image">
 
-  <!-- OFFERS -->
+    <img
+      src="{{ url_for('static', filename='img/oferta.png') }}"
+      alt="Oferta"
+    >
 
-  <section class="offers">
+  </div>
 
-    <div class="offers-content">
-
-      <span>OFERTA LIMITADA</span>
-
-      <h2>
-        30% OFF En La Nueva Colección
-      </h2>
-
-      <p>
-        Aprovecha descuentos exclusivos por tiempo limitado
-        y renueva tu estilo con nuestras prendas premium.
-      </p>
-
-      <button>
-        Comprar ahora
-      </button>
-
-    </div>
-
-    <div class="offers-image">
-
-      <img
-        src="{{ url_for('static', filename='img/oferta.png') }}"
-        alt="Oferta UrbanStyle"
-      >
-
-    </div>
-
-  </section>
-
-  <!-- FOOTER -->
-
-  {% include 'footer.html' %}
+</section>
 
 </body>
-
 </html>
