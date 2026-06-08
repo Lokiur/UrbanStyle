@@ -22,104 +22,73 @@
     href="{{ url_for('static', filename='css/products.css') }}"
   >
 
-  <link
-    rel="stylesheet"
-    href="{{ url_for('static', filename='css/footer.css') }}"
-  >
-
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-  />
-
 </head>
 
 <body>
 
-<header class="navbar">
-
-  <div class="logo">
-
-    <i class="fa-solid fa-bolt"></i>
-
-    <span>UrbanStyle</span>
-
-  </div>
+  <!-- NAVBAR -->
 
   <nav>
 
-    <a href="{{ url_for('index') }}">
-      Tienda
-    </a>
+    <a href="{{ url_for('index') }}">Tienda</a>
 
-    <a href="{{ url_for('categories') }}">
-      Categorías
-    </a>
+    <a href="{{ url_for('categories') }}">Categorías</a>
 
-    <a href="{{ url_for('products') }}">
-      Nuevo
-    </a>
+    <a href="{{ url_for('products') }}">Nuevo</a>
 
-    <a href="{{ url_for('offers') }}">
-      Ofertas
-    </a>
+    <a href="{{ url_for('offers') }}">Ofertas</a>
 
-    <a href="{{ url_for('about') }}">
-      Sobre Nosotros
-    </a>
+    <a href="{{ url_for('about') }}">Sobre Nosotros</a>
 
   </nav>
 
-</header>
+  <!-- PRODUCTS -->
 
-<section class="products">
+  <section class="products" id="products">
 
-  <div class="section-title">
+    <div class="section-title">
 
-    <span>PRODUCTOS</span>
+      <span>PRODUCTOS</span>
 
-    <h2>Nuestra Colección</h2>
+      <h2>Más Vendidos</h2>
 
-  </div>
-
-  <div class="products-grid">
-
-    {% for producto in productos %}
-
-    <div class="product-card">
-
-      <div class="product-info">
-
-        <h3>
-          {{ producto.nombre }}
-        </h3>
-
-        <p>
-          {{ producto.descripcion }}
-        </p>
-
-        <div class="price">
-
-          $ {{ producto.precio }}
-
-        </div>
-
-        <button>
-          Agregar al carrito
-        </button>
-
-      </div>
+      <p>
+        Los favoritos de nuestra comunidad urbana
+      </p>
 
     </div>
 
-    {% endfor %}
+    <div class="products-grid">
 
-  </div>
+      {% for producto in productos %}
 
-</section>
+      <div class="product-card">
 
-{% include 'footer.html' %}
+        <div class="product-info">
+
+          <h3>{{ producto.nombre }}</h3>
+
+          <p>
+            {{ producto.descripcion }}
+          </p>
+
+          <div class="price">
+            $ {{ producto.precio }}
+          </div>
+
+          <button>
+            Agregar al carrito
+          </button>
+
+        </div>
+
+      </div>
+
+      {% endfor %}
+
+    </div>
+
+  </section>
 
 </body>
-
-</html>
+</html> 

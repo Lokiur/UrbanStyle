@@ -1,98 +1,82 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-
   <meta charset="UTF-8" />
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  />
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>UrbanStyle</title>
 
-  <!-- CSS -->
+  <!-- CONEXION CSS -->
 
   <link
-    rel="stylesheet"
-    href="{{ url_for('static', filename='css/style.css') }}"
-  >
+rel="stylesheet"
+href="{{ url_for('static', filename='css/style.css') }}"
+>
 
-  <link
-    rel="stylesheet"
-    href="{{ url_for('static', filename='css/footer.css') }}"
-  >
-
-  <!-- FONT AWESOME -->
-
+  <!-- ICONS -->
   <link
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
   />
-
 </head>
 
 <body>
 
   <!-- NAVBAR -->
-
   <header class="navbar">
 
     <div class="logo">
-
       <i class="fa-solid fa-bolt"></i>
-
       <span>UrbanStyle</span>
-
     </div>
 
     <nav>
+    <a href="{{ url_for('index') }}">Tienda</a>
+    <a href="{{ url_for('categories') }}">Categorías</a>
+    <a href="{{ url_for('products') }}">Nuevo</a>
+    <a href="{{ url_for('offers') }}">Ofertas</a>
+    <a href="{{ url_for('about') }}">Sobre Nosotros</a>
 
-      <a href="{{ url_for('index') }}">
-        Tienda
-      </a>
+    {% if 'user' in session %}
 
-      <a href="{{ url_for('categories') }}">
-        Categorías
-      </a>
+    {% else %}
 
-      <a href="{{ url_for('products') }}">
-        Nuevo
-      </a>
+    <a href="{{ url_for('login') }}">Login</a>
 
-      <a href="{{ url_for('offers') }}">
-        Ofertas
-      </a>
+    {% endif %}
+</nav>
 
-      <a href="{{ url_for('about') }}">
-        Sobre Nosotros
-      </a>
+<div class="icons">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <i class="fa-regular fa-heart"></i>
+    <i class="fa-solid fa-bag-shopping"></i>
 
-      <a href="{{ url_for('login') }}">
-        Login
-      </a>
+    {% if 'user' in session %}
 
-    </nav>
+    <div class="profile-container">
+    <img src="{{ url_for('static', filename='img/user.png') }}" 
+         class="profile-pic" 
+         onclick="toggleMenu()">
 
-    <div class="icons">
-
-      <i class="fa-solid fa-magnifying-glass"></i>
-
-      <i class="fa-regular fa-heart"></i>
-
-      <i class="fa-solid fa-bag-shopping"></i>
-
+    <div id="profileMenu" class="profile-menu">
+        <a href="{{ url_for('logout') }}">🚪 Cerrar sesión</a>
     </div>
+</div>
+
+    {% else %}
+
+    <a href="{{ url_for('login') }}" class="login-btn">
+        <i class="fa-regular fa-user"></i>
+    </a>
+
+    {% endif %}
+</div>
 
   </header>
 
   <!-- HERO -->
-
   <section class="hero">
 
     <!-- LEFT -->
-
     <div class="hero-text">
 
       <div class="badge">
@@ -100,11 +84,8 @@
       </div>
 
       <h1>
-
         Ponte En Tu <br>
-
         <span>Mejor Versión</span>
-
       </h1>
 
       <p>
@@ -124,49 +105,33 @@
       </div>
 
       <!-- FEATURES -->
-
       <div class="hero-features">
 
         <div class="feature">
-
           <i class="fa-solid fa-truck"></i>
 
           <div>
-
             <h5>Envío gratis</h5>
-
             <p>Pedidos mayores a $150.000</p>
-
           </div>
-
         </div>
 
         <div class="feature">
-
           <i class="fa-solid fa-shield"></i>
 
           <div>
-
             <h5>Devolución fácil</h5>
-
             <p>Garantía de 60 días</p>
-
           </div>
-
         </div>
 
         <div class="feature">
-
           <i class="fa-solid fa-award"></i>
 
           <div>
-
             <h5>Productos premium</h5>
-
             <p>Calidad garantizada</p>
-
           </div>
-
         </div>
 
       </div>
@@ -174,18 +139,15 @@
     </div>
 
     <!-- RIGHT -->
-
     <div class="hero-image">
 
-      <!-- RECUADRO -->
-
+      <!-- RECUADRO AZUL -->
       <div class="background-card"></div>
 
       <!-- IMAGEN -->
-
       <img
         src="{{ url_for('static', filename='img/ropa.png') }}"
-        alt="ropa"
+        alt="ropa.png"
         class="product-image"
       >
 
@@ -193,12 +155,8 @@
 
   </section>
 
-  <!-- FOOTER -->
-
-  {% include 'footer.html' %}
-
   <script src="script.js"></script>
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 
 </body>
-
 </html>
