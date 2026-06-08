@@ -10,7 +10,9 @@
     content="width=device-width, initial-scale=1.0"
   >
 
-  <title>Sobre Nosotros</title>
+  <title>Sobre Nosotros | UrbanStyle</title>
+
+  <!-- CSS -->
 
   <link
     rel="stylesheet"
@@ -22,23 +24,65 @@
     href="{{ url_for('static', filename='css/about.css') }}"
   >
 
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/footer.css') }}"
+  >
+
+  <!-- FONT AWESOME -->
+
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+  />
+
 </head>
 
 <body>
 
-  <nav>
+  <!-- NAVBAR -->
 
-    <a href="{{ url_for('index') }}">Tienda</a>
+  <header class="navbar">
 
-    <a href="{{ url_for('categories') }}">Categorías</a>
+    <div class="logo">
 
-    <a href="{{ url_for('products') }}">Nuevo</a>
+      <i class="fa-solid fa-bolt"></i>
 
-    <a href="{{ url_for('offers') }}">Ofertas</a>
+      <span>UrbanStyle</span>
 
-    <a href="{{ url_for('about') }}">Sobre Nosotros</a>
+    </div>
 
-  </nav>
+    <nav>
+
+      <a href="{{ url_for('index') }}">
+        Tienda
+      </a>
+
+      <a href="{{ url_for('categories') }}">
+        Categorías
+      </a>
+
+      <a href="{{ url_for('products') }}">
+        Nuevo
+      </a>
+
+      <a href="{{ url_for('offers') }}">
+        Ofertas
+      </a>
+
+      <a href="{{ url_for('about') }}">
+        Sobre Nosotros
+      </a>
+
+      <a href="{{ url_for('login') }}">
+        Login
+      </a>
+
+    </nav>
+
+  </header>
+
+  <!-- ABOUT -->
 
   <section class="about">
 
@@ -66,7 +110,8 @@
 
       <p>
         Diseñamos ropa para personas que buscan expresar
-        su personalidad a través de la moda streetwear.
+        su personalidad a través de la moda streetwear,
+        ofreciendo diseños modernos y calidad premium.
       </p>
 
       <button>
@@ -77,5 +122,10 @@
 
   </section>
 
+  <!-- FOOTER -->
+
+  {% include 'footer.html' %}
+
 </body>
+
 </html>

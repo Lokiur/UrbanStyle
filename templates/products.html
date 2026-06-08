@@ -22,73 +22,104 @@
     href="{{ url_for('static', filename='css/products.css') }}"
   >
 
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/footer.css') }}"
+  >
+
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+  />
+
 </head>
 
 <body>
 
-  <!-- NAVBAR -->
+<header class="navbar">
+
+  <div class="logo">
+
+    <i class="fa-solid fa-bolt"></i>
+
+    <span>UrbanStyle</span>
+
+  </div>
 
   <nav>
 
-    <a href="{{ url_for('index') }}">Tienda</a>
+    <a href="{{ url_for('index') }}">
+      Tienda
+    </a>
 
-    <a href="{{ url_for('categories') }}">Categorías</a>
+    <a href="{{ url_for('categories') }}">
+      Categorías
+    </a>
 
-    <a href="{{ url_for('products') }}">Nuevo</a>
+    <a href="{{ url_for('products') }}">
+      Nuevo
+    </a>
 
-    <a href="{{ url_for('offers') }}">Ofertas</a>
+    <a href="{{ url_for('offers') }}">
+      Ofertas
+    </a>
 
-    <a href="{{ url_for('about') }}">Sobre Nosotros</a>
+    <a href="{{ url_for('about') }}">
+      Sobre Nosotros
+    </a>
 
   </nav>
 
-  <!-- PRODUCTS -->
+</header>
 
-  <section class="products" id="products">
+<section class="products">
 
-    <div class="section-title">
+  <div class="section-title">
 
-      <span>PRODUCTOS</span>
+    <span>PRODUCTOS</span>
 
-      <h2>Más Vendidos</h2>
+    <h2>Nuestra Colección</h2>
 
-      <p>
-        Los favoritos de nuestra comunidad urbana
-      </p>
+  </div>
 
-    </div>
+  <div class="products-grid">
 
-    <div class="products-grid">
+    {% for producto in productos %}
 
-      {% for producto in productos %}
+    <div class="product-card">
 
-      <div class="product-card">
+      <div class="product-info">
 
-        <div class="product-info">
+        <h3>
+          {{ producto.nombre }}
+        </h3>
 
-          <h3>{{ producto.nombre }}</h3>
+        <p>
+          {{ producto.descripcion }}
+        </p>
 
-          <p>
-            {{ producto.descripcion }}
-          </p>
+        <div class="price">
 
-          <div class="price">
-            $ {{ producto.precio }}
-          </div>
-
-          <button>
-            Agregar al carrito
-          </button>
+          $ {{ producto.precio }}
 
         </div>
 
-      </div>
+        <button>
+          Agregar al carrito
+        </button>
 
-      {% endfor %}
+      </div>
 
     </div>
 
-  </section>
+    {% endfor %}
+
+  </div>
+
+</section>
+
+{% include 'footer.html' %}
 
 </body>
+
 </html>

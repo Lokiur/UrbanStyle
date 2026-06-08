@@ -1,38 +1,51 @@
 /* CATEGORIES */
 
 .categories{
-  padding:120px 80px;
+  padding:120px 10%;
 }
 
 .section-title{
   text-align:center;
-  margin-bottom:70px;
+
+  margin-bottom:80px;
 }
 
 .section-title span{
   color:#4da3ff;
+
   font-weight:bold;
-  letter-spacing:2px;
+
+  letter-spacing:3px;
 }
 
 .section-title h2{
-  font-size:55px;
+  font-size:60px;
+
   margin:20px 0;
 }
 
 .section-title p{
   opacity:.7;
+
   font-size:18px;
 }
 
+/* GRID */
+
 .categories-grid{
   display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:30px;
+
+  grid-template-columns:
+  repeat(auto-fit,minmax(280px,1fr));
+
+  gap:35px;
 }
+
+/* CARD */
 
 .category-card{
   position:relative;
+
   overflow:hidden;
 
   border-radius:30px;
@@ -44,18 +57,35 @@
   border:1px solid rgba(255,255,255,.08);
 
   transition:.4s;
+
+  background:#0f172a;
 }
 
 .category-card:hover{
-  transform:translateY(-10px);
+  transform:
+  translateY(-10px)
+  scale(1.02);
+
+  box-shadow:
+  0 20px 40px rgba(0,0,0,.4);
 }
+
+/* IMAGE */
 
 .category-card img{
   width:100%;
   height:100%;
 
   object-fit:cover;
+
+  transition:.5s;
 }
+
+.category-card:hover img{
+  transform:scale(1.08);
+}
+
+/* OVERLAY */
 
 .category-overlay{
   position:absolute;
@@ -64,32 +94,77 @@
 
   background:linear-gradient(
     to top,
-    rgba(0,0,0,.9),
+    rgba(0,0,0,.95),
+    rgba(0,0,0,.2),
     transparent
   );
 
   display:flex;
+
   flex-direction:column;
+
   justify-content:flex-end;
 
-  padding:40px;
+  padding:35px;
 }
+
+/* TEXT */
 
 .category-overlay h3{
-  font-size:35px;
+  font-size:34px;
+
   margin-bottom:20px;
+
+  color:white;
 }
 
+/* BUTTON */
+
 .category-overlay button{
-  width:150px;
+  width:180px;
 
   padding:15px;
 
   border:none;
+
   border-radius:50px;
 
-  background:#4da3ff;
+  background:linear-gradient(
+    135deg,
+    #2113e9,
+    #4da3ff
+  );
+
   color:white;
 
+  font-size:15px;
+
   cursor:pointer;
+
+  transition:.3s;
+}
+
+.category-overlay button:hover{
+  transform:translateY(-3px);
+
+  box-shadow:
+  0 10px 30px rgba(77,163,255,.4);
+}
+
+/* RESPONSIVE */
+
+@media(max-width:900px){
+
+  .categories{
+    padding:100px 30px;
+  }
+
+  .section-title h2{
+    font-size:45px;
+  }
+
+  .category-card{
+    height:420px;
+  }
+
 }
