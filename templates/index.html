@@ -1,204 +1,173 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
+    <head>
+        <meta charset="UTF-8" />
 
-<head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <meta charset="UTF-8" />
+        <title>UrbanStyle</title>
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  />
+        <!-- CSS -->
 
-  <title>UrbanStyle</title>
+        <link
+            rel="stylesheet"
+            href="{{ url_for('static', filename='css/style.css') }}"
+        />
 
-  <!-- CSS -->
+        <link
+            rel="stylesheet"
+            href="{{ url_for('static', filename='css/footer.css') }}"
+        />
 
-  <link
-    rel="stylesheet"
-    href="{{ url_for('static', filename='css/style.css') }}"
-  >
+        <!-- FONT AWESOME -->
 
-  <link
-    rel="stylesheet"
-    href="{{ url_for('static', filename='css/footer.css') }}"
-  >
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        />
+    </head>
 
-  <!-- FONT AWESOME -->
+    <body>
+        <!-- NAVBAR -->
 
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-  />
+        <header class="navbar">
+            <div class="logo">
+                <i class="fa-solid fa-bolt"></i>
 
-</head>
+                <span>UrbanStyle</span>
+            </div>
 
-<body>
+            <nav>
+                <a href="{{ url_for('index') }}">Tienda</a>
 
-  <!-- NAVBAR -->
+                <a href="{{ url_for('categories') }}">Categorías</a>
 
-  <header class="navbar">
+                <a href="{{ url_for('products') }}">Nuevo</a>
 
-    <div class="logo">
+                <a href="{{ url_for('offers') }}">Ofertas</a>
 
-      <i class="fa-solid fa-bolt"></i>
+                <a href="{{ url_for('about') }}">Sobre Nosotros</a>
 
-      <span>UrbanStyle</span>
+                {% if session.get('rol') == 'admin' %}
+                <a href="{{ url_for('admin_panel') }}"> Admin </a>
+                {% endif %} {% if 'user' not in session %}
+                <a href="{{ url_for('login') }}">Login</a>
+                {% endif %}
+            </nav>
 
-    </div>
+            <div class="icons">
+                <i class="fa-solid fa-magnifying-glass"></i>
 
-    <nav>
+                <i class="fa-regular fa-heart"></i>
 
-      <a href="{{ url_for('index') }}">
-        Tienda
-      </a>
+                <i class="fa-solid fa-bag-shopping"></i>
 
-      <a href="{{ url_for('categories') }}">
-        Categorías
-      </a>
+                {% if 'user' in session %}
 
-      <a href="{{ url_for('products') }}">
-        Nuevo
-      </a>
+                <div class="profile-container">
+                    <img
+                        src="{{ url_for('static', filename='img/user.png') }}"
+                        class="profile-pic"
+                        alt="Usuario"
+                        onclick="toggleMenu()"
+                    />
 
-      <a href="{{ url_for('offers') }}">
-        Ofertas
-      </a>
+                    <div id="profileMenu" class="profile-menu">
+                        <a href="{{ url_for('logout') }}"> Cerrar sesión </a>
+                    </div>
+                </div>
 
-      <a href="{{ url_for('about') }}">
-        Sobre Nosotros
-      </a>
+                {% else %}
 
-      <a href="{{ url_for('login') }}">
-        Login
-      </a>
+                <a href="{{ url_for('login') }}" class="login-btn">
+                    <i class="fa-regular fa-user"></i>
+                </a>
 
-    </nav>
+                {% endif %}
+            </div>
+        </header>
 
-    <div class="icons">
+        <!-- HERO -->
 
-      <i class="fa-solid fa-magnifying-glass"></i>
+        <section class="hero">
+            <!-- LEFT -->
 
-      <i class="fa-regular fa-heart"></i>
+            <div class="hero-text">
+                <div class="badge">⚡ Nueva Colección!</div>
 
-      <i class="fa-solid fa-bag-shopping"></i>
+                <h1>
+                    Ponte En Tu <br />
 
-    </div>
+                    <span>Mejor Versión</span>
+                </h1>
 
-  </header>
+                <p>
+                    Ropa de alta calidad diseñada para inspirar confianza y
+                    estilo
+                </p>
 
-  <!-- HERO -->
+                <div class="buttons">
+                    <button class="primary-btn">Compra ahora</button>
 
-  <section class="hero">
+                    <button class="secondary-btn">Explorar categorías</button>
+                </div>
 
-    <!-- LEFT -->
+                <!-- FEATURES -->
 
-    <div class="hero-text">
+                <div class="hero-features">
+                    <div class="feature">
+                        <i class="fa-solid fa-truck"></i>
 
-      <div class="badge">
-        ⚡ Nueva Colección!
-      </div>
+                        <div>
+                            <h5>Envío gratis</h5>
 
-      <h1>
+                            <p>Pedidos mayores a $150.000</p>
+                        </div>
+                    </div>
 
-        Ponte En Tu <br>
+                    <div class="feature">
+                        <i class="fa-solid fa-shield"></i>
 
-        <span>Mejor Versión</span>
+                        <div>
+                            <h5>Devolución fácil</h5>
 
-      </h1>
+                            <p>Garantía de 60 días</p>
+                        </div>
+                    </div>
 
-      <p>
-        Ropa de alta calidad diseñada para inspirar confianza y estilo
-      </p>
+                    <div class="feature">
+                        <i class="fa-solid fa-award"></i>
 
-      <div class="buttons">
+                        <div>
+                            <h5>Productos premium</h5>
 
-        <button class="primary-btn">
-          Compra ahora
-        </button>
+                            <p>Calidad garantizada</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-        <button class="secondary-btn">
-          Explorar categorías
-        </button>
+            <!-- RIGHT -->
 
-      </div>
+            <div class="hero-image">
+                <!-- RECUADRO -->
 
-      <!-- FEATURES -->
+                <div class="background-card"></div>
 
-      <div class="hero-features">
+                <!-- IMAGEN -->
 
-        <div class="feature">
+                <img
+                    src="{{ url_for('static', filename='img/ropa.png') }}"
+                    alt="ropa"
+                    class="product-image"
+                />
+            </div>
+        </section>
 
-          <i class="fa-solid fa-truck"></i>
+        <!-- FOOTER -->
 
-          <div>
+        {% include 'footer.html' %}
 
-            <h5>Envío gratis</h5>
-
-            <p>Pedidos mayores a $150.000</p>
-
-          </div>
-
-        </div>
-
-        <div class="feature">
-
-          <i class="fa-solid fa-shield"></i>
-
-          <div>
-
-            <h5>Devolución fácil</h5>
-
-            <p>Garantía de 60 días</p>
-
-          </div>
-
-        </div>
-
-        <div class="feature">
-
-          <i class="fa-solid fa-award"></i>
-
-          <div>
-
-            <h5>Productos premium</h5>
-
-            <p>Calidad garantizada</p>
-
-          </div>
-
-        </div>
-
-      </div>
-
-    </div>
-
-    <!-- RIGHT -->
-
-    <div class="hero-image">
-
-      <!-- RECUADRO -->
-
-      <div class="background-card"></div>
-
-      <!-- IMAGEN -->
-
-      <img
-        src="{{ url_for('static', filename='img/ropa.png') }}"
-        alt="ropa"
-        class="product-image"
-      >
-
-    </div>
-
-  </section>
-
-  <!-- FOOTER -->
-
-  {% include 'footer.html' %}
-
-  <script src="script.js"></script>
-
-</body>
-
+        <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    </body>
 </html>

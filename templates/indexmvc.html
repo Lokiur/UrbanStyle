@@ -1,171 +1,184 @@
-{% extends './base.html' %}
+<!doctype html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Admin Panel</title>
 
-<title>{%block title%} Modelo Vista Controlador UrbanStyle {%endblock%}</title>
+        <!-- TU CSS PRINCIPAL -->
+        <link
+            rel="stylesheet"
+            href="{{ url_for('static', filename='css/style.css') }}"
+        />
 
-{%block body%}
+        <!-- CSS EXTRA CRUD -->
+        <link
+            rel="stylesheet"
+            href="{{ url_for('static', filename='css/admin.css') }}"
+        />
+    </head>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ModeloVistaControlador</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3" crossorigin="anonymous"></script>
+    <body>
+        <header class="navbar">
+            <div class="logo">UrbanStyle Admin</div>
 
-</head>
-<div class="app-brand demo">
-    <a href="{{ url_for('home') }}" class="app-brand-link">
-      <span class="app-brand-logo demo">
-        <img
-          src="{{ url_for('static', filename ='assets/imgs/logo.png') }}"
-          alt="Logo" />
-      </span>
-    </a>
-
-    <a
-      href="javascript:void(0);"
-      class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
-      <i class="bx bx-chevron-left bx-sm align-middle"></i>
-    </a>
-  </div>
-
-<body style="background-color: #f09329">
-
-    <h1 class="text-center mt-5 mb-5 text-primary" style="background-color: #f9f8fc" >EMPRESA URBANSTYLE</h1>
-
-    <nav class="navbar navbar-expand-lg bg-*" style="background-color: #0790a8e7;">
-
-    <div class="container">
-        <div class="card shadow">
-            <div class="card-body">
-
-                <nav class="navbar navbar-expand-lg bg-*" style="background-color: #d1e8ebe7;">
-
-                <form action="/usuario" method="POST" style="background-color: #45e026">
-                    <div class="row mb-3">
-                        <div class="col">
-                            <label >Nombre Usua.</label>
-                            <input type="text" class="form-control mb-3" name="username" style="background-color: #6e98f3">
-                        </div>
-                        <div class="col">
-                            <label>Nombres</label>
-                            <input type="text" class="form-control mb-3" name="name" style="background-color: #faf7f7">
-                        </div>
-                        <div class="col">
-                            <label>Apellidos</label>
-                            <input type="text" class="form-control mb-3" name="apellidos" style="background-color: #faf7f7">
-                        </div>
-                        <div class="col">
-                            <label>Contraseña</label>
-                            <input type="password" class="form-control mb-3" name="password" style="background-color: #faf7f7">
-                        </div>
-                        <div class="col">
-                            <label>Correo Eléctro.</label>
-                            <input type="text" class="form-control mb-3" name="email" style="background-color: #faf7f7">
-                        </div>
-                        <div class="col">
-                            <label>Celular</label>
-                            <input type="text" class="form-control mb-3" name="celular" style="background-color: #faf7f7">
-                        </div>
-                        <div class="col">
-                            <label>Fecha Nacimiento</label>
-                            <input type="date" class="form-control mb-3" name="fechanaci" style="background-color: #98ec9d">
-                        </div>
-                        <div class="col">
-
-                            <button class="btn btn-primary mb-3 mt-4" type="submit">Salvar</button>
-                        </div>
-                    </div>
-
-                </form>
+            <nav>
+                <a href="{{ url_for('index') }}">Tienda</a>
+                <a href="{{ url_for('admin_panel') }}">Admin</a>
+                <a href="{{ url_for('logout') }}">Salir</a>
             </nav>
+        </header>
 
+        <section class="hero" style="flex-direction: column">
+            <h1>Panel Administrativo</h1>
 
-                <!-- Tabla -->
+            <!-- ================= CREAR ================= -->
+            <form
+                action="{{ url_for('crear_usuario') }}"
+                method="POST"
+                style="
+                    display: grid;
+                    grid-template-columns: repeat(3, 1fr);
+                    gap: 15px;
+                    width: 100%;
+                    max-width: 1000px;
+                "
+            >
+                <input name="username" placeholder="Usuario" required />
+                <input name="name" placeholder="Nombre" required />
+                <input name="apellidos" placeholder="Apellidos" required />
 
-                <table class="table table-bordered">
+                <input name="usuario_email" placeholder="Email" required />
+                <input
+                    name="password"
+                    placeholder="Contraseña"
+                    type="password"
+                    required
+                />
+                <input name="celular" placeholder="Celular" />
+
+                <input type="date" name="fechanaci" />
+
+                <select name="rol">
+                    <option value="usuario">Usuario</option>
+                    <option value="admin">Admin</option>
+                </select>
+
+                <button class="primary-btn" style="grid-column: 1/4">
+                    Crear Usuario
+                </button>
+            </form>
+
+            <!-- ================= TABLA ================= -->
+            <div class="table-container">
+                <table class="admin-table">
                     <thead>
-                        <tr style="background-color: #6e26e0">
-                            <th scope="col">#</th>
-                            <th scope="col">Nombre Usuario</th>
-                            <th scope="col">Nombres</th>
-                            <th scope="col">Apellidos</th>
-                            <th scope="col">Contraseña</th>
-                            <th scope="col">Correo Eléctronico</th>
-                            <th scope="col">Celular</th>
-                            <th scope="col">Fecha Nacimiento</th>
-                            <th scope="col">Editar</th>
-                            <th scope="col">Borrar</th>
+                        <tr>
+                            <th>ID</th>
+                            <th>Usuario</th>
+                            <th>Nombre</th>
+                            <th>Email</th>
+                            <th>Rol</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
 
-                <tbody>
-                    {% for d in data %}
-                        <tr style="background-color: #bea4e9">
-                            <td>{{d.id}}</td>
-                            <td>{{d.username}}</td>
-                            <td>{{d.name}}</td>
-                            <td>{{d.apellidos}}</td>
-                            <td><!--{{d.password}}  -->********</td>
-                            <td>{{d.email}}</td>
-                            <td>{{d.celular}}</td>
-                            <td>{{d.fechanaci}}</td>
-                            <td><button class="btn btn-primary btn-sm" id="btn-edit{{d.id}}" data-bs-toggle="modal" data-bs-target="#modal{{d.id}}">Editar</button></td>
-                            <td><a href="{{url_for('delete', id=d.id)}}" class="btn btn-danger btn-sm">Borrar</a></td>
+                    <tbody>
+                        {% for u in users %}
+                        <tr>
+                            <td>{{ u.id }}</td>
+                            <td>{{ u.username }}</td>
+                            <td>{{ u.name }} {{ u.apellidos }}</td>
+                            <td>{{ u.email }}</td>
+                            <td>{{ u.rol }}</td>
+
+                            <td>
+                                <div class="action-btns">
+                                    <button
+                                        class="secondary-btn"
+                                        onclick="openModal({{ u.id }})"
+                                    >
+                                        Editar
+                                    </button>
+
+                                    <a
+                                        href="{{ url_for('delete', id=u.id) }}"
+                                        style="color: #ff4d4d"
+                                    >
+                                        Eliminar
+                                    </a>
+                                </div>
+                            </td>
                         </tr>
 
-                        <!-- modal -->
+                        <!-- ================= MODAL ================= -->
+                        <div class="modal" id="modal-{{ u.id }}">
+                            <div class="modal-content">
+                                <h3>Editar Usuario</h3>
 
-                        <div class="modal fade" id="modal{{d.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                            <div class="modal-dialog">
-                              <div class="modal-content">
-                                <div class="modal-header">
-                                  <h1 class="modal-title fs-5" id="exampleModalLabel" style="background-color: #c0ee54">{{d.username}}</h1>
-                                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body" style="background-color: #8cee54"  >
-                                    <form action="/edit/{{d.id}}" method="post" >
-                                        <label>Nombre del Usuario</label>
-                                        <input type="text" class="form-control mb-3" name="username" value="{{d.username}}">
-                                        <label>Nombres</label>
-                                        <input type="text" class="form-control mb-3" name="name" value="{{d.name}}">
-                                        <label>Apellidos</label>
-                                        <input type="text" class="form-control mb-3" name="apellidos" value="{{d.apellidos}}">
-                                        <label>Contraseña</label>
-                                        <input type="password" class="form-control mb-3" name="password" value="{{d.password}}">
-                                        <label>Correo Eléctronico</label>
-                                        <input type="text" class="form-control mb-3" name="usuario_email" value="{{d.email}}">
-                                        <label>Celular</label>
-                                        <input type="text" class="form-control mb-3" name="celular" value="{{d.celular}}">
-                                        <label>Fecha Nacimiento</label>
-                                        <input type="date" class="form-control mb-3" name="fechanaci" value="{{d.fechanaci}}">
+                                <form
+                                    action="{{ url_for('edit', id=u.id) }}"
+                                    method="POST"
+                                >
+                                    <input
+                                        name="username"
+                                        value="{{ u.username }}"
+                                    />
+                                    <input name="name" value="{{ u.name }}" />
+                                    <input
+                                        name="apellidos"
+                                        value="{{ u.apellidos }}"
+                                    />
+                                    <input
+                                        name="usuario_email"
+                                        value="{{ u.email }}"
+                                    />
+                                    <input
+                                        name="password"
+                                        value="{{ u.password }}"
+                                    />
+                                    <input
+                                        name="celular"
+                                        value="{{ u.celular }}"
+                                    />
+                                    <input
+                                        type="date"
+                                        name="fechanaci"
+                                        value="{{ u.fechanaci }}"
+                                    />
 
-                                </div>
-                                <div class="modal-footer">
-                                  <button type="submit" class="btn btn-primary">Salvar los Cambios</button>
-                                </div>
+                                    <select name="rol">
+                                        {% if u.rol == 'admin' %}
+                                        <option value="admin" selected>
+                                            Admin
+                                        </option>
+                                        <option value="usuario">Usuario</option>
+                                        {% else %}
+                                        <option value="usuario" selected>
+                                            Usuario
+                                        </option>
+                                        <option value="admin">Admin</option>
+                                        {% endif %}
+                                    </select>
+
+                                    <button class="primary-btn">Guardar</button>
                                 </form>
-                              </div>
+
+                                <button
+                                    class="secondary-btn"
+                                    onclick="closeModal({{ u.id }})"
+                                >
+                                    Cerrar
+                                </button>
                             </div>
-                          </div>
+                        </div>
 
-
-
-
-                    {% endfor %}
-
-                </tbody>
-
-            </table>
-
-
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
-        </div>
-    </div>
+        </section>
 
-</nav>
-</body>
+        <!-- JS EXTERNO -->
+        <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+    </body>
 </html>
-{%endblock%}
