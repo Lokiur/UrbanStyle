@@ -79,13 +79,15 @@
 
                 {% else %}
 
-                <a href="{{ url_for('login') }}" class="login-btn">
-                    <i class="fa-regular fa-user"></i>
-                </a>
+      {% if 'user' not in session %}
 
-                {% endif %}
-            </div>
-        </header>
+      <a href="{{ url_for('login') }}">
+        Login
+      </a>
+
+      {% endif %}
+
+    </nav>
 
         <!-- HERO -->
 
@@ -98,8 +100,36 @@
                 <h1>
                     Ponte En Tu <br />
 
-                    <span>Mejor Versión</span>
-                </h1>
+      {% if 'user' in session %}
+
+      <div class="profile-container">
+
+        <img
+          src="{{ url_for('static', filename='img/user.png') }}"
+          class="profile-pic"
+          alt="Usuario"
+          onclick="toggleMenu()"
+        >
+
+        <div id="profileMenu" class="profile-menu">
+
+          <a href="{{ url_for('logout') }}">
+            Cerrar sesión
+          </a>
+
+        </div>
+
+      </div>
+
+      {% else %}
+
+      <a href="{{ url_for('login') }}" class="login-btn">
+        <i class="fa-regular fa-user"></i>
+      </a>
+
+      {% endif %}
+
+    </div>
 
                 <p>
                     Ropa de alta calidad diseñada para inspirar confianza y
@@ -168,6 +198,72 @@
 
         {% include 'footer.html' %}
 
-        <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-    </body>
+            <h5>Envío gratis</h5>
+
+            <p>Pedidos mayores a $150.000</p>
+
+          </div>
+
+        </div>
+
+        <div class="feature">
+
+          <i class="fa-solid fa-shield"></i>
+
+          <div>
+
+            <h5>Devolución fácil</h5>
+
+            <p>Garantía de 60 días</p>
+
+          </div>
+
+        </div>
+
+        <div class="feature">
+
+          <i class="fa-solid fa-award"></i>
+
+          <div>
+
+            <h5>Productos premium</h5>
+
+            <p>Calidad garantizada</p>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- RIGHT -->
+
+    <div class="hero-image">
+
+      <!-- RECUADRO -->
+
+      <div class="background-card"></div>
+
+      <!-- IMAGEN -->
+
+      <img
+        src="{{ url_for('static', filename='img/ropa.png') }}"
+        alt="ropa"
+        class="product-image"
+      >
+
+    </div>
+
+  </section>
+
+  <!-- FOOTER -->
+
+  {% include 'footer.html' %}
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+</body>
+
 </html>
