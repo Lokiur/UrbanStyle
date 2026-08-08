@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Carrito | UrbanStyle</title>
+
+  <!-- CSS -->
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/variables.css') }}"
+  >
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/style.css') }}"
+  >
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/carrito.css') }}"
+  >
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/footer.css') }}"
+  >
+
+  <!-- FONT AWESOME -->
+
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+  />
+
+  <link
+    rel="shortcut icon"
+    href="{{ url_for('static', filename='img/urbanstyle.png') }}"
+    type="image/x-icon"
+  />
+
+</head>
+
+<body>
+
+  {% include 'header.html' %}
+
+  <!-- CARRITO -->
+
+  <section class="carrito">
+
+    <div class="section-title">
+
+      <span>TU COMPRA</span>
+
+      <h2>Carrito de Compras</h2>
+
+    </div>
+
+    {% if items %}
+
+    <div class="carrito-grid">
+
+      <div class="carrito-list">
+
+        {% for item in items %}
+
+        <div class="carrito-item">
+
+          <img
+            src="{{ url_for('static', filename='img/' ~ (item.imagen or 'urbanstyle.png')) }}"
+            alt="{{ item.producto_nombre }}"
+          >
+
+          <div class="carrito-item-info">
+            <h4>{{ item.producto_nombre }}</h4>
+            <p>Talla {{ item.talla }} · Color {{ item.color }}</p>
+            <span class="carrito-item-precio">$ {{ "{:,.0f}".format(item.precio) }}</span>
+          </div>
+
+          <div class="qty-control">
+            <form method="POST" action="{{ url_for('carrito_restar', detalle_id=item.detalle_id) }}">
+              <button type="submit" aria-label="Restar uno">−</button>
+            </form>
+
+            <span class="qty">{{ item.cantidad }}</span>
+
+            <form method="POST" action="{{ url_for('carrito_sumar', detalle_id=item.detalle_id) }}">
+              <button type="submit" aria-label="Sumar uno">+</button>
+            </form>
+          </div>
+
+          <div class="carrito-item-subtotal">
+            $ {{ "{:,.0f}".format(item.subtotal) }}
+          </div>
+
+          <form method="POST" action="{{ url_for('carrito_eliminar', detalle_id=item.detalle_id) }}">
+            <button type="submit" class="remove-btn" aria-label="Eliminar producto">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </form>
+
+        </div>
+
+        {% endfor %}
+
+      </div>
+
+      <div class="carrito-summary">
+
+        <h3>Resumen</h3>
+
+        <div class="summary-row">
+          <span>Subtotal</span>
+          <span>$ {{ "{:,.0f}".format(total) }}</span>
+        </div>
+
+        <p class="summary-note">
+          El envío y los impuestos se calculan al finalizar la compra.
+        </p>
+
+        <button type="button" class="primary-btn checkout-btn" disabled>
+          Finalizar compra (próximamente)
+        </button>
+
+        <a href="{{ url_for('products') }}" class="continue-link">
+          Seguir comprando
+        </a>
+
+      </div>
+
+    </div>
+
+    {% else %}
+
+    <div class="carrito-empty">
+      <i class="fa-solid fa-bag-shopping"></i>
+      <p>Tu carrito está vacío.</p>
+      <a href="{{ url_for('products') }}" class="primary-btn">Ver productos</a>
+    </div>
+
+    {% endif %}
+
+  </section>
+
+  <!-- FOOTER -->
+
+  {% include 'footer.html' %}
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+</body>
+
+</html>

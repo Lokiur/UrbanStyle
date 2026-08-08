@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Mis Pedidos | UrbanStyle</title>
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/variables.css') }}"
+  >
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/style.css') }}"
+  >
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/admin.css') }}"
+  >
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/footer.css') }}"
+  >
+
+  <link
+    rel="shortcut icon"
+    href="{{ url_for('static', filename='img/urbanstyle.png') }}"
+    type="image/x-icon"
+  />
+
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+  />
+
+</head>
+
+<body>
+
+  {% include 'header.html' %}
+
+  <section class="hero" style="flex-direction: column">
+
+    <h1>Mis Pedidos</h1>
+
+    <div class="table-container">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>N° Factura</th>
+            <th>Fecha</th>
+            <th>Subtotal</th>
+            <th>IVA</th>
+            <th>Envío</th>
+            <th>Total</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for p in pedidos %}
+          <tr>
+            <td>{{ p.numero_factura }}</td>
+            <td>{{ p.fecha }}</td>
+            <td>$ {{ p.subtotal }}</td>
+            <td>$ {{ p.iva }}</td>
+            <td>$ {{ p.envio }}</td>
+            <td>$ {{ p.total }}</td>
+            <td>{{ p.estado }}</td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="7">Aún no tienes pedidos.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+  </section>
+
+  {% include 'footer.html' %}
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+</body>
+
+</html>

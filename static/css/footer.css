@@ -3,7 +3,7 @@
 .footer{
   padding:100px 80px 40px;
 
-  background:#020617;
+  background:var(--color-bg-darker);
 
   border-top:1px solid rgba(255,255,255,.08);
 }
@@ -46,7 +46,7 @@
 
 .footer ul li a:hover{
   opacity:1;
-  color:#4da3ff;
+  color:var(--color-accent);
 }
 
 .social-icons{
@@ -62,7 +62,7 @@
 }
 
 .social-icons i:hover{
-  color:#4da3ff;
+  color:var(--color-accent);
 }
 
 .footer-bottom{

@@ -8,6 +8,10 @@
         <!-- CSS -->
         <link
             rel="stylesheet"
+            href="{{ url_for('static', filename='css/variables.css') }}"
+        />
+        <link
+            rel="stylesheet"
             href="{{ url_for('static', filename='css/style.css') }}"
         />
         <link
@@ -20,55 +24,18 @@
             rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
         />
+
+        <!-- Favicon -->
+        <link
+            rel="shortcut icon"
+            href="{{ url_for('static', filename='img/urbanstyle.png') }}"
+            type="image/x-icon"
+        />
     </head>
 
     <body>
         <!-- ================= NAVBAR ================= -->
-        <header class="navbar">
-            <div class="logo">
-                <i class="fa-solid fa-bolt"></i>
-                <span>UrbanStyle</span>
-            </div>
-
-            <nav>
-                <a href="{{ url_for('index') }}">Tienda</a>
-                <a href="{{ url_for('categories') }}">Categorías</a>
-                <a href="{{ url_for('products') }}">Nuevo</a>
-                <a href="{{ url_for('offers') }}">Ofertas</a>
-                <a href="{{ url_for('about') }}">Sobre Nosotros</a>
-
-                {% if session.get('rol') == 'admin' %}
-                <a href="{{ url_for('admin_panel') }}">Admin</a>
-                {% endif %} {% if 'user' not in session %}
-                <a href="{{ url_for('login') }}">Login</a>
-                {% endif %}
-            </nav>
-
-            <div class="icons">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <i class="fa-regular fa-heart"></i>
-                <i class="fa-solid fa-bag-shopping"></i>
-
-                {% if 'user' in session %}
-                <div class="profile-container">
-                    <img
-                        src="{{ url_for('static', filename='img/user.png') }}"
-                        class="profile-pic"
-                        onclick="toggleMenu()"
-                        alt="Usuario"
-                    />
-
-                    <div id="profileMenu" class="profile-menu">
-                        <a href="{{ url_for('logout') }}">Cerrar sesión</a>
-                    </div>
-                </div>
-                {% else %}
-                <a href="{{ url_for('login') }}" class="login-btn">
-                    <i class="fa-regular fa-user"></i>
-                </a>
-                {% endif %}
-            </div>
-        </header>
+        {% include 'header.html' %}
 
         <!-- ================= HERO ================= -->
         <section class="hero">

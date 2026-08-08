@@ -1,28 +1,158 @@
-{% extends './base.html' %}
+<!DOCTYPE html>
+<html lang="es">
 
-<title>{%block title%} Contacto {%endblock%}</title>
+<head>
 
-{%block body%}
-<div class="row">
-<div class="col-md-6 offset-md-3">
-    <hl> Contactos </hl>
-    <form class="row g-3">
-        <div class="col-auto">
-          <label for="staticEmail2" class="visually-hidden">Email</label>
-          <input type="text" readonly class="form-control-plaintext" id="staticEmail2" value="email@example.com">
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Contacto | UrbanStyle</title>
+
+  <!-- CSS -->
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/variables.css') }}"
+  >
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/style.css') }}"
+  >
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/contacto.css') }}"
+  >
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/footer.css') }}"
+  >
+
+  <!-- FONT AWESOME -->
+
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+  />
+
+  <link
+    rel="shortcut icon"
+    href="{{ url_for('static', filename='img/urbanstyle.png') }}"
+    type="image/x-icon"
+  />
+
+</head>
+
+<body>
+
+  <!-- NAVBAR -->
+
+  {% include 'header.html' %}
+
+  <!-- CONTACTO -->
+
+  <section class="contacto">
+
+    <div class="section-title">
+
+      <span>CONTACTO</span>
+
+      <h2>Hablemos</h2>
+
+      <p>
+        ¿Tienes dudas sobre un pedido o quieres contarnos algo?
+        Escríbenos, te respondemos lo antes posible.
+      </p>
+
+    </div>
+
+    <div class="contacto-grid">
+
+      <!-- INFO -->
+
+      <div class="contacto-info">
+
+        <div class="info-card">
+          <i class="fa-solid fa-location-dot"></i>
+          <div>
+            <h5>Dirección</h5>
+            <p>Cra 45 #12-34, Medellín, Colombia</p>
+          </div>
         </div>
-        <div class="col-auto">
-          <label for="inputPassword2" class="visually-hidden">Password</label>
-          <input type="password" class="form-control" id="inputPassword2" placeholder="Password">
+
+        <div class="info-card">
+          <i class="fa-solid fa-phone"></i>
+          <div>
+            <h5>Teléfono</h5>
+            <p>+57 300 123 4567</p>
+          </div>
         </div>
-        <div class="col-auto">
-          <button type="submit" class="btn btn-primary mb-3">Confirm identity</button>
+
+        <div class="info-card">
+          <i class="fa-solid fa-envelope"></i>
+          <div>
+            <h5>Correo</h5>
+            <p>contacto@urbanstyle.com</p>
+          </div>
         </div>
+
+        <div class="info-card">
+          <i class="fa-solid fa-clock"></i>
+          <div>
+            <h5>Horario</h5>
+            <p>Lunes a sábado, 9:00 am - 6:00 pm</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- FORM -->
+
+      <form class="contacto-form" id="contactoForm">
+
+        <input type="text" placeholder="Nombre" required>
+
+        <input type="email" placeholder="Correo electrónico" required>
+
+        <textarea rows="5" placeholder="Cuéntanos en qué te ayudamos" required></textarea>
+
+        <button type="submit">Enviar mensaje</button>
+
+        <p class="form-success" id="contactoSuccess">
+          ¡Gracias! Tu mensaje fue enviado, te responderemos pronto.
+        </p>
+
       </form>
-        
-</div>
 
-</div>
+    </div>
 
+  </section>
 
-{%endblock%}
+  <!-- FOOTER -->
+
+  {% include 'footer.html' %}
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+  <script>
+    const contactoForm = document.getElementById("contactoForm");
+    const contactoSuccess = document.getElementById("contactoSuccess");
+
+    if (contactoForm) {
+      contactoForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+        contactoSuccess.classList.add("visible");
+        contactoForm.reset();
+      });
+    }
+  </script>
+
+</body>
+
+</html>

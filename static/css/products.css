@@ -66,9 +66,64 @@
   font-size:28px;
   font-weight:bold;
 
-  color:#4da3ff;
+  color:var(--color-accent);
 
   margin-bottom:20px;
+}
+
+/* SELECTOR DE TALLAS */
+
+.size-selector{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+
+  margin-bottom:18px;
+}
+
+.size-selector input[type="radio"]{
+  position:absolute;
+  opacity:0;
+  pointer-events:none;
+}
+
+.size-selector label{
+  min-width:40px;
+
+  padding:8px 12px;
+
+  border:1px solid rgba(255,255,255,.15);
+  border-radius:8px;
+
+  font-size:13px;
+  font-weight:bold;
+  text-align:center;
+
+  cursor:pointer;
+  user-select:none;
+
+  transition:.2s;
+}
+
+.size-selector label:hover{
+  border-color:var(--color-accent);
+}
+
+.size-selector input[type="radio"]:checked + label{
+  background:var(--color-accent);
+  border-color:var(--color-accent);
+  color:white;
+}
+
+.size-selector input[type="radio"]:focus-visible + label{
+  outline:2px solid var(--color-accent);
+  outline-offset:2px;
+}
+
+.size-selector label.out-of-stock{
+  opacity:.35;
+  text-decoration:line-through;
+  cursor:not-allowed;
 }
 
 .product-info button{
@@ -79,7 +134,7 @@
   border:none;
   border-radius:50px;
 
-  background:#4da3ff;
+  background:var(--color-accent);
 
   color:white;
 
@@ -89,5 +144,23 @@
 }
 
 .product-info button:hover{
-  background:#2563eb;
+  background:var(--color-accent-dark);
+}
+
+.product-info form{
+  width:100%;
+}
+
+.product-info button:disabled{
+  opacity:.4;
+  cursor:not-allowed;
+}
+
+.no-results{
+  text-align:center;
+
+  opacity:.7;
+  font-size:18px;
+
+  margin-top:40px;
 }

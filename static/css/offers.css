@@ -15,7 +15,7 @@
 }
 
 .offers-content span{
-  color:#4da3ff;
+  color:var(--color-accent);
   font-weight:bold;
   letter-spacing:2px;
 }
@@ -32,19 +32,30 @@
   margin-bottom:35px;
 }
 
-.offers-content button{
+.offers-content .cta-btn{
+  display:inline-block;
+
   padding:20px 40px;
 
   border:none;
   border-radius:50px;
 
-  background:#4da3ff;
+  background:var(--color-accent);
 
   color:white;
+  text-decoration:none;
 
   font-size:18px;
+  font-weight:bold;
 
   cursor:pointer;
+
+  transition:.3s;
+}
+
+.offers-content .cta-btn:hover{
+  background:var(--color-accent-dark);
+  transform:scale(1.03);
 }
 
 .offers-image{

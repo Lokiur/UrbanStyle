@@ -16,6 +16,11 @@
 
   <link
     rel="stylesheet"
+    href="{{ url_for('static', filename='css/variables.css') }}"
+  >
+
+  <link
+    rel="stylesheet"
     href="{{ url_for('static', filename='css/style.css') }}"
   >
 
@@ -36,51 +41,19 @@
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
   />
 
+  <link
+    rel="shortcut icon"
+    href="{{ url_for('static', filename='img/urbanstyle.png') }}"
+    type="image/x-icon"
+  />
+
 </head>
 
 <body>
 
   <!-- NAVBAR -->
 
-  <header class="navbar">
-
-    <div class="logo">
-
-      <i class="fa-solid fa-bolt"></i>
-
-      <span>UrbanStyle</span>
-
-    </div>
-
-    <nav>
-
-      <a href="{{ url_for('index') }}">
-        Tienda
-      </a>
-
-      <a href="{{ url_for('categories') }}">
-        Categorías
-      </a>
-
-      <a href="{{ url_for('products') }}">
-        Nuevo
-      </a>
-
-      <a href="{{ url_for('offers') }}">
-        Ofertas
-      </a>
-
-      <a href="{{ url_for('about') }}">
-        Sobre Nosotros
-      </a>
-
-      <a href="{{ url_for('login') }}">
-        Login
-      </a>
-
-    </nav>
-
-  </header>
+  {% include 'header.html' %}
 
   <!-- CATEGORIES -->
 
@@ -203,6 +176,8 @@
   <!-- FOOTER -->
 
   {% include 'footer.html' %}
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 
 </body>
 

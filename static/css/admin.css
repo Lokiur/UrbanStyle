@@ -37,7 +37,7 @@
 }
 
 .modal-content {
-    background: #0f172a;
+    background: var(--color-bg-dark);
     padding: 25px;
     border-radius: 15px;
     width: 420px;

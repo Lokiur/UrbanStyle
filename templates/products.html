@@ -14,6 +14,11 @@
 
   <link
     rel="stylesheet"
+    href="{{ url_for('static', filename='css/variables.css') }}"
+  >
+
+  <link
+    rel="stylesheet"
     href="{{ url_for('static', filename='css/style.css') }}"
   >
 
@@ -32,45 +37,17 @@
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
   />
 
+  <link
+    rel="shortcut icon"
+    href="{{ url_for('static', filename='img/urbanstyle.png') }}"
+    type="image/x-icon"
+  />
+
 </head>
 
 <body>
 
-<header class="navbar">
-
-  <div class="logo">
-
-    <i class="fa-solid fa-bolt"></i>
-
-    <span>UrbanStyle</span>
-
-  </div>
-
-  <nav>
-
-    <a href="{{ url_for('index') }}">
-      Tienda
-    </a>
-
-    <a href="{{ url_for('categories') }}">
-      Categorías
-    </a>
-
-    <a href="{{ url_for('products') }}">
-      Nuevo
-    </a>
-
-    <a href="{{ url_for('offers') }}">
-      Ofertas
-    </a>
-
-    <a href="{{ url_for('about') }}">
-      Sobre Nosotros
-    </a>
-
-  </nav>
-
-</header>
+{% include 'header.html' %}
 
 <section class="products">
 
@@ -78,7 +55,11 @@
 
     <span>PRODUCTOS</span>
 
+    {% if query %}
+    <h2>Resultados para "{{ query }}"</h2>
+    {% else %}
     <h2>Nuestra Colección</h2>
+    {% endif %}
 
   </div>
 
@@ -87,6 +68,13 @@
     {% for producto in productos %}
 
     <div class="product-card">
+
+      <div class="product-image">
+        <img
+          src="{{ url_for('static', filename='img/' ~ (producto.imagen or 'urbanstyle.png')) }}"
+          alt="{{ producto.nombre }}"
+        >
+      </div>
 
       <div class="product-info">
 
@@ -99,14 +87,50 @@
         </p>
 
         <div class="price">
-
-          $ {{ producto.precio }}
-
+          {% if producto.precio_desde %}
+          $ {{ "{:,.0f}".format(producto.precio_desde) }}
+          {% else %}
+          Precio no disponible
+          {% endif %}
         </div>
 
-        <button>
-          Agregar al carrito
+        {% if producto.stock_total and producto.stock_total > 0 %}
+        <form method="POST" action="{{ url_for('carrito_agregar', producto_id=producto.id) }}">
+
+          <div class="size-selector">
+            {% set ns = namespace(marcada=false) %}
+            {% for t in producto.tallas %}
+            <input
+              type="radio"
+              name="existencia_id"
+              id="talla-{{ producto.id }}-{{ t.talla_id }}"
+              value="{{ t.existencia_id }}"
+              data-precio="{{ t.precio }}"
+              {% if t.stock <= 0 %}
+              disabled
+              {% elif not ns.marcada %}
+              checked
+              {% set ns.marcada = true %}
+              {% endif %}
+            >
+            <label
+              for="talla-{{ producto.id }}-{{ t.talla_id }}"
+              class="{{ 'out-of-stock' if t.stock <= 0 }}"
+            >
+              {{ t.nombre }}
+            </label>
+            {% endfor %}
+          </div>
+
+          <button type="submit">
+            Agregar al carrito
+          </button>
+        </form>
+        {% else %}
+        <button type="button" disabled>
+          Agotado
         </button>
+        {% endif %}
 
       </div>
 
@@ -116,9 +140,17 @@
 
   </div>
 
+  {% if query and not productos %}
+  <p class="no-results">
+    No encontramos productos que coincidan con "{{ query }}".
+  </p>
+  {% endif %}
+
 </section>
 
 {% include 'footer.html' %}
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
 
 </body>
 

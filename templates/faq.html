@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Preguntas Frecuentes | UrbanStyle</title>
+
+  <!-- CSS -->
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/variables.css') }}"
+  >
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/style.css') }}"
+  >
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/faq.css') }}"
+  >
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/footer.css') }}"
+  >
+
+  <!-- FONT AWESOME -->
+
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+  />
+
+  <link
+    rel="shortcut icon"
+    href="{{ url_for('static', filename='img/urbanstyle.png') }}"
+    type="image/x-icon"
+  />
+
+</head>
+
+<body>
+
+  <!-- NAVBAR -->
+
+  {% include 'header.html' %}
+
+  <!-- FAQ -->
+
+  <section class="faq">
+
+    <div class="section-title">
+
+      <span>AYUDA</span>
+
+      <h2>Preguntas Frecuentes</h2>
+
+      <p>
+        Resolvemos las dudas más comunes sobre pedidos, envíos y devoluciones
+      </p>
+
+    </div>
+
+    <div class="faq-list">
+
+      <details class="faq-item" open>
+        <summary>
+          ¿Cuánto tarda el envío de mi pedido?
+          <i class="fa-solid fa-chevron-down"></i>
+        </summary>
+        <p>
+          Los tiempos de entrega varían entre 2 y 5 días hábiles según la
+          ciudad de destino. Además, los pedidos superiores a $150.000
+          tienen envío gratis.
+        </p>
+      </details>
+
+      <details class="faq-item">
+        <summary>
+          ¿Puedo cambiar o devolver una prenda?
+          <i class="fa-solid fa-chevron-down"></i>
+        </summary>
+        <p>
+          Sí, cuentas con una garantía de devolución de 60 días desde la
+          fecha de compra. La prenda debe estar en su estado original,
+          sin uso y con las etiquetas puestas.
+        </p>
+      </details>
+
+      <details class="faq-item">
+        <summary>
+          ¿Qué métodos de pago aceptan?
+          <i class="fa-solid fa-chevron-down"></i>
+        </summary>
+        <p>
+          Aceptamos tarjeta de crédito, tarjeta de débito, PSE, Nequi,
+          Daviplata y pago contra entrega en efectivo.
+        </p>
+      </details>
+
+      <details class="faq-item">
+        <summary>
+          ¿Cómo sé cuál es mi talla?
+          <i class="fa-solid fa-chevron-down"></i>
+        </summary>
+        <p>
+          Cada producto muestra las tallas disponibles (XS a XL) según su
+          stock. Si tienes dudas entre dos tallas, te recomendamos elegir la
+          más grande para un ajuste más cómodo.
+        </p>
+      </details>
+
+      <details class="faq-item">
+        <summary>
+          ¿Cómo hago seguimiento a mi pedido?
+          <i class="fa-solid fa-chevron-down"></i>
+        </summary>
+        <p>
+          Inicia sesión y entra a la sección "Mis pedidos" desde tu perfil
+          para ver el estado y el número de guía de cada envío.
+        </p>
+      </details>
+
+      <details class="faq-item">
+        <summary>
+          ¿Tienen tienda física?
+          <i class="fa-solid fa-chevron-down"></i>
+        </summary>
+        <p>
+          Por ahora UrbanStyle opera 100% en línea, lo que nos permite
+          ofrecerte mejores precios y despachar a todo el país.
+        </p>
+      </details>
+
+    </div>
+
+  </section>
+
+  <!-- FOOTER -->
+
+  {% include 'footer.html' %}
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+</body>
+
+</html>
