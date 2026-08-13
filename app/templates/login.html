@@ -150,7 +150,7 @@
 
                 ¿No tienes cuenta?
 
-                <a href="{{ url_for('register') }}">
+                <a href="{{ url_for('auth.register') }}">
                     Registrarse
                 </a>
 
@@ -162,7 +162,7 @@
 
                 ¿Olvidaste tu contraseña?
 
-                <a href="{{ url_for('recuperar') }}">
+                <a href="{{ url_for('auth.recuperar') }}">
                     Click Aquí
                 </a>
 
@@ -172,7 +172,7 @@
 
             <div class="logout">
 
-                <a href="{{ url_for('logout') }}">
+                <a href="{{ url_for('auth.logout') }}">
 
                     <i class="bi bi-arrow-clockwise"></i>
 

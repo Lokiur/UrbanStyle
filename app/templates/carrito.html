@@ -87,13 +87,13 @@
           </div>
 
           <div class="qty-control">
-            <form method="POST" action="{{ url_for('carrito_restar', detalle_id=item.detalle_id) }}">
+            <form method="POST" action="{{ url_for('carrito.restar', detalle_id=item.detalle_id) }}">
               <button type="submit" aria-label="Restar uno">−</button>
             </form>
 
             <span class="qty">{{ item.cantidad }}</span>
 
-            <form method="POST" action="{{ url_for('carrito_sumar', detalle_id=item.detalle_id) }}">
+            <form method="POST" action="{{ url_for('carrito.sumar', detalle_id=item.detalle_id) }}">
               <button type="submit" aria-label="Sumar uno">+</button>
             </form>
           </div>
@@ -102,7 +102,7 @@
             $ {{ "{:,.0f}".format(item.subtotal) }}
           </div>
 
-          <form method="POST" action="{{ url_for('carrito_eliminar', detalle_id=item.detalle_id) }}">
+          <form method="POST" action="{{ url_for('carrito.eliminar', detalle_id=item.detalle_id) }}">
             <button type="submit" class="remove-btn" aria-label="Eliminar producto">
               <i class="fa-solid fa-trash"></i>
             </button>
@@ -131,7 +131,7 @@
           Finalizar compra (próximamente)
         </button>
 
-        <a href="{{ url_for('products') }}" class="continue-link">
+        <a href="{{ url_for('productos.products') }}" class="continue-link">
           Seguir comprando
         </a>
 
@@ -144,7 +144,7 @@
     <div class="carrito-empty">
       <i class="fa-solid fa-bag-shopping"></i>
       <p>Tu carrito está vacío.</p>
-      <a href="{{ url_for('products') }}" class="primary-btn">Ver productos</a>
+      <a href="{{ url_for('productos.products') }}" class="primary-btn">Ver productos</a>
     </div>
 
     {% endif %}

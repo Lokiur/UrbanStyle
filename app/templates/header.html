@@ -21,18 +21,18 @@
   </button>
 
   <nav id="mainNav">
-    <a href="{{ url_for('index') }}">Tienda</a>
-    <a href="{{ url_for('categories') }}">Categorías</a>
-    <a href="{{ url_for('products') }}">Nuevo</a>
-    <a href="{{ url_for('offers') }}">Ofertas</a>
-    <a href="{{ url_for('about') }}">Sobre Nosotros</a>
+    <a href="{{ url_for('home.index') }}">Tienda</a>
+    <a href="{{ url_for('productos.categories') }}">Categorías</a>
+    <a href="{{ url_for('productos.products') }}">Nuevo</a>
+    <a href="{{ url_for('home.offers') }}">Ofertas</a>
+    <a href="{{ url_for('home.about') }}">Sobre Nosotros</a>
 
     {% if session.get('rol') == 'admin' %}
-    <a href="{{ url_for('admin_panel') }}">Admin</a>
+    <a href="{{ url_for('admin.admin_panel') }}">Admin</a>
     {% endif %}
 
     {% if 'user' not in session %}
-    <a href="{{ url_for('login') }}">Login</a>
+    <a href="{{ url_for('auth.login') }}">Login</a>
     {% endif %}
   </nav>
 
@@ -49,7 +49,7 @@
         <i class="fa-solid fa-magnifying-glass"></i>
       </button>
 
-      <form class="search-box" id="searchBox" action="{{ url_for('buscar') }}" method="get">
+      <form class="search-box" id="searchBox" action="{{ url_for('productos.buscar') }}" method="get">
         <input
           type="text"
           name="q"
@@ -60,7 +60,7 @@
       </form>
     </div>
 
-    <a href="{{ url_for('ver_carrito') }}" class="icon-btn cart-btn" aria-label="Carrito">
+    <a href="{{ url_for('carrito.ver') }}" class="icon-btn cart-btn" aria-label="Carrito">
       <i class="fa-solid fa-bag-shopping"></i>
       {% if carrito_count %}
       <span class="cart-badge">{{ carrito_count }}</span>
@@ -77,13 +77,13 @@
       />
 
       <div id="profileMenu" class="profile-menu">
-        <a href="{{ url_for('perfil') }}">Mi perfil</a>
-        <a href="{{ url_for('mis_pedidos') }}">Mis pedidos</a>
-        <a href="{{ url_for('logout') }}">Cerrar sesión</a>
+        <a href="{{ url_for('usuario.perfil') }}">Mi perfil</a>
+        <a href="{{ url_for('usuario.mis_pedidos') }}">Mis pedidos</a>
+        <a href="{{ url_for('auth.logout') }}">Cerrar sesión</a>
       </div>
     </div>
     {% else %}
-    <a href="{{ url_for('login') }}" class="login-btn">
+    <a href="{{ url_for('auth.login') }}" class="login-btn">
       <i class="fa-regular fa-user"></i>
     </a>
     {% endif %}

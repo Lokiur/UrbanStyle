@@ -39,7 +39,7 @@
 
             <div class="logo">
 
-                <a href="{{ url_for('index') }}">
+                <a href="{{ url_for('home.index') }}">
 
                     <img
                         src="{{ url_for('static', filename='img/urbanstyle.png') }}"
@@ -56,7 +56,7 @@
 
             <!-- FORMULARIO -->
 
-            <form action="{{ url_for('recuperar') }}" method="POST">
+            <form action="{{ url_for('auth.recuperar') }}" method="POST">
 
                 <div class="input">
 
@@ -157,7 +157,7 @@
 
                 ¿Ya recordaste tu contraseña?
 
-                <a href="{{ url_for('login') }}">
+                <a href="{{ url_for('auth.login') }}">
                     Iniciar sesión
                 </a>
 

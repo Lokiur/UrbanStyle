@@ -95,7 +95,7 @@
         </div>
 
         {% if producto.stock_total and producto.stock_total > 0 %}
-        <form method="POST" action="{{ url_for('carrito_agregar', producto_id=producto.id) }}">
+        <form method="POST" action="{{ url_for('carrito.agregar', producto_id=producto.id) }}">
 
           <div class="size-selector">
             {% set ns = namespace(marcada=false) %}

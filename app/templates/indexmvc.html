@@ -38,9 +38,9 @@
             </div>
 
             <nav>
-                <a href="{{ url_for('index') }}">Tienda</a>
-                <a href="{{ url_for('admin_panel') }}">Admin</a>
-                <a href="{{ url_for('logout') }}">Salir</a>
+                <a href="{{ url_for('home.index') }}">Tienda</a>
+                <a href="{{ url_for('admin.admin_panel') }}">Admin</a>
+                <a href="{{ url_for('auth.logout') }}">Salir</a>
             </nav>
         </header>
 
@@ -49,7 +49,7 @@
 
             <!-- ================= CREAR ================= -->
             <form
-                action="{{ url_for('crear_usuario') }}"
+                action="{{ url_for('admin.crear_usuario') }}"
                 method="POST"
                 style="
                     display: grid;
@@ -117,7 +117,7 @@
                                     </button>
 
                                     <a
-                                        href="{{ url_for('delete', id=u.id) }}"
+                                        href="{{ url_for('admin.delete', id=u.id) }}"
                                         style="color: #ff4d4d"
                                     >
                                         Eliminar
@@ -132,7 +132,7 @@
                                 <h3>Editar Usuario</h3>
 
                                 <form
-                                    action="{{ url_for('edit', id=u.id) }}"
+                                    action="{{ url_for('admin.edit', id=u.id) }}"
                                     method="POST"
                                 >
                                     <input
@@ -201,7 +201,7 @@
 
             <!-- ================= CREAR PRODUCTO ================= -->
             <form
-                action="{{ url_for('crear_producto') }}"
+                action="{{ url_for('admin.crear_producto') }}"
                 method="POST"
                 style="
                     display: grid;
@@ -272,7 +272,7 @@
                                     </button>
 
                                     <a
-                                        href="{{ url_for('eliminar_producto', id=p.id) }}"
+                                        href="{{ url_for('admin.eliminar_producto', id=p.id) }}"
                                         style="color: #ff4d4d"
                                     >
                                         Eliminar
@@ -287,7 +287,7 @@
                                 <h3>Editar Producto</h3>
 
                                 <form
-                                    action="{{ url_for('editar_producto', id=p.id) }}"
+                                    action="{{ url_for('admin.editar_producto', id=p.id) }}"
                                     method="POST"
                                 >
                                     <input
