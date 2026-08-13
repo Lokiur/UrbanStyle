@@ -121,6 +121,44 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     actualizarCamposDireccion();
+
+    // Acordeón: cada sección del panel se despliega/colapsa por separado
+    const accordionItems = checkoutPanel.querySelectorAll(".checkout-accordion-item");
+
+    accordionItems.forEach(function(item) {
+        const header = item.querySelector(".checkout-accordion-header");
+        if (!header) return;
+
+        header.addEventListener("click", function() {
+            const yaActivo = item.classList.contains("active");
+
+            accordionItems.forEach(function(otro) {
+                otro.classList.remove("active");
+            });
+
+            if (!yaActivo) item.classList.add("active");
+        });
+    });
+
+    // Campos condicionales según el método de pago (tarjeta / PSE)
+    const metodoPagoSelect = document.getElementById("metodoPagoSelect");
+    const camposTarjeta = document.getElementById("camposTarjeta");
+    const camposPse = document.getElementById("camposPse");
+
+    function actualizarCamposMetodoPago() {
+        if (!metodoPagoSelect) return;
+
+        const opcion = metodoPagoSelect.options[metodoPagoSelect.selectedIndex];
+        const tipo = opcion ? opcion.dataset.tipo : null;
+
+        if (camposTarjeta) camposTarjeta.classList.toggle("active", tipo === "tarjeta");
+        if (camposPse) camposPse.classList.toggle("active", tipo === "pse");
+    }
+
+    if (metodoPagoSelect) {
+        metodoPagoSelect.addEventListener("change", actualizarCamposMetodoPago);
+        actualizarCamposMetodoPago();
+    }
 });
 
 // Actualiza el precio mostrado según la talla seleccionada

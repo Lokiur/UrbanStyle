@@ -154,62 +154,113 @@
 
       <form method="POST" action="{{ url_for('carrito.confirmar') }}" class="checkout-form">
 
-        <div class="checkout-section">
-          <h4>Resumen del pedido</h4>
+        <div class="checkout-accordion">
 
-          <div class="checkout-items">
-            {% for item in items %}
-            <div class="checkout-item">
-              <span>{{ item.cantidad }}x {{ item.producto_nombre }} <small>(Talla {{ item.talla }})</small></span>
-              <span>$ {{ "{:,.0f}".format(item.subtotal) }}</span>
+          <div class="checkout-accordion-item active">
+            <button type="button" class="checkout-accordion-header">
+              <span>Resumen del pedido</span>
+              <i class="fa-solid fa-chevron-down"></i>
+            </button>
+
+            <div class="checkout-accordion-body">
+              <div class="checkout-items">
+                {% for item in items %}
+                <div class="checkout-item">
+                  <span>{{ item.cantidad }}x {{ item.producto_nombre }} <small>(Talla {{ item.talla }})</small></span>
+                  <span>$ {{ "{:,.0f}".format(item.subtotal) }}</span>
+                </div>
+                {% endfor %}
+              </div>
             </div>
-            {% endfor %}
           </div>
-        </div>
 
-        <div class="checkout-section">
-          <h4>Dirección de envío</h4>
+          <div class="checkout-accordion-item">
+            <button type="button" class="checkout-accordion-header">
+              <span>Dirección de envío</span>
+              <i class="fa-solid fa-chevron-down"></i>
+            </button>
 
-          {% for d in direcciones %}
-          <label class="checkout-radio">
-            <input
-              type="radio"
-              name="direccion_id"
-              value="{{ d.id }}"
-              {% if loop.first %}checked{% endif %}
-            >
-            <span>{{ d.direccion }}, {{ d.ciudad }}{% if d.departamento %} ({{ d.departamento }}){% endif %}</span>
-          </label>
-          {% endfor %}
+            <div class="checkout-accordion-body">
+              {% for d in direcciones %}
+              <label class="checkout-radio">
+                <input
+                  type="radio"
+                  name="direccion_id"
+                  value="{{ d.id }}"
+                  {% if loop.first %}checked{% endif %}
+                >
+                <span>{{ d.direccion }}, {{ d.ciudad }}{% if d.departamento %} ({{ d.departamento }}){% endif %}</span>
+              </label>
+              {% endfor %}
 
-          <label class="checkout-radio">
-            <input
-              type="radio"
-              name="direccion_id"
-              value="nueva"
-              id="direccionNueva"
-              {% if not direcciones %}checked{% endif %}
-            >
-            <span>Usar una dirección nueva</span>
-          </label>
+              <label class="checkout-radio">
+                <input
+                  type="radio"
+                  name="direccion_id"
+                  value="nueva"
+                  id="direccionNueva"
+                  {% if not direcciones %}checked{% endif %}
+                >
+                <span>Usar una dirección nueva</span>
+              </label>
 
-          <div class="checkout-nueva-direccion" id="nuevaDireccionFields">
-            <input type="text" name="direccion" placeholder="Dirección">
-            <input type="text" name="ciudad" placeholder="Ciudad">
-            <input type="text" name="departamento" placeholder="Departamento (opcional)">
-            <input type="text" name="codigo_postal" placeholder="Código postal (opcional)">
+              <div class="checkout-nueva-direccion" id="nuevaDireccionFields">
+                <input type="text" name="direccion" placeholder="Dirección">
+                <input type="text" name="ciudad" placeholder="Ciudad">
+                <input type="text" name="departamento" placeholder="Departamento (opcional)">
+                <input type="text" name="codigo_postal" placeholder="Código postal (opcional)">
+              </div>
+            </div>
           </div>
-        </div>
 
-        <div class="checkout-section">
-          <h4>Método de pago</h4>
+          <div class="checkout-accordion-item">
+            <button type="button" class="checkout-accordion-header">
+              <span>Método de pago</span>
+              <i class="fa-solid fa-chevron-down"></i>
+            </button>
 
-          <select name="metodo_pago_id" required>
-            <option value="" disabled selected>Selecciona un método</option>
-            {% for m in metodos_pago %}
-            <option value="{{ m.id }}">{{ m.nombre }}</option>
-            {% endfor %}
-          </select>
+            <div class="checkout-accordion-body">
+              <select name="metodo_pago_id" id="metodoPagoSelect" required>
+                <option value="" disabled selected>Selecciona un método</option>
+                {% for m in metodos_pago %}
+                <option
+                  value="{{ m.id }}"
+                  {% if 'Tarjeta' in m.nombre %}data-tipo="tarjeta"{% elif m.nombre == 'PSE' %}data-tipo="pse"{% endif %}
+                >{{ m.nombre }}</option>
+                {% endfor %}
+              </select>
+
+              <div class="checkout-metodo-fields" id="camposTarjeta">
+                <input type="text" name="tarjeta_nombre" placeholder="Nombre en la tarjeta" autocomplete="cc-name" required>
+                <input type="text" name="tarjeta_numero" placeholder="Número de tarjeta" inputmode="numeric" maxlength="19" autocomplete="cc-number" required>
+
+                <div class="checkout-metodo-fields-row">
+                  <input type="text" name="tarjeta_vencimiento" placeholder="MM/AA" maxlength="5" autocomplete="cc-exp" required>
+                  <input type="text" name="tarjeta_cvv" placeholder="CVV" inputmode="numeric" maxlength="4" autocomplete="cc-csc" required>
+                </div>
+              </div>
+
+              <div class="checkout-metodo-fields" id="camposPse">
+                <select name="pse_banco" required>
+                  <option value="" disabled selected>Selecciona tu banco</option>
+                  <option>Bancolombia</option>
+                  <option>Banco de Bogotá</option>
+                  <option>Davivienda</option>
+                  <option>BBVA Colombia</option>
+                  <option>Banco de Occidente</option>
+                  <option>Banco Popular</option>
+                  <option>Banco Caja Social</option>
+                  <option>Scotiabank Colpatria</option>
+                </select>
+
+                <select name="pse_tipo_persona">
+                  <option value="natural" selected>Persona natural</option>
+                  <option value="juridica">Persona jurídica</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
         </div>
 
         <div class="checkout-totales">

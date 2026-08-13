@@ -283,18 +283,75 @@
   color:var(--color-accent);
 }
 
-.checkout-section{
-  margin-bottom:25px;
+/* ACORDEON */
+
+.checkout-accordion{
+  margin-bottom:15px;
+
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:14px;
+
+  overflow:hidden;
 }
 
-.checkout-section h4{
-  margin-bottom:12px;
+.checkout-accordion-item{
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
 
+.checkout-accordion-item:last-child{
+  border-bottom:none;
+}
+
+.checkout-accordion-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+
+  width:100%;
+
+  padding:16px 18px;
+
+  background:rgba(255,255,255,.03);
+  border:none;
+
+  color:var(--color-text);
   font-size:14px;
-
-  color:var(--color-accent);
+  font-weight:bold;
   letter-spacing:1px;
   text-transform:uppercase;
+  text-align:left;
+
+  cursor:pointer;
+
+  transition:.3s;
+}
+
+.checkout-accordion-header:hover{
+  color:var(--color-accent);
+}
+
+.checkout-accordion-header i{
+  font-size:13px;
+
+  transition:transform .3s;
+}
+
+.checkout-accordion-item.active .checkout-accordion-header{
+  color:var(--color-accent);
+}
+
+.checkout-accordion-item.active .checkout-accordion-header i{
+  transform:rotate(180deg);
+}
+
+.checkout-accordion-body{
+  display:none;
+
+  padding:5px 18px 20px;
+}
+
+.checkout-accordion-item.active .checkout-accordion-body{
+  display:block;
 }
 
 .checkout-items{
@@ -370,6 +427,57 @@
 
   color:var(--color-text);
   font-size:14px;
+
+  color-scheme:dark;
+}
+
+.checkout-form select option{
+  background:var(--color-bg-dark);
+  color:var(--color-text);
+}
+
+.checkout-metodo-fields{
+  display:none;
+  flex-direction:column;
+  gap:10px;
+
+  margin-top:12px;
+  padding:15px;
+
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:12px;
+}
+
+.checkout-metodo-fields.active{
+  display:flex;
+}
+
+.checkout-metodo-fields input,
+.checkout-metodo-fields select{
+  width:100%;
+
+  padding:10px 12px;
+
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:8px;
+
+  color:var(--color-text);
+  font-size:14px;
+
+  color-scheme:dark;
+}
+
+.checkout-metodo-fields select option{
+  background:var(--color-bg-dark);
+  color:var(--color-text);
+}
+
+.checkout-metodo-fields-row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
 }
 
 .checkout-totales{

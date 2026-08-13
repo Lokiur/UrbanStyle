@@ -34,7 +34,9 @@ def obtener_direcciones(user_id):
 def obtener_metodos_pago():
     conexion = conectar()
     cursor = conexion.cursor()
-    cursor.execute("SELECT * FROM metodos_pago WHERE estado='activo' ORDER BY nombre")
+    cursor.execute(
+        "SELECT * FROM metodos_pago WHERE estado='activo' AND nombre<>'Efectivo' ORDER BY nombre"
+    )
     metodos_pago = cursor.fetchall()
     conexion.close()
     return metodos_pago
