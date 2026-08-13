@@ -53,3 +53,19 @@
     border: none;
     outline: none;
 }
+
+.pedido-confirmado {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    margin-top: 20px;
+    padding: 14px 18px;
+
+    background: rgba(74, 222, 128, 0.1);
+    border: 1px solid rgba(74, 222, 128, 0.4);
+    border-radius: 12px;
+
+    color: #4ade80;
+    font-weight: bold;
+}

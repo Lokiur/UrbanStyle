@@ -53,6 +53,13 @@
 
     <h1>Mis Pedidos</h1>
 
+    {% if request.args.get('ok') %}
+    <p class="pedido-confirmado">
+      <i class="fa-solid fa-circle-check"></i>
+      ¡Tu pedido fue confirmado con éxito!
+    </p>
+    {% endif %}
+
     <div class="table-container">
       <table class="admin-table">
         <thead>

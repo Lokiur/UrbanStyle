@@ -1,6 +1,6 @@
 from flask import Blueprint, redirect, render_template, request, session, url_for
 
-from app.services import cart_service
+from app.services import cart_service, orders_service
 from app.utils.decorators import login_required
 
 carrito = Blueprint("carrito", __name__)
@@ -10,8 +10,33 @@ carrito = Blueprint("carrito", __name__)
 @login_required
 def ver():
     items = cart_service.obtener_items(session["user_id"])
-    total = sum(item["subtotal"] for item in items)
-    return render_template("carrito.html", items=items, total=total)
+    subtotal, iva, envio, total_final = orders_service.calcular_totales(items)
+
+    return render_template(
+        "carrito.html",
+        items=items,
+        total=subtotal,
+        iva=iva,
+        envio=envio,
+        total_final=total_final,
+        direcciones=orders_service.obtener_direcciones(session["user_id"]),
+        metodos_pago=orders_service.obtener_metodos_pago(),
+    )
+
+
+@carrito.route("/carrito/confirmar", methods=["POST"])
+@login_required
+def confirmar():
+    factura_id = orders_service.crear_pedido(
+        session["user_id"],
+        request.form,
+        request.form.get("metodo_pago_id", type=int),
+    )
+
+    if not factura_id:
+        return redirect(url_for("carrito.ver"))
+
+    return redirect(url_for("usuario.mis_pedidos", ok=1))
 
 
 @carrito.route("/carrito/agregar/<int:producto_id>", methods=["POST"])
