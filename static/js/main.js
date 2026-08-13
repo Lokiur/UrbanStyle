@@ -81,6 +81,48 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 
+// Panel flotante de confirmación de pedido (carrito)
+document.addEventListener("DOMContentLoaded", function() {
+    const checkoutTrigger = document.getElementById("checkoutTrigger");
+    const checkoutPanel = document.getElementById("checkoutPanel");
+    const checkoutOverlay = document.getElementById("checkoutOverlay");
+    const checkoutClose = document.getElementById("checkoutClose");
+
+    if (!checkoutTrigger || !checkoutPanel || !checkoutOverlay) return;
+
+    function abrirCheckout() {
+        checkoutPanel.classList.add("active");
+        checkoutOverlay.classList.add("active");
+        checkoutPanel.setAttribute("aria-hidden", "false");
+    }
+
+    function cerrarCheckout() {
+        checkoutPanel.classList.remove("active");
+        checkoutOverlay.classList.remove("active");
+        checkoutPanel.setAttribute("aria-hidden", "true");
+    }
+
+    checkoutTrigger.addEventListener("click", abrirCheckout);
+    checkoutOverlay.addEventListener("click", cerrarCheckout);
+    if (checkoutClose) checkoutClose.addEventListener("click", cerrarCheckout);
+
+    const direccionRadios = checkoutPanel.querySelectorAll("input[name='direccion_id']");
+    const nuevaDireccionFields = document.getElementById("nuevaDireccionFields");
+
+    function actualizarCamposDireccion() {
+        if (!nuevaDireccionFields) return;
+        const seleccionada = checkoutPanel.querySelector("input[name='direccion_id']:checked");
+        const mostrar = !seleccionada || seleccionada.value === "nueva";
+        nuevaDireccionFields.classList.toggle("active", mostrar);
+    }
+
+    direccionRadios.forEach(function(radio) {
+        radio.addEventListener("change", actualizarCamposDireccion);
+    });
+
+    actualizarCamposDireccion();
+});
+
 // Actualiza el precio mostrado según la talla seleccionada
 document.addEventListener("DOMContentLoaded", function() {
     document.querySelectorAll(".size-selector input[type='radio']").forEach(function(radio) {

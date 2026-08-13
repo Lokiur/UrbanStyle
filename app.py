@@ -1,4 +1,5 @@
 import random
+from decimal import Decimal
 from functools import wraps
 
 import pymysql
@@ -108,7 +109,7 @@ def obtener_productos(cursor, condicion="", parametros=()):
 def obtener_items_carrito(cursor, user_id):
     cursor.execute(
         """
-        SELECT dc.id AS detalle_id, dc.cantidad, e.precio,
+        SELECT dc.id AS detalle_id, dc.cantidad, e.id AS existencia_id, e.precio,
                p.id AS producto_id, p.nombre AS producto_nombre,
                t.nombre AS talla, col.nombre AS color,
                (e.precio * dc.cantidad) AS subtotal,
@@ -271,15 +272,140 @@ def buscar():
 # =========================
 
 
+ENVIO_COSTO = Decimal("12000")
+IVA_PORCENTAJE = Decimal("0.19")
+
+
 @app.route("/carrito")
 @login_required
 def ver_carrito():
     conexion = conectar()
     cursor = conexion.cursor()
     items = obtener_items_carrito(cursor, session["user_id"])
+
+    cursor.execute(
+        "SELECT * FROM direcciones WHERE user_id=%s ORDER BY principal DESC, id",
+        (session["user_id"],),
+    )
+    direcciones = cursor.fetchall()
+
+    cursor.execute(
+        "SELECT * FROM metodos_pago WHERE estado='activo' ORDER BY nombre"
+    )
+    metodos_pago = cursor.fetchall()
+
     conexion.close()
-    total = sum(item["subtotal"] for item in items)
-    return render_template("carrito.html", items=items, total=total)
+
+    subtotal = sum((item["subtotal"] for item in items), Decimal("0"))
+    iva = subtotal * IVA_PORCENTAJE
+    envio = ENVIO_COSTO if items else Decimal("0")
+    total_final = subtotal + iva + envio
+
+    return render_template(
+        "carrito.html",
+        items=items,
+        total=subtotal,
+        iva=iva,
+        envio=envio,
+        total_final=total_final,
+        direcciones=direcciones,
+        metodos_pago=metodos_pago,
+    )
+
+
+@app.route("/carrito/confirmar", methods=["POST"])
+@login_required
+def carrito_confirmar():
+    conexion = conectar()
+    cursor = conexion.cursor()
+
+    items = obtener_items_carrito(cursor, session["user_id"])
+    if not items:
+        conexion.close()
+        return redirect(url_for("ver_carrito"))
+
+    metodo_pago_id = request.form.get("metodo_pago_id", type=int)
+    direccion_raw = request.form.get("direccion_id", "")
+
+    if direccion_raw == "nueva":
+        direccion_txt = request.form.get("direccion", "").strip()
+        ciudad = request.form.get("ciudad", "").strip()
+        departamento = request.form.get("departamento", "").strip()
+        codigo_postal = request.form.get("codigo_postal", "").strip()
+
+        if not direccion_txt or not ciudad:
+            conexion.close()
+            return redirect(url_for("ver_carrito"))
+
+        # nota: la tabla `direcciones` tiene un trigger BEFORE INSERT que falla
+        # con error 1442 si se inserta con principal=1 (bug del propio trigger,
+        # reproducible incluso desde un INSERT plano fuera de esta app), por lo
+        # que las direcciones nuevas siempre se insertan con principal=0.
+        cursor.execute(
+            """
+            INSERT INTO direcciones (user_id, direccion, ciudad, departamento, codigo_postal, principal)
+            VALUES (%s, %s, %s, %s, %s, 0)
+            """,
+            (session["user_id"], direccion_txt, ciudad, departamento or None, codigo_postal or None),
+        )
+        direccion_id = cursor.lastrowid
+    else:
+        direccion_id = int(direccion_raw) if direccion_raw.isdigit() else None
+        if direccion_id:
+            cursor.execute(
+                "SELECT id FROM direcciones WHERE id=%s AND user_id=%s",
+                (direccion_id, session["user_id"]),
+            )
+            if not cursor.fetchone():
+                direccion_id = None
+
+    if not direccion_id or not metodo_pago_id:
+        conexion.close()
+        return redirect(url_for("ver_carrito"))
+
+    subtotal = sum((item["subtotal"] for item in items), Decimal("0"))
+    iva = subtotal * IVA_PORCENTAJE
+    envio = ENVIO_COSTO
+    total = subtotal + iva + envio
+
+    cursor.execute(
+        """
+        INSERT INTO facturas
+        (user_id, direccion_id, metodo_pago_id, subtotal, iva, envio, total, estado)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, 'activa')
+        """,
+        (session["user_id"], direccion_id, metodo_pago_id, subtotal, iva, envio, total),
+    )
+    factura_id = cursor.lastrowid
+
+    numero_factura = f"FAC-{factura_id:04d}"
+    cursor.execute(
+        "UPDATE facturas SET numero_factura=%s WHERE id=%s",
+        (numero_factura, factura_id),
+    )
+
+    for item in items:
+        cursor.execute(
+            """
+            INSERT INTO detalle_factura (factura_id, existencia_id, cantidad, precio_unitario, subtotal)
+            VALUES (%s, %s, %s, %s, %s)
+            """,
+            (factura_id, item["existencia_id"], item["cantidad"], item["precio"], item["subtotal"]),
+        )
+
+    cursor.execute(
+        """
+        DELETE dc FROM detalle_carrito dc
+        JOIN carrito c ON c.id = dc.carrito_id
+        WHERE c.user_id=%s
+        """,
+        (session["user_id"],),
+    )
+
+    conexion.commit()
+    conexion.close()
+
+    return redirect(url_for("mis_pedidos", ok=1))
 
 
 @app.route("/carrito/agregar/<int:producto_id>", methods=["POST"])

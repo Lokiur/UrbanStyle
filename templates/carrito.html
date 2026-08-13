@@ -127,8 +127,8 @@
           El envío y los impuestos se calculan al finalizar la compra.
         </p>
 
-        <button type="button" class="primary-btn checkout-btn" disabled>
-          Finalizar compra (próximamente)
+        <button type="button" class="primary-btn checkout-btn" id="checkoutTrigger">
+          Finalizar compra
         </button>
 
         <a href="{{ url_for('products') }}" class="continue-link">
@@ -138,6 +138,104 @@
       </div>
 
     </div>
+
+    <!-- PANEL FLOTANTE: CONFIRMAR PEDIDO -->
+
+    <div class="checkout-overlay" id="checkoutOverlay"></div>
+
+    <aside class="checkout-panel" id="checkoutPanel" aria-hidden="true">
+
+      <div class="checkout-panel-header">
+        <h3>Confirmar pedido</h3>
+        <button type="button" class="checkout-close" id="checkoutClose" aria-label="Cerrar">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form method="POST" action="{{ url_for('carrito_confirmar') }}" class="checkout-form">
+
+        <div class="checkout-section">
+          <h4>Resumen del pedido</h4>
+
+          <div class="checkout-items">
+            {% for item in items %}
+            <div class="checkout-item">
+              <span>{{ item.cantidad }}x {{ item.producto_nombre }} <small>(Talla {{ item.talla }})</small></span>
+              <span>$ {{ "{:,.0f}".format(item.subtotal) }}</span>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="checkout-section">
+          <h4>Dirección de envío</h4>
+
+          {% for d in direcciones %}
+          <label class="checkout-radio">
+            <input
+              type="radio"
+              name="direccion_id"
+              value="{{ d.id }}"
+              {% if loop.first %}checked{% endif %}
+            >
+            <span>{{ d.direccion }}, {{ d.ciudad }}{% if d.departamento %} ({{ d.departamento }}){% endif %}</span>
+          </label>
+          {% endfor %}
+
+          <label class="checkout-radio">
+            <input
+              type="radio"
+              name="direccion_id"
+              value="nueva"
+              id="direccionNueva"
+              {% if not direcciones %}checked{% endif %}
+            >
+            <span>Usar una dirección nueva</span>
+          </label>
+
+          <div class="checkout-nueva-direccion" id="nuevaDireccionFields">
+            <input type="text" name="direccion" placeholder="Dirección">
+            <input type="text" name="ciudad" placeholder="Ciudad">
+            <input type="text" name="departamento" placeholder="Departamento (opcional)">
+            <input type="text" name="codigo_postal" placeholder="Código postal (opcional)">
+          </div>
+        </div>
+
+        <div class="checkout-section">
+          <h4>Método de pago</h4>
+
+          <select name="metodo_pago_id" required>
+            <option value="" disabled selected>Selecciona un método</option>
+            {% for m in metodos_pago %}
+            <option value="{{ m.id }}">{{ m.nombre }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="checkout-totales">
+          <div class="summary-row small">
+            <span>Subtotal</span>
+            <span>$ {{ "{:,.0f}".format(total) }}</span>
+          </div>
+          <div class="summary-row small">
+            <span>IVA (19%)</span>
+            <span>$ {{ "{:,.0f}".format(iva) }}</span>
+          </div>
+          <div class="summary-row small">
+            <span>Envío</span>
+            <span>$ {{ "{:,.0f}".format(envio) }}</span>
+          </div>
+          <div class="summary-row">
+            <span>Total</span>
+            <span>$ {{ "{:,.0f}".format(total_final) }}</span>
+          </div>
+        </div>
+
+        <button type="submit" class="primary-btn">Confirmar y pagar</button>
+
+      </form>
+
+    </aside>
 
     {% else %}
 
