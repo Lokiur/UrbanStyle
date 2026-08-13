@@ -1,0 +1,93 @@
+<!-- NAVBAR -->
+
+<header class="navbar">
+
+  <div class="logo">
+    <img src="{{ url_for('static', filename='img/urbanstyle.png') }}" alt="UrbanStyle">
+    <span>UrbanStyle</span>
+  </div>
+
+  <button
+    class="nav-toggle"
+    id="navToggle"
+    type="button"
+    aria-label="Abrir menú"
+    aria-expanded="false"
+    aria-controls="mainNav"
+  >
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+
+  <nav id="mainNav">
+    <a href="{{ url_for('home.index') }}">Tienda</a>
+    <a href="{{ url_for('productos.categories') }}">Categorías</a>
+    <a href="{{ url_for('productos.products') }}">Nuevo</a>
+    <a href="{{ url_for('home.offers') }}">Ofertas</a>
+    <a href="{{ url_for('home.about') }}">Sobre Nosotros</a>
+
+    {% if session.get('rol') == 'admin' %}
+    <a href="{{ url_for('admin.admin_panel') }}">Admin</a>
+    {% endif %}
+
+    {% if 'user' not in session %}
+    <a href="{{ url_for('auth.login') }}">Login</a>
+    {% endif %}
+  </nav>
+
+  <div class="icons">
+
+    <div class="search-container">
+      <button
+        type="button"
+        class="icon-btn"
+        id="searchToggle"
+        aria-label="Buscar productos"
+        aria-expanded="false"
+      >
+        <i class="fa-solid fa-magnifying-glass"></i>
+      </button>
+
+      <form class="search-box" id="searchBox" action="{{ url_for('productos.buscar') }}" method="get">
+        <input
+          type="text"
+          name="q"
+          placeholder="Buscar productos..."
+          autocomplete="off"
+          value="{{ query or '' }}"
+        >
+      </form>
+    </div>
+
+    <a href="{{ url_for('carrito.ver') }}" class="icon-btn cart-btn" aria-label="Carrito">
+      <i class="fa-solid fa-bag-shopping"></i>
+      {% if carrito_count %}
+      <span class="cart-badge">{{ carrito_count }}</span>
+      {% endif %}
+    </a>
+
+    {% if 'user' in session %}
+    <div class="profile-container">
+      <img
+        src="{{ url_for('static', filename='img/user.png') }}"
+        class="profile-pic"
+        id="profileTrigger"
+        alt="Usuario"
+      />
+
+      <div id="profileMenu" class="profile-menu">
+        <a href="{{ url_for('usuario.perfil') }}">Mi perfil</a>
+        <a href="{{ url_for('usuario.mis_pedidos') }}">Mis pedidos</a>
+        <a href="{{ url_for('auth.logout') }}">Cerrar sesión</a>
+      </div>
+    </div>
+    {% else %}
+    <a href="{{ url_for('auth.login') }}" class="login-btn">
+      <i class="fa-regular fa-user"></i>
+    </a>
+    {% endif %}
+
+  </div>
+
+</header>
