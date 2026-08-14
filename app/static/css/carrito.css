@@ -534,6 +534,130 @@
   text-decoration:underline;
 }
 
+/* AVISO DE ERROR AL PAGAR */
+
+.checkout-error{
+  display:flex;
+  align-items:center;
+  gap:12px;
+
+  max-width:900px;
+  margin:0 auto 30px;
+  padding:14px 18px;
+
+  background:rgba(239,68,68,.12);
+  border:1px solid rgba(239,68,68,.4);
+  border-radius:12px;
+
+  color:#fca5a5;
+  font-size:14px;
+}
+
+.checkout-error i{
+  font-size:18px;
+}
+
+/* PANEL DE PAGO APROBADO */
+
+.confirm-panel{
+  text-align:center;
+}
+
+.confirm-panel .checkout-panel-header{
+  text-align:left;
+}
+
+.confirm-check{
+  margin:10px 0 20px;
+
+  color:#22c55e;
+  font-size:64px;
+
+  animation:confirm-pop .4s ease;
+}
+
+@keyframes confirm-pop{
+  from{ transform:scale(.4); opacity:0; }
+  to{ transform:scale(1); opacity:1; }
+}
+
+.confirm-mensaje{
+  margin-bottom:25px;
+
+  opacity:.75;
+  font-size:14px;
+  line-height:1.6;
+}
+
+.confirm-autorizacion{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+
+  margin-bottom:25px;
+  padding:20px;
+
+  background:rgba(77,163,255,.1);
+  border:1px dashed var(--color-accent);
+  border-radius:14px;
+}
+
+.confirm-autorizacion span{
+  opacity:.7;
+  font-size:12px;
+  letter-spacing:1px;
+  text-transform:uppercase;
+}
+
+.confirm-autorizacion strong{
+  color:var(--color-accent);
+  font-size:26px;
+  letter-spacing:2px;
+}
+
+.confirm-datos{
+  margin-bottom:25px;
+  padding-top:15px;
+
+  border-top:1px solid rgba(255,255,255,.08);
+
+  text-align:left;
+}
+
+.confirm-datos .summary-row{
+  border-bottom:none;
+  padding-bottom:8px;
+
+  font-size:15px;
+}
+
+.confirm-datos .summary-row.small{
+  font-weight:normal;
+  opacity:.75;
+
+  font-size:13px;
+}
+
+.confirm-datos .summary-row:last-child{
+  margin-top:8px;
+  padding-top:12px;
+
+  border-top:1px solid rgba(255,255,255,.08);
+
+  font-size:18px;
+}
+
+.confirm-pdf{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+
+  width:100%;
+
+  text-decoration:none;
+}
+
 /* EMPTY STATE */
 
 .carrito-empty{

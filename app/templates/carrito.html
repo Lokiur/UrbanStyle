@@ -65,6 +65,15 @@
 
     </div>
 
+    {% if error_checkout %}
+
+    <div class="checkout-error">
+      <i class="fa-solid fa-circle-exclamation"></i>
+      <span>{{ error_checkout }}</span>
+    </div>
+
+    {% endif %}
+
     {% if items %}
 
     <div class="carrito-grid">
@@ -225,10 +234,13 @@
                 {% for m in metodos_pago %}
                 <option
                   value="{{ m.id }}"
-                  {% if 'Tarjeta' in m.nombre %}data-tipo="tarjeta"{% elif m.nombre == 'PSE' %}data-tipo="pse"{% endif %}
+                  {% if 'Tarjeta' in m.nombre %}data-tipo="tarjeta"{% elif m.nombre == 'PSE' %}data-tipo="pse"{% elif m.nombre in ['Nequi', 'Daviplata'] %}data-tipo="billetera"{% endif %}
                 >{{ m.nombre }}</option>
                 {% endfor %}
               </select>
+
+              <!-- los campos ocultos pierden el `required` desde main.js,
+                   si no el navegador bloquea el envio sin poder mostrarlos -->
 
               <div class="checkout-metodo-fields" id="camposTarjeta">
                 <input type="text" name="tarjeta_nombre" placeholder="Nombre en la tarjeta" autocomplete="cc-name" required>
@@ -238,6 +250,10 @@
                   <input type="text" name="tarjeta_vencimiento" placeholder="MM/AA" maxlength="5" autocomplete="cc-exp" required>
                   <input type="text" name="tarjeta_cvv" placeholder="CVV" inputmode="numeric" maxlength="4" autocomplete="cc-csc" required>
                 </div>
+              </div>
+
+              <div class="checkout-metodo-fields" id="camposBilletera">
+                <input type="text" name="billetera_celular" placeholder="Número de celular (10 dígitos)" inputmode="numeric" maxlength="10" autocomplete="tel-national" required>
               </div>
 
               <div class="checkout-metodo-fields" id="camposPse">
@@ -282,7 +298,7 @@
           </div>
         </div>
 
-        <button type="submit" class="primary-btn">Confirmar y pagar</button>
+        <button type="submit" class="primary-btn" id="checkoutSubmit">Confirmar y pagar</button>
 
       </form>
 
@@ -295,6 +311,67 @@
       <p>Tu carrito está vacío.</p>
       <a href="{{ url_for('productos.products') }}" class="primary-btn">Ver productos</a>
     </div>
+
+    {% endif %}
+
+    <!-- PANEL FLOTANTE: PAGO APROBADO -->
+
+    {% if confirmacion %}
+
+    <div class="checkout-overlay active" id="confirmOverlay"></div>
+
+    <aside class="checkout-panel confirm-panel active" id="confirmPanel">
+
+      <div class="checkout-panel-header">
+        <h3>Pago aprobado</h3>
+        <button type="button" class="checkout-close" id="confirmClose" aria-label="Cerrar">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="confirm-check">
+        <i class="fa-solid fa-circle-check"></i>
+      </div>
+
+      <p class="confirm-mensaje">
+        Tu compra se realizó con éxito y ya descontamos los productos del inventario.
+      </p>
+
+      <div class="confirm-autorizacion">
+        <span>N° de autorización</span>
+        <strong>{{ confirmacion.numero_autorizacion }}</strong>
+      </div>
+
+      <div class="confirm-datos">
+        <div class="summary-row small">
+          <span>Factura</span>
+          <span>{{ confirmacion.numero_factura }}</span>
+        </div>
+        <div class="summary-row small">
+          <span>Método de pago</span>
+          <span>{{ confirmacion.metodo_pago }}</span>
+        </div>
+        <div class="summary-row">
+          <span>Total pagado</span>
+          <span>$ {{ "{:,.0f}".format(confirmacion.total|float) }}</span>
+        </div>
+      </div>
+
+      <a
+        href="{{ url_for('carrito.factura_pdf', factura_id=confirmacion.factura_id) }}"
+        class="primary-btn confirm-pdf"
+        target="_blank"
+        rel="noopener"
+      >
+        <i class="fa-solid fa-file-pdf"></i>
+        Descargar factura (PDF)
+      </a>
+
+      <a href="{{ url_for('usuario.mis_pedidos') }}" class="continue-link">
+        Ver mis pedidos
+      </a>
+
+    </aside>
 
     {% endif %}
 

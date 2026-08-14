@@ -1,6 +1,17 @@
-from flask import Blueprint, redirect, render_template, request, session, url_for
+from io import BytesIO
 
-from app.services import cart_service, orders_service
+from flask import (
+    Blueprint,
+    abort,
+    redirect,
+    render_template,
+    request,
+    send_file,
+    session,
+    url_for,
+)
+
+from app.services import cart_service, invoice_service, orders_service
 from app.utils.decorators import login_required
 
 carrito = Blueprint("carrito", __name__)
@@ -21,22 +32,43 @@ def ver():
         total_final=total_final,
         direcciones=orders_service.obtener_direcciones(session["user_id"]),
         metodos_pago=orders_service.obtener_metodos_pago(),
+        # se muestran una sola vez: los deja `confirmar` en la sesion
+        confirmacion=session.pop("pago_confirmado", None),
+        error_checkout=session.pop("error_checkout", None),
     )
 
 
 @carrito.route("/carrito/confirmar", methods=["POST"])
 @login_required
 def confirmar():
-    factura_id = orders_service.crear_pedido(
+    resultado = orders_service.crear_pedido(
         session["user_id"],
         request.form,
         request.form.get("metodo_pago_id", type=int),
     )
 
-    if not factura_id:
-        return redirect(url_for("carrito.ver"))
+    if not resultado["ok"]:
+        session["error_checkout"] = resultado["error"]
+    else:
+        session["pago_confirmado"] = resultado
 
-    return redirect(url_for("usuario.mis_pedidos", ok=1))
+    return redirect(url_for("carrito.ver"))
+
+
+@carrito.route("/factura/<int:factura_id>.pdf")
+@login_required
+def factura_pdf(factura_id):
+    factura = orders_service.obtener_factura(session["user_id"], factura_id)
+
+    if not factura:
+        abort(404)
+
+    return send_file(
+        BytesIO(invoice_service.generar_pdf(factura)),
+        mimetype="application/pdf",
+        # inline: se abre en el visor del navegador, listo para imprimir
+        download_name="{}.pdf".format(factura["numero_factura"] or factura_id),
+    )
 
 
 @carrito.route("/carrito/agregar/<int:producto_id>", methods=["POST"])
