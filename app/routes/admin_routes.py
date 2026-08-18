@@ -57,14 +57,14 @@ def edit(id):
 @admin.route("/producto", methods=["POST"])
 @admin_required
 def crear_producto():
-    products_service.crear_producto(request.form)
+    products_service.crear_producto(request.form, request.files.get("imagen"))
     return redirect(url_for("admin.admin_panel"))
 
 
 @admin.route("/producto/editar/<int:id>", methods=["POST"])
 @admin_required
 def editar_producto(id):
-    products_service.actualizar_producto(id, request.form)
+    products_service.actualizar_producto(id, request.form, request.files.get("imagen"))
     return redirect(url_for("admin.admin_panel"))
 
 

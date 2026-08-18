@@ -777,6 +777,8 @@ CREATE TABLE `productos` (
   `referencia` varchar(30) DEFAULT NULL,
   `nombre` varchar(150) NOT NULL,
   `descripcion` text DEFAULT NULL,
+  `imagen` longblob DEFAULT NULL,
+  `imagen_mime` varchar(100) DEFAULT NULL,
   `categoria_id` int(11) NOT NULL,
   `marca_id` int(11) NOT NULL,
   `estado` enum('activo','inactivo') DEFAULT 'activo',
@@ -788,17 +790,17 @@ CREATE TABLE `productos` (
 -- Volcado de datos para la tabla `productos`
 --
 
-INSERT INTO `productos` (`id`, `referencia`, `nombre`, `descripcion`, `categoria_id`, `marca_id`, `estado`, `created_at`, `updated_at`) VALUES
-(1, 'REF001', 'Camiseta Oversize', 'Nueva descripción', 1, 1, 'activo', '2026-07-20 23:41:44', '2026-07-24 18:43:21'),
-(2, 'REF002', 'Camiseta Básica', 'Camiseta 100% algodón, corte clásico', 1, 1, 'activo', '2026-07-20 23:41:44', '2026-07-20 23:41:44'),
-(3, 'REF003', 'Pantalón Jogger', 'Jogger deportivo con puños ajustados', 2, 1, 'activo', '2026-07-20 23:41:44', '2026-07-20 23:41:44'),
-(4, 'REF004', 'Pantalón Cargo', 'Pantalón cargo con bolsillos laterales', 2, 2, 'activo', '2026-07-20 23:41:44', '2026-07-20 23:41:44'),
-(5, 'REF005', 'Sudadera Hoodie', 'Sudadera con capota y bolsillo canguro', 3, 1, 'activo', '2026-07-20 23:41:44', '2026-07-20 23:41:44'),
-(6, 'REF006', 'Sudadera Crewneck', 'Sudadera cuello redondo unisex', 3, 3, 'activo', '2026-07-20 23:41:44', '2026-07-20 23:41:44'),
-(7, 'REF007', 'Chaqueta Bomber', 'Chaqueta bomber con forro interno', 4, 1, 'activo', '2026-07-20 23:41:44', '2026-07-20 23:41:44'),
-(8, 'REF008', 'Chaqueta Denim', 'Chaqueta de jean clásica', 4, 2, 'activo', '2026-07-20 23:41:44', '2026-07-20 23:41:44'),
-(9, 'REF009', 'Camiseta Estampada', 'Camiseta con estampado gráfico frontal', 1, 3, 'activo', '2026-07-20 23:41:44', '2026-07-20 23:41:44'),
-(10, 'REF010', 'Camiseta Oversize', '100% algodón', 1, 1, 'activo', '2026-07-24 18:43:21', '2026-07-24 18:43:21');
+INSERT INTO `productos` (`id`, `referencia`, `nombre`, `descripcion`, `imagen`, `imagen_mime`, `categoria_id`, `marca_id`, `estado`, `created_at`, `updated_at`) VALUES
+(1, 'REF001', 'Camiseta Oversize', 'Nueva descripción', NULL, NULL, 1, 1, 'activo', '2026-07-20 23:41:44', '2026-07-24 18:43:21'),
+(2, 'REF002', 'Camiseta Básica', 'Camiseta 100% algodón, corte clásico', NULL, NULL, 1, 1, 'activo', '2026-07-20 23:41:44', '2026-07-20 23:41:44'),
+(3, 'REF003', 'Pantalón Jogger', 'Jogger deportivo con puños ajustados', NULL, NULL, 2, 1, 'activo', '2026-07-20 23:41:44', '2026-07-20 23:41:44'),
+(4, 'REF004', 'Pantalón Cargo', 'Pantalón cargo con bolsillos laterales', NULL, NULL, 2, 2, 'activo', '2026-07-20 23:41:44', '2026-07-20 23:41:44'),
+(5, 'REF005', 'Sudadera Hoodie', 'Sudadera con capota y bolsillo canguro', NULL, NULL, 3, 1, 'activo', '2026-07-20 23:41:44', '2026-07-20 23:41:44'),
+(6, 'REF006', 'Sudadera Crewneck', 'Sudadera cuello redondo unisex', NULL, NULL, 3, 3, 'activo', '2026-07-20 23:41:44', '2026-07-20 23:41:44'),
+(7, 'REF007', 'Chaqueta Bomber', 'Chaqueta bomber con forro interno', NULL, NULL, 4, 1, 'activo', '2026-07-20 23:41:44', '2026-07-20 23:41:44'),
+(8, 'REF008', 'Chaqueta Denim', 'Chaqueta de jean clásica', NULL, NULL, 4, 2, 'activo', '2026-07-20 23:41:44', '2026-07-20 23:41:44'),
+(9, 'REF009', 'Camiseta Estampada', 'Camiseta con estampado gráfico frontal', NULL, NULL, 1, 3, 'activo', '2026-07-20 23:41:44', '2026-07-20 23:41:44'),
+(10, 'REF010', 'Camiseta Oversize', '100% algodón', NULL, NULL, 1, 1, 'activo', '2026-07-24 18:43:21', '2026-07-24 18:43:21');
 
 -- --------------------------------------------------------
 

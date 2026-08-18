@@ -76,7 +76,7 @@
         <div class="carrito-item">
 
           <img
-            src="{{ url_for('static', filename='img/' ~ (item.imagen or 'urbanstyle.png')) }}"
+            src="{{ url_for('productos.imagen_producto', id=item.producto_id) if item.tiene_imagen else url_for('static', filename='img/urbanstyle.png') }}"
             alt="{{ item.producto_nombre }}"
           >
 

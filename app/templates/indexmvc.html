@@ -203,6 +203,7 @@
             <form
                 action="{{ url_for('admin.crear_producto') }}"
                 method="POST"
+                enctype="multipart/form-data"
                 style="
                     display: grid;
                     grid-template-columns: repeat(3, 1fr);
@@ -232,6 +233,11 @@
                     style="grid-column: 1/4"
                 />
 
+                <label style="grid-column: 1/4">
+                    Imagen del producto
+                    <input type="file" name="imagen" accept="image/*" />
+                </label>
+
                 <button class="primary-btn" style="grid-column: 1/4">
                     Crear Producto
                 </button>
@@ -243,6 +249,7 @@
                     <thead>
                         <tr>
                             <th>ID</th>
+                            <th>Imagen</th>
                             <th>Referencia</th>
                             <th>Nombre</th>
                             <th>Categoría</th>
@@ -256,6 +263,17 @@
                         {% for p in productos %}
                         <tr>
                             <td>{{ p.id }}</td>
+                            <td>
+                                {% if p.tiene_imagen %}
+                                <img
+                                    src="{{ url_for('productos.imagen_producto', id=p.id) }}"
+                                    alt="{{ p.nombre }}"
+                                    style="width: 48px; height: 48px; object-fit: cover; border-radius: 6px"
+                                >
+                                {% else %}
+                                <span style="opacity: .5">Sin imagen</span>
+                                {% endif %}
+                            </td>
                             <td>{{ p.referencia }}</td>
                             <td>{{ p.nombre }}</td>
                             <td>{{ p.categoria_nombre }}</td>
@@ -289,6 +307,7 @@
                                 <form
                                     action="{{ url_for('admin.editar_producto', id=p.id) }}"
                                     method="POST"
+                                    enctype="multipart/form-data"
                                 >
                                     <input
                                         name="referencia"
@@ -299,6 +318,18 @@
                                         name="descripcion"
                                         value="{{ p.descripcion }}"
                                     />
+
+                                    {% if p.tiene_imagen %}
+                                    <img
+                                        src="{{ url_for('productos.imagen_producto', id=p.id) }}"
+                                        alt="{{ p.nombre }}"
+                                        style="width: 64px; height: 64px; object-fit: cover; border-radius: 6px; display: block"
+                                    >
+                                    {% endif %}
+                                    <label>
+                                        Cambiar imagen
+                                        <input type="file" name="imagen" accept="image/*" />
+                                    </label>
 
                                     <select name="categoria_id">
                                         {% for c in categorias %}
