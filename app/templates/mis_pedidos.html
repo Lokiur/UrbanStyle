@@ -49,45 +49,89 @@
 
   {% include 'header.html' %}
 
-  <section class="hero" style="flex-direction: column">
+  <div class="orders-shell">
 
-    <h1>Mis Pedidos</h1>
-
-    <div class="table-container">
-      <table class="admin-table">
-        <thead>
-          <tr>
-            <th>N° Factura</th>
-            <th>Fecha</th>
-            <th>Subtotal</th>
-            <th>IVA</th>
-            <th>Envío</th>
-            <th>Total</th>
-            <th>Estado</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {% for p in pedidos %}
-          <tr>
-            <td>{{ p.numero_factura }}</td>
-            <td>{{ p.fecha }}</td>
-            <td>$ {{ p.subtotal }}</td>
-            <td>$ {{ p.iva }}</td>
-            <td>$ {{ p.envio }}</td>
-            <td>$ {{ p.total }}</td>
-            <td>{{ p.estado }}</td>
-          </tr>
-          {% else %}
-          <tr>
-            <td colspan="7">Aún no tienes pedidos.</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+    <div>
+      <h1 class="admin-page-title">Mis Pedidos</h1>
+      <p class="admin-page-subtitle">
+        Revisa el estado y el detalle de tus compras.
+      </p>
     </div>
 
-  </section>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="fa-solid fa-receipt"></i>
+        </div>
+        <div>
+          <div class="stat-value">{{ total_pedidos }}</div>
+          <div class="stat-label">Pedidos realizados</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="fa-solid fa-sack-dollar"></i>
+        </div>
+        <div>
+          <div class="stat-value">$ {{ "{:,.0f}".format(total_gastado) }}</div>
+          <div class="stat-label">Total gastado</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-card-header">
+        <h2>Historial de pedidos</h2>
+        <span>{{ total_pedidos }} en total</span>
+      </div>
+
+      {% if pedidos %}
+      <div class="table-container">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>N° Factura</th>
+              <th>Fecha</th>
+              <th>Subtotal</th>
+              <th>IVA</th>
+              <th>Envío</th>
+              <th>Total</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {% for p in pedidos %}
+            <tr>
+              <td>{{ p.numero_factura }}</td>
+              <td>{{ p.fecha }}</td>
+              <td>$ {{ p.subtotal }}</td>
+              <td>$ {{ p.iva }}</td>
+              <td>$ {{ p.envio }}</td>
+              <td>$ {{ p.total }}</td>
+              <td>
+                <span class="badge-estado {{ p.estado }}">
+                  {{ p.estado }}
+                </span>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <i class="fa-solid fa-box-open"></i>
+        <p>Aún no tienes pedidos registrados.</p>
+        <a href="{{ url_for('home.index') }}" class="secondary-btn">
+          Explorar la tienda
+        </a>
+      </div>
+      {% endif %}
+    </div>
+
+  </div>
 
   {% include 'footer.html' %}
 

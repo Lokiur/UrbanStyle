@@ -1,4 +1,6 @@
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, request
+
+from app.services import contact_service
 
 home = Blueprint("home", __name__)
 
@@ -18,9 +20,15 @@ def about():
     return render_template("about.html")
 
 
-@home.route("/contacto")
+@home.route("/contacto", methods=["GET", "POST"])
 def contacto():
-    return render_template("contacto.html")
+    enviado = False
+
+    if request.method == "POST":
+        contact_service.crear_mensaje(request.form)
+        enviado = True
+
+    return render_template("contacto.html", enviado=enviado)
 
 
 @home.route("/preguntas-frecuentes")

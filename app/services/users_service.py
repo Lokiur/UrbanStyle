@@ -115,6 +115,17 @@ def actualizar(id, datos):
     conexion.close()
 
 
+def actualizar_avatar(id, nombre_archivo):
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute(
+        "UPDATE users SET avatar=%s WHERE id=%s",
+        (nombre_archivo, id),
+    )
+    conexion.commit()
+    conexion.close()
+
+
 def actualizar_perfil(id, datos):
     conexion = conectar()
     cursor = conexion.cursor()

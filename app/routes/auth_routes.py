@@ -82,6 +82,7 @@ def login():
             session["user_id"] = usuario["id"]
             session["name"] = usuario["name"]
             session["rol"] = usuario["rol"]
+            session["avatar"] = usuario.get("avatar")
             return redirect(url_for("home.index"))
 
         a, b = generar_captcha()
