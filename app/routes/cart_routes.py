@@ -35,6 +35,7 @@ def ver():
         # se muestran una sola vez: los deja `confirmar` en la sesion
         confirmacion=session.pop("pago_confirmado", None),
         error_checkout=session.pop("error_checkout", None),
+        error_carrito=session.pop("error_carrito", None),
     )
 
 
@@ -74,11 +75,15 @@ def factura_pdf(factura_id):
 @carrito.route("/carrito/agregar/<int:producto_id>", methods=["POST"])
 @login_required
 def agregar(producto_id):
-    cart_service.agregar(
+    resultado = cart_service.agregar(
         session["user_id"],
         producto_id,
         request.form.get("existencia_id", type=int),
     )
+
+    if not resultado["ok"]:
+        session["error_carrito"] = resultado["error"]
+
     return redirect(url_for("carrito.ver"))
 
 

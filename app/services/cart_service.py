@@ -45,12 +45,26 @@ def contar_items(user_id):
 
 
 def agregar(user_id, producto_id, existencia_id=None):
+    """Agrega al carrito la existencia pedida (o, si ya no tiene stock, otro
+    color de la misma talla). Nunca sustituye por otra talla en silencio:
+    si no hay nada disponible para lo que se pidio, devuelve un error en
+    vez de agregar cualquier cosa.
+    """
     conexion = conectar()
     cursor = conexion.cursor()
 
     existencia = None
+    talla_id = None
 
     if existencia_id:
+        cursor.execute(
+            "SELECT talla_id FROM existencias WHERE id=%s AND producto_id=%s",
+            (existencia_id, producto_id),
+        )
+        fila_talla = cursor.fetchone()
+        if fila_talla:
+            talla_id = fila_talla["talla_id"]
+
         cursor.execute(
             """
             SELECT id FROM existencias
@@ -60,7 +74,21 @@ def agregar(user_id, producto_id, existencia_id=None):
         )
         existencia = cursor.fetchone()
 
-    if not existencia:
+    if not existencia and talla_id:
+        # el color elegido ya no tiene stock: busca otro color de la MISMA talla
+        cursor.execute(
+            """
+            SELECT id FROM existencias
+            WHERE producto_id=%s AND talla_id=%s AND estado='activo' AND stock>0
+            ORDER BY precio ASC LIMIT 1
+            """,
+            (producto_id, talla_id),
+        )
+        existencia = cursor.fetchone()
+
+    if not existencia and not existencia_id:
+        # no llego ninguna talla (ej. todas se mostraban deshabilitadas):
+        # se ofrece cualquier existencia disponible del producto
         cursor.execute(
             """
             SELECT id FROM existencias
@@ -71,42 +99,45 @@ def agregar(user_id, producto_id, existencia_id=None):
         )
         existencia = cursor.fetchone()
 
-    if existencia:
+    if not existencia:
+        conexion.close()
+        return {"ok": False, "error": "Esa talla ya no tiene stock disponible."}
+
+    cursor.execute(
+        "SELECT id FROM carrito WHERE user_id=%s ORDER BY id DESC LIMIT 1",
+        (user_id,),
+    )
+    carrito = cursor.fetchone()
+
+    if carrito:
+        carrito_id = carrito["id"]
+    else:
+        cursor.execute("INSERT INTO carrito (user_id) VALUES (%s)", (user_id,))
+        carrito_id = cursor.lastrowid
+
+    cursor.execute(
+        "SELECT id FROM detalle_carrito WHERE carrito_id=%s AND existencia_id=%s",
+        (carrito_id, existencia["id"]),
+    )
+    detalle = cursor.fetchone()
+
+    if detalle:
         cursor.execute(
-            "SELECT id FROM carrito WHERE user_id=%s ORDER BY id DESC LIMIT 1",
-            (user_id,),
+            "UPDATE detalle_carrito SET cantidad = cantidad + 1 WHERE id=%s",
+            (detalle["id"],),
         )
-        carrito = cursor.fetchone()
-
-        if carrito:
-            carrito_id = carrito["id"]
-        else:
-            cursor.execute("INSERT INTO carrito (user_id) VALUES (%s)", (user_id,))
-            carrito_id = cursor.lastrowid
-
+    else:
         cursor.execute(
-            "SELECT id FROM detalle_carrito WHERE carrito_id=%s AND existencia_id=%s",
+            """
+            INSERT INTO detalle_carrito (carrito_id, existencia_id, cantidad)
+            VALUES (%s, %s, 1)
+            """,
             (carrito_id, existencia["id"]),
         )
-        detalle = cursor.fetchone()
 
-        if detalle:
-            cursor.execute(
-                "UPDATE detalle_carrito SET cantidad = cantidad + 1 WHERE id=%s",
-                (detalle["id"],),
-            )
-        else:
-            cursor.execute(
-                """
-                INSERT INTO detalle_carrito (carrito_id, existencia_id, cantidad)
-                VALUES (%s, %s, 1)
-                """,
-                (carrito_id, existencia["id"]),
-            )
-
-        conexion.commit()
-
+    conexion.commit()
     conexion.close()
+    return {"ok": True}
 
 
 def sumar(user_id, detalle_id):

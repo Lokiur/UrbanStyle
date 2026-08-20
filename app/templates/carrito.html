@@ -74,6 +74,15 @@
 
     {% endif %}
 
+    {% if error_carrito %}
+
+    <div class="checkout-error">
+      <i class="fa-solid fa-circle-exclamation"></i>
+      <span>{{ error_carrito }}</span>
+    </div>
+
+    {% endif %}
+
     {% if items %}
 
     <div class="carrito-grid">

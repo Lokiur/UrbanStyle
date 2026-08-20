@@ -1,4 +1,4 @@
-from flask import Blueprint, redirect, render_template, request, url_for
+from flask import Blueprint, redirect, render_template, request, session, url_for
 
 from app.services import contact_service, orders_service, products_service, users_service
 from app.utils.decorators import admin_required
@@ -35,6 +35,7 @@ def admin_panel():
         ),
         total_mensajes=len(mensajes),
         mensajes_nuevos=sum(1 for m in mensajes if m["estado"] == "nuevo"),
+        error_producto=session.pop("error_producto", None),
     )
 
 
@@ -72,15 +73,21 @@ def edit(id):
 @admin.route("/producto", methods=["POST"])
 @admin_required
 def crear_producto():
-    products_service.crear_producto(request.form, request.files.get("imagen"))
-    return redirect(url_for("admin.admin_panel"))
+    try:
+        products_service.crear_producto(request.form, request.files.get("imagen"))
+    except ValueError as error:
+        session["error_producto"] = str(error)
+    return redirect(url_for("admin.admin_panel") + "#section-productos")
 
 
 @admin.route("/producto/editar/<int:id>", methods=["POST"])
 @admin_required
 def editar_producto(id):
-    products_service.actualizar_producto(id, request.form, request.files.get("imagen"))
-    return redirect(url_for("admin.admin_panel"))
+    try:
+        products_service.actualizar_producto(id, request.form, request.files.get("imagen"))
+    except ValueError as error:
+        session["error_producto"] = str(error)
+    return redirect(url_for("admin.admin_panel") + "#section-productos")
 
 
 @admin.route("/producto/eliminar/<int:id>")

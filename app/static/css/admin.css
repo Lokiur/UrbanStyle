@@ -713,3 +713,19 @@ select {
         text-align: center;
     }
 }
+
+.admin-error {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    margin: 0 0 20px;
+    padding: 14px 18px;
+
+    background: rgba(239, 68, 68, .12);
+    border: 1px solid rgba(239, 68, 68, .4);
+    border-radius: 12px;
+
+    color: #fca5a5;
+    font-size: 14px;
+}
