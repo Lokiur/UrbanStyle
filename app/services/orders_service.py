@@ -1,15 +1,57 @@
+import hashlib
+import hmac
+import re
+from datetime import datetime
+from decimal import Decimal
+
+from flask import current_app
+
 from database.init_db import conectar
+from app.services import cart_service
+
+ENVIO_COSTO = Decimal("12000")
+IVA_PORCENTAJE = Decimal("0.19")
+
+
+def numero_autorizacion(pago_id):
+    """Numero de autorizacion de un pago.
+
+    No se guarda en `pagos` (la tabla no tiene columna para el), se
+    deriva del id del pago firmandolo con la secret_key de la app. El
+    resultado se ve aleatorio pero siempre es el mismo para el mismo
+    pago, asi se puede volver a mostrar en "Mis Pedidos" y en la factura
+    en PDF sin tocar el esquema de la base de datos.
+    """
+    firma = hmac.new(
+        current_app.secret_key.encode(),
+        str(pago_id).encode(),
+        hashlib.sha256,
+    ).hexdigest()
+
+    return "AUT-{:08d}".format(int(firma[:12], 16) % 100000000)
 
 
 def obtener_pedidos(user_id):
     conexion = conectar()
     cursor = conexion.cursor()
     cursor.execute(
-        "SELECT * FROM facturas WHERE user_id=%s ORDER BY fecha DESC",
+        """
+        SELECT f.*,
+               (SELECT MAX(p.id) FROM pagos p WHERE p.factura_id = f.id) AS pago_id
+        FROM facturas f
+        WHERE f.user_id=%s
+        ORDER BY f.fecha DESC
+        """,
         (user_id,),
     )
     pedidos = cursor.fetchall()
     conexion.close()
+
+    for pedido in pedidos:
+        pedido["numero_autorizacion"] = (
+            numero_autorizacion(pedido["pago_id"]) if pedido["pago_id"] else None
+        )
+
     return pedidos
 
 
@@ -28,3 +70,316 @@ def listar_pedidos():
     pedidos = cursor.fetchall()
     conexion.close()
     return pedidos
+
+
+def obtener_factura(user_id, factura_id):
+    """Trae una factura del usuario con todo lo que necesita el PDF.
+
+    Devuelve None si la factura no existe o no es de ese usuario, para
+    que nadie pueda descargar la factura de otro.
+    """
+    conexion = conectar()
+    cursor = conexion.cursor()
+
+    cursor.execute(
+        """
+        SELECT f.*,
+               u.name, u.apellidos, u.email, u.documento_identidad, u.celular,
+               d.direccion, d.ciudad, d.departamento, d.codigo_postal,
+               mp.nombre AS metodo_pago,
+               (SELECT MAX(p.id) FROM pagos p WHERE p.factura_id = f.id) AS pago_id
+        FROM facturas f
+        JOIN users u ON u.id = f.user_id
+        JOIN direcciones d ON d.id = f.direccion_id
+        JOIN metodos_pago mp ON mp.id = f.metodo_pago_id
+        WHERE f.id=%s AND f.user_id=%s
+        """,
+        (factura_id, user_id),
+    )
+    factura = cursor.fetchone()
+
+    if not factura:
+        conexion.close()
+        return None
+
+    cursor.execute(
+        """
+        SELECT df.cantidad, df.precio_unitario, df.subtotal,
+               p.nombre AS producto_nombre, p.referencia,
+               t.nombre AS talla, c.nombre AS color, e.sku
+        FROM detalle_factura df
+        JOIN existencias e ON e.id = df.existencia_id
+        JOIN productos p ON p.id = e.producto_id
+        JOIN tallas t ON t.id = e.talla_id
+        JOIN colores c ON c.id = e.color_id
+        WHERE df.factura_id=%s
+        ORDER BY df.id
+        """,
+        (factura_id,),
+    )
+    factura["items"] = cursor.fetchall()
+    conexion.close()
+
+    factura["numero_autorizacion"] = (
+        numero_autorizacion(factura["pago_id"]) if factura["pago_id"] else None
+    )
+
+    return factura
+
+
+def obtener_direcciones(user_id):
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute(
+        "SELECT * FROM direcciones WHERE user_id=%s ORDER BY principal DESC, id",
+        (user_id,),
+    )
+    direcciones = cursor.fetchall()
+    conexion.close()
+    return direcciones
+
+
+def obtener_metodos_pago():
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute(
+        "SELECT * FROM metodos_pago WHERE estado='activo' AND nombre<>'Efectivo' ORDER BY nombre"
+    )
+    metodos_pago = cursor.fetchall()
+    conexion.close()
+    return metodos_pago
+
+
+def calcular_totales(items):
+    subtotal = sum((item["subtotal"] for item in items), Decimal("0"))
+    iva = subtotal * IVA_PORCENTAJE
+    envio = ENVIO_COSTO if items else Decimal("0")
+    total = subtotal + iva + envio
+    return subtotal, iva, envio, total
+
+
+def _validar_datos_pago(form, nombre_metodo):
+    """Revisa los campos del metodo de pago elegido.
+
+    Devuelve un mensaje de error, o None si los datos estan completos.
+    Es la "verificacion del pago": solo si pasa se guarda la factura.
+    """
+    if "Tarjeta" in nombre_metodo:
+        titular = form.get("tarjeta_nombre", "").strip()
+        numero = re.sub(r"\D", "", form.get("tarjeta_numero", ""))
+        vencimiento = form.get("tarjeta_vencimiento", "").strip()
+        cvv = form.get("tarjeta_cvv", "").strip()
+
+        if len(titular) < 3:
+            return "Escribe el nombre que aparece en la tarjeta."
+
+        if not 13 <= len(numero) <= 19:
+            return "El numero de tarjeta debe tener entre 13 y 19 digitos."
+
+        if not re.fullmatch(r"(0[1-9]|1[0-2])/\d{2}", vencimiento):
+            return "La fecha de vencimiento debe tener el formato MM/AA."
+
+        mes, anio = vencimiento.split("/")
+        hoy = datetime.now()
+        if (2000 + int(anio), int(mes)) < (hoy.year, hoy.month):
+            return "La tarjeta ya esta vencida."
+
+        if not re.fullmatch(r"\d{3,4}", cvv):
+            return "El CVV debe tener 3 o 4 digitos."
+
+    elif nombre_metodo == "PSE":
+        if not form.get("pse_banco", "").strip():
+            return "Selecciona el banco con el que vas a pagar por PSE."
+
+    elif nombre_metodo in ("Nequi", "Daviplata"):
+        celular = re.sub(r"\D", "", form.get("billetera_celular", ""))
+        if len(celular) != 10:
+            return "El numero de celular debe tener 10 digitos."
+
+    return None
+
+
+def _resolver_direccion(cursor, user_id, form):
+    """Devuelve el id de la direccion de envio elegida (o None)."""
+    direccion_raw = form.get("direccion_id", "")
+
+    if direccion_raw == "nueva":
+        direccion_txt = form.get("direccion", "").strip()
+        ciudad = form.get("ciudad", "").strip()
+        departamento = form.get("departamento", "").strip()
+        codigo_postal = form.get("codigo_postal", "").strip()
+
+        if not direccion_txt or not ciudad:
+            return None
+
+        # nota: la tabla `direcciones` tiene un trigger BEFORE INSERT que
+        # falla con error 1442 si se inserta con principal=1 (bug del propio
+        # trigger, reproducible incluso desde un INSERT plano fuera de esta
+        # app), por lo que las direcciones nuevas siempre entran con
+        # principal=0.
+        cursor.execute(
+            """
+            INSERT INTO direcciones (user_id, direccion, ciudad, departamento, codigo_postal, principal)
+            VALUES (%s, %s, %s, %s, %s, 0)
+            """,
+            (user_id, direccion_txt, ciudad, departamento or None, codigo_postal or None),
+        )
+        return cursor.lastrowid
+
+    if not direccion_raw.isdigit():
+        return None
+
+    cursor.execute(
+        "SELECT id FROM direcciones WHERE id=%s AND user_id=%s",
+        (int(direccion_raw), user_id),
+    )
+    direccion = cursor.fetchone()
+
+    return direccion["id"] if direccion else None
+
+
+def _descontar_stock(cursor, items):
+    """Descuenta de `existencias` lo que se acaba de vender.
+
+    Devuelve un mensaje de error si alguna existencia no alcanza, o None
+    si todo el carrito se pudo descontar.
+    """
+    for item in items:
+        cursor.execute(
+            "SELECT stock FROM existencias WHERE id=%s FOR UPDATE",
+            (item["existencia_id"],),
+        )
+        existencia = cursor.fetchone()
+
+        if not existencia or existencia["stock"] < item["cantidad"]:
+            disponible = existencia["stock"] if existencia else 0
+            return "No hay stock suficiente de {} (talla {}): quedan {} y pediste {}.".format(
+                item["producto_nombre"], item["talla"], disponible, item["cantidad"]
+            )
+
+        # el estado se asigna antes que el stock a proposito: MySQL evalua
+        # el SET de izquierda a derecha, asi el IF todavia ve el stock viejo.
+        cursor.execute(
+            """
+            UPDATE existencias
+            SET estado = IF(stock - %s <= 0, 'agotado', estado),
+                stock = stock - %s
+            WHERE id = %s
+            """,
+            (item["cantidad"], item["cantidad"], item["existencia_id"]),
+        )
+
+    return None
+
+
+def crear_pedido(user_id, form, metodo_pago_id):
+    """Confirma el carrito del usuario como un pedido pagado.
+
+    El orden importa: primero se verifican los datos del pago y solo si
+    pasan se guarda la factura a nombre del usuario, se descuenta el
+    stock de `existencias`, se registra el pago y se vacia el carrito.
+    Todo va en una sola transaccion, asi que si algo falla no queda ni
+    la factura ni el descuento.
+
+    Devuelve {"ok": True, ...datos del pago} si se completo, o
+    {"ok": False, "error": "..."} con el motivo si no.
+    """
+    items = cart_service.obtener_items(user_id)
+
+    if not items:
+        return {"ok": False, "error": "Tu carrito esta vacio."}
+
+    conexion = conectar()
+    cursor = conexion.cursor()
+
+    try:
+        cursor.execute(
+            "SELECT nombre FROM metodos_pago WHERE id=%s AND estado='activo'",
+            (metodo_pago_id,),
+        )
+        metodo = cursor.fetchone()
+
+        if not metodo:
+            return {"ok": False, "error": "Selecciona un metodo de pago valido."}
+
+        error_pago = _validar_datos_pago(form, metodo["nombre"])
+        if error_pago:
+            return {"ok": False, "error": error_pago}
+
+        direccion_id = _resolver_direccion(cursor, user_id, form)
+
+        if not direccion_id:
+            conexion.rollback()
+            return {"ok": False, "error": "Elige o completa una direccion de envio."}
+
+        error_stock = _descontar_stock(cursor, items)
+
+        if error_stock:
+            conexion.rollback()
+            return {"ok": False, "error": error_stock}
+
+        subtotal, iva, envio, total = calcular_totales(items)
+
+        cursor.execute(
+            """
+            INSERT INTO facturas
+            (user_id, direccion_id, metodo_pago_id, subtotal, iva, envio, total, estado)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, 'activa')
+            """,
+            (user_id, direccion_id, metodo_pago_id, subtotal, iva, envio, total),
+        )
+        factura_id = cursor.lastrowid
+
+        numero_factura = "FAC-{:04d}".format(factura_id)
+        cursor.execute(
+            "UPDATE facturas SET numero_factura=%s WHERE id=%s",
+            (numero_factura, factura_id),
+        )
+
+        for item in items:
+            cursor.execute(
+                """
+                INSERT INTO detalle_factura (factura_id, existencia_id, cantidad, precio_unitario, subtotal)
+                VALUES (%s, %s, %s, %s, %s)
+                """,
+                (
+                    factura_id,
+                    item["existencia_id"],
+                    item["cantidad"],
+                    item["precio"],
+                    item["subtotal"],
+                ),
+            )
+
+        cursor.execute(
+            "INSERT INTO pagos (factura_id, monto, estado) VALUES (%s, %s, 'pagado')",
+            (factura_id, total),
+        )
+        pago_id = cursor.lastrowid
+
+        cursor.execute(
+            """
+            DELETE dc FROM detalle_carrito dc
+            JOIN carrito c ON c.id = dc.carrito_id
+            WHERE c.user_id=%s
+            """,
+            (user_id,),
+        )
+
+        conexion.commit()
+
+        return {
+            "ok": True,
+            "factura_id": factura_id,
+            "numero_factura": numero_factura,
+            "numero_autorizacion": numero_autorizacion(pago_id),
+            "metodo_pago": metodo["nombre"],
+            "total": str(total),
+        }
+
+    except Exception:
+        conexion.rollback()
+        raise
+
+    finally:
+        conexion.close()

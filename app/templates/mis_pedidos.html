@@ -92,12 +92,14 @@
           <thead>
             <tr>
               <th>N° Factura</th>
+              <th>N° Autorización</th>
               <th>Fecha</th>
               <th>Subtotal</th>
               <th>IVA</th>
               <th>Envío</th>
               <th>Total</th>
               <th>Estado</th>
+              <th>Factura</th>
             </tr>
           </thead>
 
@@ -105,15 +107,26 @@
             {% for p in pedidos %}
             <tr>
               <td>{{ p.numero_factura }}</td>
+              <td>{{ p.numero_autorizacion or '—' }}</td>
               <td>{{ p.fecha }}</td>
-              <td>$ {{ p.subtotal }}</td>
-              <td>$ {{ p.iva }}</td>
-              <td>$ {{ p.envio }}</td>
-              <td>$ {{ p.total }}</td>
+              <td>$ {{ "{:,.0f}".format(p.subtotal) }}</td>
+              <td>$ {{ "{:,.0f}".format(p.iva) }}</td>
+              <td>$ {{ "{:,.0f}".format(p.envio) }}</td>
+              <td>$ {{ "{:,.0f}".format(p.total) }}</td>
               <td>
                 <span class="badge-estado {{ p.estado }}">
                   {{ p.estado }}
                 </span>
+              </td>
+              <td>
+                <a
+                  href="{{ url_for('carrito.factura_pdf', factura_id=p.id) }}"
+                  target="_blank"
+                  rel="noopener"
+                  title="Descargar factura en PDF"
+                >
+                  <i class="fa-solid fa-file-pdf"></i> PDF
+                </a>
               </td>
             </tr>
             {% endfor %}
