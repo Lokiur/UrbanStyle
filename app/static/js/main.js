@@ -310,3 +310,22 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
 });
+
+// Previsualiza la foto de perfil elegida antes de guardar
+document.addEventListener("DOMContentLoaded", function() {
+    const avatarInput = document.getElementById("avatarInput");
+    const avatarPreview = document.getElementById("avatarPreview");
+
+    if (!avatarInput || !avatarPreview) return;
+
+    avatarInput.addEventListener("change", function() {
+        const file = avatarInput.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            avatarPreview.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+});

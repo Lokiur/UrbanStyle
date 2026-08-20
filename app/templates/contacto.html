@@ -114,19 +114,21 @@
 
       <!-- FORM -->
 
-      <form class="contacto-form" id="contactoForm">
+      <form class="contacto-form" method="POST" action="{{ url_for('home.contacto') }}">
 
-        <input type="text" placeholder="Nombre" required>
+        <input type="text" name="nombre" placeholder="Nombre" required>
 
-        <input type="email" placeholder="Correo electrónico" required>
+        <input type="email" name="email" placeholder="Correo electrónico" required>
 
-        <textarea rows="5" placeholder="Cuéntanos en qué te ayudamos" required></textarea>
+        <textarea name="mensaje" rows="5" placeholder="Cuéntanos en qué te ayudamos" required></textarea>
 
         <button type="submit">Enviar mensaje</button>
 
-        <p class="form-success" id="contactoSuccess">
+        {% if enviado %}
+        <p class="form-success visible">
           ¡Gracias! Tu mensaje fue enviado, te responderemos pronto.
         </p>
+        {% endif %}
 
       </form>
 
@@ -139,19 +141,6 @@
   {% include 'footer.html' %}
 
   <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-
-  <script>
-    const contactoForm = document.getElementById("contactoForm");
-    const contactoSuccess = document.getElementById("contactoSuccess");
-
-    if (contactoForm) {
-      contactoForm.addEventListener("submit", function (event) {
-        event.preventDefault();
-        contactoSuccess.classList.add("visible");
-        contactoForm.reset();
-      });
-    }
-  </script>
 
 </body>
 

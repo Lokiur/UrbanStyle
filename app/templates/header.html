@@ -50,13 +50,23 @@
       </button>
 
       <form class="search-box" id="searchBox" action="{{ url_for('productos.buscar') }}" method="get">
-        <input
-          type="text"
-          name="q"
-          placeholder="Buscar productos..."
-          autocomplete="off"
-          value="{{ query or '' }}"
-        >
+        <div class="search-box-inner">
+          <i class="fa-solid fa-magnifying-glass search-box-icon"></i>
+
+          <input
+            type="text"
+            name="q"
+            placeholder="Buscar productos..."
+            autocomplete="off"
+            value="{{ query or '' }}"
+          >
+
+          <button type="submit" class="search-box-submit" aria-label="Buscar">
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+
+        <p class="search-box-hint">Busca por nombre, categoría o marca</p>
       </form>
     </div>
 
@@ -70,16 +80,35 @@
     {% if 'user' in session %}
     <div class="profile-container">
       <img
-        src="{{ url_for('static', filename='img/user.png') }}"
+        src="{{ avatar_url }}"
         class="profile-pic"
         id="profileTrigger"
         alt="Usuario"
       />
 
       <div id="profileMenu" class="profile-menu">
-        <a href="{{ url_for('usuario.perfil') }}">Mi perfil</a>
-        <a href="{{ url_for('usuario.mis_pedidos') }}">Mis pedidos</a>
-        <a href="{{ url_for('auth.logout') }}">Cerrar sesión</a>
+        <div class="profile-menu-header">
+          <img src="{{ avatar_url }}" alt="Usuario" />
+          <div>
+            <strong>{{ session.get('name', session.get('user')) }}</strong>
+            <span>@{{ session.get('user') }}</span>
+          </div>
+        </div>
+
+        <div class="profile-menu-divider"></div>
+
+        <a href="{{ url_for('usuario.perfil') }}">
+          <i class="fa-solid fa-user"></i> Mi perfil
+        </a>
+        <a href="{{ url_for('usuario.mis_pedidos') }}">
+          <i class="fa-solid fa-receipt"></i> Mis pedidos
+        </a>
+
+        <div class="profile-menu-divider"></div>
+
+        <a href="{{ url_for('auth.logout') }}" class="logout-link">
+          <i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión
+        </a>
       </div>
     </div>
     {% else %}

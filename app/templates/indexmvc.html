@@ -2,7 +2,8 @@
 <html lang="es">
     <head>
         <meta charset="UTF-8" />
-        <title>Admin Panel</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Admin Panel | UrbanStyle</title>
 
         <!-- VARIABLES DE COLOR -->
         <link
@@ -22,6 +23,12 @@
             href="{{ url_for('static', filename='css/admin.css') }}"
         />
 
+        <!-- Iconos -->
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        />
+
         <!-- Favicon -->
         <link
             rel="shortcut icon"
@@ -31,7 +38,7 @@
     </head>
 
     <body>
-        <header class="navbar">
+        <header class="navbar navbar-admin">
             <div class="logo">
                 <img src="{{ url_for('static', filename='img/urbanstyle.png') }}" alt="UrbanStyle">
                 <span>UrbanStyle Admin</span>
@@ -40,312 +47,659 @@
             <nav>
                 <a href="{{ url_for('home.index') }}">Tienda</a>
                 <a href="{{ url_for('admin.admin_panel') }}">Admin</a>
-                <a href="{{ url_for('auth.logout') }}">Salir</a>
             </nav>
+
+            <div class="icons">
+                <div class="profile-container">
+                    <img
+                        src="{{ avatar_url }}"
+                        class="profile-pic"
+                        id="profileTrigger"
+                        alt="Usuario"
+                    />
+
+                    <div id="profileMenu" class="profile-menu">
+                        <div class="profile-menu-header">
+                            <img src="{{ avatar_url }}" alt="Usuario" />
+                            <div>
+                                <strong>{{ session.get('name', session.get('user')) }}</strong>
+                                <span>@{{ session.get('user') }}</span>
+                            </div>
+                        </div>
+
+                        <div class="profile-menu-divider"></div>
+
+                        <a href="{{ url_for('usuario.perfil') }}">
+                            <i class="fa-solid fa-user"></i> Mi perfil
+                        </a>
+                        <a href="{{ url_for('usuario.mis_pedidos') }}">
+                            <i class="fa-solid fa-receipt"></i> Mis pedidos
+                        </a>
+
+                        <div class="profile-menu-divider"></div>
+
+                        <a href="{{ url_for('auth.logout') }}" class="logout-link">
+                            <i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión
+                        </a>
+                    </div>
+                </div>
+            </div>
         </header>
 
-        <section class="hero" style="flex-direction: column">
-            <h1>Panel Administrativo</h1>
+        <div class="admin-shell">
+            <!-- ================= SIDEBAR ================= -->
+            <aside class="admin-sidebar">
+                <h6>Panel</h6>
 
-            <!-- ================= CREAR ================= -->
-            <form
-                action="{{ url_for('admin.crear_usuario') }}"
-                method="POST"
-                style="
-                    display: grid;
-                    grid-template-columns: repeat(3, 1fr);
-                    gap: 15px;
-                    width: 100%;
-                    max-width: 1000px;
-                "
-            >
-                <input name="username" placeholder="Usuario" required />
-                <input name="name" placeholder="Nombre" required />
-                <input name="apellidos" placeholder="Apellidos" required />
-
-                <input name="usuario_email" placeholder="Email" required />
-                <input
-                    name="password"
-                    placeholder="Contraseña"
-                    type="password"
-                    required
-                />
-                <input name="celular" placeholder="Celular" />
-
-                <input type="date" name="fechanaci" />
-
-                <select name="rol">
-                    <option value="usuario">Usuario</option>
-                    <option value="admin">Admin</option>
-                </select>
-
-                <button class="primary-btn" style="grid-column: 1/4">
-                    Crear Usuario
+                <button
+                    class="admin-nav-btn active"
+                    data-section="section-resumen"
+                    onclick="showAdminSection('section-resumen', this)"
+                >
+                    <i class="fa-solid fa-gauge-high"></i>
+                    Resumen
                 </button>
-            </form>
 
-            <!-- ================= TABLA ================= -->
-            <div class="table-container">
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Usuario</th>
-                            <th>Nombre</th>
-                            <th>Email</th>
-                            <th>Rol</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
+                <button
+                    class="admin-nav-btn"
+                    data-section="section-usuarios"
+                    onclick="showAdminSection('section-usuarios', this)"
+                >
+                    <i class="fa-solid fa-users"></i>
+                    Usuarios
+                </button>
 
-                    <tbody>
-                        {% for u in users %}
-                        <tr>
-                            <td>{{ u.id }}</td>
-                            <td>{{ u.username }}</td>
-                            <td>{{ u.name }} {{ u.apellidos }}</td>
-                            <td>{{ u.email }}</td>
-                            <td>{{ u.rol }}</td>
+                <button
+                    class="admin-nav-btn"
+                    data-section="section-productos"
+                    onclick="showAdminSection('section-productos', this)"
+                >
+                    <i class="fa-solid fa-shirt"></i>
+                    Productos
+                </button>
 
-                            <td>
+                <button
+                    class="admin-nav-btn"
+                    data-section="section-pedidos"
+                    onclick="showAdminSection('section-pedidos', this)"
+                >
+                    <i class="fa-solid fa-receipt"></i>
+                    Pedidos
+                </button>
+
+                <button
+                    class="admin-nav-btn"
+                    data-section="section-mensajes"
+                    onclick="showAdminSection('section-mensajes', this)"
+                >
+                    <i class="fa-solid fa-envelope"></i>
+                    Mensajes
+                    {% if mensajes_nuevos %}
+                    <span class="admin-nav-badge">{{ mensajes_nuevos }}</span>
+                    {% endif %}
+                </button>
+            </aside>
+
+            <!-- ================= CONTENIDO ================= -->
+            <div class="admin-content">
+                <!-- ================= RESUMEN ================= -->
+                <section class="admin-section active" id="section-resumen">
+                    <div>
+                        <h1 class="admin-page-title">Resumen general</h1>
+                        <p class="admin-page-subtitle">
+                            Estado actual de la tienda de un vistazo.
+                        </p>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fa-solid fa-users"></i>
+                            </div>
+                            <div>
+                                <div class="stat-value">{{ total_usuarios }}</div>
+                                <div class="stat-label">Usuarios registrados</div>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fa-solid fa-shirt"></i>
+                            </div>
+                            <div>
+                                <div class="stat-value">{{ total_productos }}</div>
+                                <div class="stat-label">Productos activos</div>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fa-solid fa-receipt"></i>
+                            </div>
+                            <div>
+                                <div class="stat-value">{{ total_pedidos }}</div>
+                                <div class="stat-label">Pedidos registrados</div>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fa-solid fa-sack-dollar"></i>
+                            </div>
+                            <div>
+                                <div class="stat-value">
+                                    $ {{ "{:,.0f}".format(ventas_totales) }}
+                                </div>
+                                <div class="stat-label">Ventas activas</div>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fa-solid fa-envelope"></i>
+                            </div>
+                            <div>
+                                <div class="stat-value">{{ mensajes_nuevos }}</div>
+                                <div class="stat-label">Mensajes sin leer</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section-card">
+                        <div class="section-card-header">
+                            <h2>Últimos pedidos</h2>
+                            <span>Los 5 más recientes</span>
+                        </div>
+
+                        <div class="table-container">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>N° Factura</th>
+                                        <th>Cliente</th>
+                                        <th>Fecha</th>
+                                        <th>Total</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    {% for p in pedidos[:5] %}
+                                    <tr>
+                                        <td>{{ p.numero_factura }}</td>
+                                        <td>{{ p.cliente_nombre }} {{ p.cliente_apellidos }}</td>
+                                        <td>{{ p.fecha }}</td>
+                                        <td>$ {{ p.total }}</td>
+                                        <td>
+                                            <span class="badge-estado {{ p.estado }}">
+                                                {{ p.estado }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    {% else %}
+                                    <tr>
+                                        <td colspan="5">Aún no hay pedidos registrados.</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ================= USUARIOS ================= -->
+                <section class="admin-section" id="section-usuarios">
+                    <div>
+                        <h1 class="admin-page-title">Usuarios</h1>
+                        <p class="admin-page-subtitle">
+                            Crea, edita y elimina las cuentas de la plataforma.
+                        </p>
+                    </div>
+
+                    <div class="section-card">
+                        <div class="section-card-header">
+                            <h2>Crear usuario</h2>
+                        </div>
+
+                        <form
+                            action="{{ url_for('admin.crear_usuario') }}"
+                            method="POST"
+                            class="admin-form-grid"
+                        >
+                            <input name="username" placeholder="Usuario" required />
+                            <input name="name" placeholder="Nombre" required />
+                            <input name="apellidos" placeholder="Apellidos" required />
+
+                            <input name="usuario_email" placeholder="Email" required />
+                            <input
+                                name="password"
+                                placeholder="Contraseña"
+                                type="password"
+                                required
+                            />
+                            <input name="celular" placeholder="Celular" />
+
+                            <input type="date" name="fechanaci" />
+
+                            <select name="rol">
+                                <option value="usuario">Usuario</option>
+                                <option value="admin">Admin</option>
+                            </select>
+
+                            <button class="primary-btn">Crear Usuario</button>
+                        </form>
+                    </div>
+
+                    <div class="section-card">
+                        <div class="section-card-header">
+                            <h2>Listado de usuarios</h2>
+                            <span>{{ total_usuarios }} en total</span>
+                        </div>
+
+                        <div class="table-container">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Usuario</th>
+                                        <th>Nombre</th>
+                                        <th>Email</th>
+                                        <th>Rol</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    {% for u in users %}
+                                    <tr>
+                                        <td>{{ u.id }}</td>
+                                        <td>{{ u.username }}</td>
+                                        <td>{{ u.name }} {{ u.apellidos }}</td>
+                                        <td>{{ u.email }}</td>
+                                        <td>{{ u.rol }}</td>
+
+                                        <td>
+                                            <div class="action-btns">
+                                                <button
+                                                    class="secondary-btn"
+                                                    onclick="openModal({{ u.id }})"
+                                                >
+                                                    Editar
+                                                </button>
+
+                                                <a
+                                                    href="{{ url_for('admin.delete', id=u.id) }}"
+                                                    style="color: #ff4d4d"
+                                                >
+                                                    Eliminar
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                    <!-- ================= MODAL ================= -->
+                                    <div class="modal" id="modal-{{ u.id }}">
+                                        <div class="modal-content">
+                                            <h3>Editar Usuario</h3>
+
+                                            <form
+                                                action="{{ url_for('admin.edit', id=u.id) }}"
+                                                method="POST"
+                                            >
+                                                <input
+                                                    name="username"
+                                                    value="{{ u.username }}"
+                                                />
+                                                <input name="name" value="{{ u.name }}" />
+                                                <input
+                                                    name="apellidos"
+                                                    value="{{ u.apellidos }}"
+                                                />
+                                                <input
+                                                    name="usuario_email"
+                                                    value="{{ u.email }}"
+                                                />
+                                                <input
+                                                    name="password"
+                                                    type="password"
+                                                    placeholder="Dejar en blanco para no cambiar"
+                                                />
+                                                <input
+                                                    name="celular"
+                                                    value="{{ u.celular }}"
+                                                />
+                                                <input
+                                                    type="date"
+                                                    name="fechanaci"
+                                                    value="{{ u.fechanaci }}"
+                                                />
+
+                                                <select name="rol">
+                                                    {% if u.rol == 'admin' %}
+                                                    <option value="admin" selected>
+                                                        Admin
+                                                    </option>
+                                                    <option value="usuario">Usuario</option>
+                                                    {% else %}
+                                                    <option value="usuario" selected>
+                                                        Usuario
+                                                    </option>
+                                                    <option value="admin">Admin</option>
+                                                    {% endif %}
+                                                </select>
+
+                                                <button class="primary-btn">Guardar</button>
+                                            </form>
+
+                                            <button
+                                                class="secondary-btn"
+                                                onclick="closeModal({{ u.id }})"
+                                            >
+                                                Cerrar
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ================= PRODUCTOS ================= -->
+                <section class="admin-section" id="section-productos">
+                    <div>
+                        <h1 class="admin-page-title">Productos</h1>
+                        <p class="admin-page-subtitle">
+                            Administra el catálogo disponible en la tienda.
+                        </p>
+                    </div>
+
+                    <div class="section-card">
+                        <div class="section-card-header">
+                            <h2>Crear producto</h2>
+                        </div>
+
+                        <form
+                            action="{{ url_for('admin.crear_producto') }}"
+                            method="POST"
+                            class="admin-form-grid"
+                        >
+                            <input name="referencia" placeholder="Referencia" required />
+                            <input name="nombre" placeholder="Nombre" required />
+
+                            <select name="categoria_id" required>
+                                {% for c in categorias %}
+                                <option value="{{ c.id }}">{{ c.nombre }}</option>
+                                {% endfor %}
+                            </select>
+
+                            <select name="marca_id" required>
+                                {% for m in marcas %}
+                                <option value="{{ m.id }}">{{ m.nombre }}</option>
+                                {% endfor %}
+                            </select>
+
+                            <input
+                                name="descripcion"
+                                placeholder="Descripción"
+                                style="grid-column: 1/4"
+                            />
+
+                            <button class="primary-btn">Crear Producto</button>
+                        </form>
+                    </div>
+
+                    <div class="section-card">
+                        <div class="section-card-header">
+                            <h2>Listado de productos</h2>
+                            <span>{{ total_productos }} en total</span>
+                        </div>
+
+                        <div class="table-container">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Referencia</th>
+                                        <th>Nombre</th>
+                                        <th>Categoría</th>
+                                        <th>Marca</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    {% for p in productos %}
+                                    <tr>
+                                        <td>{{ p.id }}</td>
+                                        <td>{{ p.referencia }}</td>
+                                        <td>{{ p.nombre }}</td>
+                                        <td>{{ p.categoria_nombre }}</td>
+                                        <td>{{ p.marca_nombre }}</td>
+                                        <td>
+                                            <span class="badge-estado {{ p.estado }}">
+                                                {{ p.estado }}
+                                            </span>
+                                        </td>
+
+                                        <td>
+                                            <div class="action-btns">
+                                                <button
+                                                    class="secondary-btn"
+                                                    onclick="openModal('producto-{{ p.id }}')"
+                                                >
+                                                    Editar
+                                                </button>
+
+                                                <a
+                                                    href="{{ url_for('admin.eliminar_producto', id=p.id) }}"
+                                                    style="color: #ff4d4d"
+                                                >
+                                                    Eliminar
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                    <!-- ================= MODAL PRODUCTO ================= -->
+                                    <div class="modal" id="modal-producto-{{ p.id }}">
+                                        <div class="modal-content">
+                                            <h3>Editar Producto</h3>
+
+                                            <form
+                                                action="{{ url_for('admin.editar_producto', id=p.id) }}"
+                                                method="POST"
+                                            >
+                                                <input
+                                                    name="referencia"
+                                                    value="{{ p.referencia }}"
+                                                />
+                                                <input name="nombre" value="{{ p.nombre }}" />
+                                                <input
+                                                    name="descripcion"
+                                                    value="{{ p.descripcion }}"
+                                                />
+
+                                                <select name="categoria_id">
+                                                    {% for c in categorias %}
+                                                    <option
+                                                        value="{{ c.id }}"
+                                                        {% if c.id == p.categoria_id %}selected{% endif %}
+                                                    >
+                                                        {{ c.nombre }}
+                                                    </option>
+                                                    {% endfor %}
+                                                </select>
+
+                                                <select name="marca_id">
+                                                    {% for m in marcas %}
+                                                    <option
+                                                        value="{{ m.id }}"
+                                                        {% if m.id == p.marca_id %}selected{% endif %}
+                                                    >
+                                                        {{ m.nombre }}
+                                                    </option>
+                                                    {% endfor %}
+                                                </select>
+
+                                                <select name="estado">
+                                                    <option value="activo" {% if p.estado == 'activo' %}selected{% endif %}>Activo</option>
+                                                    <option value="inactivo" {% if p.estado == 'inactivo' %}selected{% endif %}>Inactivo</option>
+                                                </select>
+
+                                                <button class="primary-btn">Guardar</button>
+                                            </form>
+
+                                            <button
+                                                class="secondary-btn"
+                                                onclick="closeModal('producto-{{ p.id }}')"
+                                            >
+                                                Cerrar
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ================= PEDIDOS ================= -->
+                <section class="admin-section" id="section-pedidos">
+                    <div>
+                        <h1 class="admin-page-title">Pedidos</h1>
+                        <p class="admin-page-subtitle">
+                            Consulta todos los pedidos registrados por los clientes.
+                        </p>
+                    </div>
+
+                    <div class="section-card">
+                        <div class="section-card-header">
+                            <h2>Todos los pedidos</h2>
+                            <span>{{ total_pedidos }} en total</span>
+                        </div>
+
+                        <div class="table-container">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>N° Factura</th>
+                                        <th>Cliente</th>
+                                        <th>Fecha</th>
+                                        <th>Subtotal</th>
+                                        <th>IVA</th>
+                                        <th>Envío</th>
+                                        <th>Total</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    {% for p in pedidos %}
+                                    <tr>
+                                        <td>{{ p.numero_factura }}</td>
+                                        <td>
+                                            {{ p.cliente_nombre }} {{ p.cliente_apellidos }}
+                                            <br />
+                                            <span style="opacity: 0.6; font-size: 12px">
+                                                @{{ p.cliente_usuario }}
+                                            </span>
+                                        </td>
+                                        <td>{{ p.fecha }}</td>
+                                        <td>$ {{ p.subtotal }}</td>
+                                        <td>$ {{ p.iva }}</td>
+                                        <td>$ {{ p.envio }}</td>
+                                        <td>$ {{ p.total }}</td>
+                                        <td>
+                                            <span class="badge-estado {{ p.estado }}">
+                                                {{ p.estado }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    {% else %}
+                                    <tr>
+                                        <td colspan="8">Aún no hay pedidos registrados.</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ================= MENSAJES ================= -->
+                <section class="admin-section" id="section-mensajes">
+                    <div>
+                        <h1 class="admin-page-title">Mensajes</h1>
+                        <p class="admin-page-subtitle">
+                            Consulta los mensajes enviados desde el formulario de contacto.
+                        </p>
+                    </div>
+
+                    <div class="section-card">
+                        <div class="section-card-header">
+                            <h2>Bandeja de entrada</h2>
+                            <span>{{ total_mensajes }} en total · {{ mensajes_nuevos }} sin leer</span>
+                        </div>
+
+                        {% if mensajes %}
+                        <div class="messages-list">
+                            {% for m in mensajes %}
+                            <div class="message-card {{ 'unread' if m.estado == 'nuevo' else '' }}">
+                                <div class="message-card-header">
+                                    <div>
+                                        <strong>{{ m.nombre }}</strong>
+                                        <span class="message-card-email">{{ m.email }}</span>
+                                    </div>
+
+                                    <div class="message-card-meta">
+                                        <span class="badge-estado {{ m.estado }}">
+                                            {{ 'Nuevo' if m.estado == 'nuevo' else 'Leído' }}
+                                        </span>
+                                        <span class="message-card-date">{{ m.fecha }}</span>
+                                    </div>
+                                </div>
+
+                                <p class="message-card-body">{{ m.mensaje }}</p>
+
                                 <div class="action-btns">
-                                    <button
+                                    {% if m.estado == 'nuevo' %}
+                                    <a
+                                        href="{{ url_for('admin.marcar_mensaje_leido', id=m.id) }}"
                                         class="secondary-btn"
-                                        onclick="openModal({{ u.id }})"
                                     >
-                                        Editar
-                                    </button>
+                                        Marcar como leído
+                                    </a>
+                                    {% endif %}
 
                                     <a
-                                        href="{{ url_for('admin.delete', id=u.id) }}"
+                                        href="{{ url_for('admin.eliminar_mensaje', id=m.id) }}"
                                         style="color: #ff4d4d"
                                     >
                                         Eliminar
                                     </a>
                                 </div>
-                            </td>
-                        </tr>
-
-                        <!-- ================= MODAL ================= -->
-                        <div class="modal" id="modal-{{ u.id }}">
-                            <div class="modal-content">
-                                <h3>Editar Usuario</h3>
-
-                                <form
-                                    action="{{ url_for('admin.edit', id=u.id) }}"
-                                    method="POST"
-                                >
-                                    <input
-                                        name="username"
-                                        value="{{ u.username }}"
-                                    />
-                                    <input name="name" value="{{ u.name }}" />
-                                    <input
-                                        name="apellidos"
-                                        value="{{ u.apellidos }}"
-                                    />
-                                    <input
-                                        name="usuario_email"
-                                        value="{{ u.email }}"
-                                    />
-                                    <input
-                                        name="password"
-                                        type="password"
-                                        placeholder="Dejar en blanco para no cambiar"
-                                    />
-                                    <input
-                                        name="celular"
-                                        value="{{ u.celular }}"
-                                    />
-                                    <input
-                                        type="date"
-                                        name="fechanaci"
-                                        value="{{ u.fechanaci }}"
-                                    />
-
-                                    <select name="rol">
-                                        {% if u.rol == 'admin' %}
-                                        <option value="admin" selected>
-                                            Admin
-                                        </option>
-                                        <option value="usuario">Usuario</option>
-                                        {% else %}
-                                        <option value="usuario" selected>
-                                            Usuario
-                                        </option>
-                                        <option value="admin">Admin</option>
-                                        {% endif %}
-                                    </select>
-
-                                    <button class="primary-btn">Guardar</button>
-                                </form>
-
-                                <button
-                                    class="secondary-btn"
-                                    onclick="closeModal({{ u.id }})"
-                                >
-                                    Cerrar
-                                </button>
                             </div>
+                            {% endfor %}
                         </div>
-
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-        <!-- ================= PRODUCTOS ================= -->
-        <section class="hero" style="flex-direction: column">
-            <h1>Productos</h1>
-
-            <!-- ================= CREAR PRODUCTO ================= -->
-            <form
-                action="{{ url_for('admin.crear_producto') }}"
-                method="POST"
-                style="
-                    display: grid;
-                    grid-template-columns: repeat(3, 1fr);
-                    gap: 15px;
-                    width: 100%;
-                    max-width: 1000px;
-                "
-            >
-                <input name="referencia" placeholder="Referencia" required />
-                <input name="nombre" placeholder="Nombre" required />
-
-                <select name="categoria_id" required>
-                    {% for c in categorias %}
-                    <option value="{{ c.id }}">{{ c.nombre }}</option>
-                    {% endfor %}
-                </select>
-
-                <select name="marca_id" required>
-                    {% for m in marcas %}
-                    <option value="{{ m.id }}">{{ m.nombre }}</option>
-                    {% endfor %}
-                </select>
-
-                <input
-                    name="descripcion"
-                    placeholder="Descripción"
-                    style="grid-column: 1/4"
-                />
-
-                <button class="primary-btn" style="grid-column: 1/4">
-                    Crear Producto
-                </button>
-            </form>
-
-            <!-- ================= TABLA PRODUCTOS ================= -->
-            <div class="table-container">
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Referencia</th>
-                            <th>Nombre</th>
-                            <th>Categoría</th>
-                            <th>Marca</th>
-                            <th>Estado</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        {% for p in productos %}
-                        <tr>
-                            <td>{{ p.id }}</td>
-                            <td>{{ p.referencia }}</td>
-                            <td>{{ p.nombre }}</td>
-                            <td>{{ p.categoria_nombre }}</td>
-                            <td>{{ p.marca_nombre }}</td>
-                            <td>{{ p.estado }}</td>
-
-                            <td>
-                                <div class="action-btns">
-                                    <button
-                                        class="secondary-btn"
-                                        onclick="openModal('producto-{{ p.id }}')"
-                                    >
-                                        Editar
-                                    </button>
-
-                                    <a
-                                        href="{{ url_for('admin.eliminar_producto', id=p.id) }}"
-                                        style="color: #ff4d4d"
-                                    >
-                                        Eliminar
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
-
-                        <!-- ================= MODAL PRODUCTO ================= -->
-                        <div class="modal" id="modal-producto-{{ p.id }}">
-                            <div class="modal-content">
-                                <h3>Editar Producto</h3>
-
-                                <form
-                                    action="{{ url_for('admin.editar_producto', id=p.id) }}"
-                                    method="POST"
-                                >
-                                    <input
-                                        name="referencia"
-                                        value="{{ p.referencia }}"
-                                    />
-                                    <input name="nombre" value="{{ p.nombre }}" />
-                                    <input
-                                        name="descripcion"
-                                        value="{{ p.descripcion }}"
-                                    />
-
-                                    <select name="categoria_id">
-                                        {% for c in categorias %}
-                                        <option
-                                            value="{{ c.id }}"
-                                            {% if c.id == p.categoria_id %}selected{% endif %}
-                                        >
-                                            {{ c.nombre }}
-                                        </option>
-                                        {% endfor %}
-                                    </select>
-
-                                    <select name="marca_id">
-                                        {% for m in marcas %}
-                                        <option
-                                            value="{{ m.id }}"
-                                            {% if m.id == p.marca_id %}selected{% endif %}
-                                        >
-                                            {{ m.nombre }}
-                                        </option>
-                                        {% endfor %}
-                                    </select>
-
-                                    <select name="estado">
-                                        <option value="activo" {% if p.estado == 'activo' %}selected{% endif %}>Activo</option>
-                                        <option value="inactivo" {% if p.estado == 'inactivo' %}selected{% endif %}>Inactivo</option>
-                                    </select>
-
-                                    <button class="primary-btn">Guardar</button>
-                                </form>
-
-                                <button
-                                    class="secondary-btn"
-                                    onclick="closeModal('producto-{{ p.id }}')"
-                                >
-                                    Cerrar
-                                </button>
-                            </div>
+                        {% else %}
+                        <div class="empty-state">
+                            <i class="fa-solid fa-envelope-open-text"></i>
+                            <p>Aún no has recibido mensajes de contacto.</p>
                         </div>
-
-                        {% endfor %}
-                    </tbody>
-                </table>
+                        {% endif %}
+                    </div>
+                </section>
             </div>
-        </section>
+        </div>
 
         <!-- JS EXTERNO -->
+        <script src="{{ url_for('static', filename='js/main.js') }}"></script>
         <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
     </body>
 </html>

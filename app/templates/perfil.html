@@ -49,37 +49,128 @@
 
   {% include 'header.html' %}
 
-  <section class="hero" style="flex-direction: column">
+  <div class="profile-shell">
 
-    <h1>Mi Perfil</h1>
+    {% if guardado %}
+    <div class="form-success-banner">
+      <i class="fa-solid fa-circle-check"></i>
+      Tus datos se guardaron correctamente.
+    </div>
+    {% endif %}
 
-    <form
-      method="POST"
-      style="
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 15px;
-        width: 100%;
-        max-width: 700px;
-      "
-    >
-      <input name="name" value="{{ usuario.name }}" placeholder="Nombre" required>
-      <input name="apellidos" value="{{ usuario.apellidos }}" placeholder="Apellidos" required>
+    <form method="POST" enctype="multipart/form-data">
 
-      <input name="email" type="email" value="{{ usuario.email }}" placeholder="Correo" required>
-      <input name="celular" value="{{ usuario.celular or '' }}" placeholder="Celular">
+      <!-- ================= RESUMEN ================= -->
+      <div class="profile-summary-card">
+        <label for="avatarInput" class="avatar-upload-label">
+          <img
+            src="{{ avatar_url }}"
+            class="profile-summary-avatar"
+            id="avatarPreview"
+            alt="Usuario"
+          />
+          <span class="avatar-upload-overlay">
+            <i class="fa-solid fa-camera"></i>
+          </span>
+        </label>
 
-      <input
-        name="nueva_password"
-        type="password"
-        placeholder="Nueva contraseña (dejar en blanco para no cambiar)"
-        style="grid-column: 1/3"
-      >
+        <input
+          type="file"
+          name="avatar"
+          id="avatarInput"
+          accept="image/png,image/jpeg,image/webp,image/gif"
+          hidden
+        >
 
-      <button class="primary-btn" style="grid-column: 1/3">Guardar Cambios</button>
+        <div class="profile-summary-info">
+          <h1>{{ usuario.name }} {{ usuario.apellidos }}</h1>
+          <p>@{{ usuario.username }} · {{ usuario.email }}</p>
+          <span class="profile-role-badge">
+            {{ usuario.rol }}
+          </span>
+        </div>
+      </div>
+
+      <!-- ================= INFORMACIÓN PERSONAL ================= -->
+      <div class="section-card">
+        <div class="section-card-header">
+          <h2>Información personal</h2>
+          <span>Datos visibles en tu cuenta</span>
+        </div>
+
+        <div class="admin-form-grid cols-2">
+          <input name="name" value="{{ usuario.name }}" placeholder="Nombre" required>
+          <input name="apellidos" value="{{ usuario.apellidos }}" placeholder="Apellidos" required>
+
+          <input name="email" type="email" value="{{ usuario.email }}" placeholder="Correo" required>
+          <input name="celular" value="{{ usuario.celular or '' }}" placeholder="Celular">
+
+          <input
+            type="date"
+            name="fechanaci"
+            value="{{ usuario.fechanaci or '' }}"
+            class="full-width"
+          >
+        </div>
+      </div>
+
+      <!-- ================= SEGURIDAD ================= -->
+      <div class="section-card">
+        <div class="section-card-header">
+          <h2>Seguridad</h2>
+          <span>Actualiza tu contraseña</span>
+        </div>
+
+        <div class="admin-form-grid cols-2">
+          <input
+            name="nueva_password"
+            type="password"
+            placeholder="Nueva contraseña (dejar en blanco para no cambiar)"
+            class="full-width"
+          >
+
+          <button class="primary-btn">Guardar Cambios</button>
+        </div>
+      </div>
+
     </form>
 
-  </section>
+    <!-- ================= ACCESOS RÁPIDOS ================= -->
+    <div class="quick-links-grid">
+      <a href="{{ url_for('usuario.mis_pedidos') }}" class="quick-link-card">
+        <div class="stat-icon">
+          <i class="fa-solid fa-receipt"></i>
+        </div>
+        <div>
+          <div class="quick-link-title">Mis pedidos</div>
+          <div class="quick-link-desc">Consulta tus compras anteriores</div>
+        </div>
+      </a>
+
+      <a href="{{ url_for('carrito.ver') }}" class="quick-link-card">
+        <div class="stat-icon">
+          <i class="fa-solid fa-bag-shopping"></i>
+        </div>
+        <div>
+          <div class="quick-link-title">Mi carrito</div>
+          <div class="quick-link-desc">Revisa lo que vas a comprar</div>
+        </div>
+      </a>
+
+      {% if usuario.rol == 'admin' %}
+      <a href="{{ url_for('admin.admin_panel') }}" class="quick-link-card">
+        <div class="stat-icon">
+          <i class="fa-solid fa-gauge-high"></i>
+        </div>
+        <div>
+          <div class="quick-link-title">Panel Admin</div>
+          <div class="quick-link-desc">Gestiona la tienda</div>
+        </div>
+      </a>
+      {% endif %}
+    </div>
+
+  </div>
 
   {% include 'footer.html' %}
 

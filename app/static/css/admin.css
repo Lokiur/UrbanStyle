@@ -1,3 +1,33 @@
+/* El navbar del admin no tiene botón de hamburguesa, así que su nav
+   y sus iconos (el menú de perfil) nunca deben ocultarse en móvil */
+.navbar-admin nav,
+.navbar-admin .icons {
+    display: flex !important;
+}
+
+@media (max-width: 1100px) {
+    .navbar-admin {
+        flex-wrap: wrap;
+        row-gap: 15px;
+    }
+
+    .navbar-admin nav {
+        gap: 20px;
+        width: auto;
+        margin-top: 0;
+    }
+}
+
+/* Evita que los <select> abran su lista desplegable en blanco
+   (el navegador la pinta con el tema del sistema si no se indica) */
+:root {
+    color-scheme: dark;
+}
+
+select {
+    color-scheme: dark;
+}
+
 .table-container {
     width: 100%;
     overflow-x: auto;
@@ -50,22 +80,636 @@
 .modal-content select {
     padding: 10px;
     border-radius: 10px;
-    border: none;
+    border: 1px solid rgba(255, 255, 255, 0.1);
     outline: none;
+
+    background: rgba(255, 255, 255, 0.06);
+    color: white;
 }
 
-.pedido-confirmado {
+.modal-content select option {
+    background: var(--color-bg-dark);
+    color: white;
+}
+
+/* =========================
+   ADMIN SHELL / LAYOUT
+   ========================= */
+
+.admin-shell {
+    display: flex;
+    align-items: flex-start;
+    gap: 30px;
+
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+
+    padding: 50px 40px 90px;
+}
+
+.admin-sidebar {
+    position: sticky;
+    top: 30px;
+
+    width: 250px;
+    flex-shrink: 0;
+
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    padding: 20px;
+
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+}
+
+.admin-sidebar h6 {
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    opacity: 0.5;
+    padding: 8px 12px 14px;
+}
+
+.admin-nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    padding: 14px 16px;
+
+    border: none;
+    border-radius: 12px;
+
+    background: transparent;
+    color: white;
+    opacity: 0.7;
+
+    font-size: 15px;
+    text-align: left;
+
+    cursor: pointer;
+    transition: 0.25s;
+}
+
+.admin-nav-btn i {
+    width: 18px;
+    text-align: center;
+    color: var(--color-accent);
+}
+
+.admin-nav-btn:hover {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.admin-nav-btn.active {
+    opacity: 1;
+    background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--color-accent-strong) 25%, transparent),
+        color-mix(in srgb, var(--color-accent) 15%, transparent)
+    );
+    box-shadow: 0 8px 20px color-mix(in srgb, var(--color-accent) 15%, transparent);
+}
+
+.admin-nav-badge {
+    margin-left: auto;
+
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50px;
+
+    background: #ff6b6b;
+    color: white;
+
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.admin-content {
+    flex: 1;
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.admin-section {
+    display: none;
+    flex-direction: column;
+    gap: 30px;
+
+    animation: admin-fade-in 0.3s ease;
+}
+
+.admin-section.active {
+    display: flex;
+}
+
+@keyframes admin-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.admin-page-title {
+    font-size: 34px;
+    font-weight: 800;
+    margin-bottom: 4px;
+}
+
+.admin-page-subtitle {
+    opacity: 0.65;
+    font-size: 15px;
+}
+
+/* =========================
+   CARDS / SECTIONS
+   ========================= */
+
+.section-card {
+    padding: 30px;
+
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+}
+
+.section-card-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 15px;
+
+    margin-bottom: 22px;
+}
+
+.section-card-header h2 {
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.section-card-header span {
+    opacity: 0.6;
+    font-size: 14px;
+}
+
+/* =========================
+   STAT CARDS (DASHBOARD)
+   ========================= */
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+}
+
+.stat-card {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+
+    padding: 24px;
+
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
+    backdrop-filter: blur(10px);
+
+    transition: 0.3s;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    border-color: color-mix(in srgb, var(--color-accent) 40%, transparent);
+}
+
+.stat-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 52px;
+    height: 52px;
+    flex-shrink: 0;
+
+    border-radius: 14px;
+
+    background: color-mix(in srgb, var(--color-accent) 15%, transparent);
+    color: var(--color-accent);
+
+    font-size: 22px;
+}
+
+.stat-value {
+    font-size: 26px;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.stat-label {
+    opacity: 0.65;
+    font-size: 13px;
+}
+
+/* =========================
+   FORM GRID (CREAR)
+   ========================= */
+
+.admin-form-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    width: 100%;
+}
+
+.admin-form-grid input,
+.admin-form-grid select {
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    outline: none;
+
+    background: rgba(255, 255, 255, 0.04);
+    color: white;
+}
+
+.admin-form-grid select option {
+    background: var(--color-bg-dark);
+    color: white;
+}
+
+.admin-form-grid .primary-btn {
+    grid-column: 1/4;
+    padding: 14px 35px;
+    font-size: 16px;
+}
+
+.admin-form-grid.cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.admin-form-grid.cols-2 .primary-btn,
+.admin-form-grid.cols-2 .full-width {
+    grid-column: 1/3;
+}
+
+/* =========================
+   ESTADO BADGES
+   ========================= */
+
+.badge-estado {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 50px;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.badge-estado.activo,
+.badge-estado.activa {
+    color: #4ade80;
+    background: rgba(74, 222, 128, 0.12);
+}
+
+.badge-estado.inactivo,
+.badge-estado.anulada {
+    color: #ff6b6b;
+    background: rgba(255, 107, 107, 0.12);
+}
+
+.badge-estado.nuevo {
+    color: var(--color-accent);
+    background: color-mix(in srgb, var(--color-accent) 15%, transparent);
+}
+
+.badge-estado.leido {
+    color: rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.06);
+}
+
+/* =========================
+   MENSAJES DE CONTACTO
+   ========================= */
+
+.messages-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.message-card {
+    padding: 18px 20px;
+
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+
+    transition: 0.25s;
+}
+
+.message-card.unread {
+    background: color-mix(in srgb, var(--color-accent) 5%, transparent);
+    border-color: color-mix(in srgb, var(--color-accent) 35%, transparent);
+}
+
+.message-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+
+    margin-bottom: 10px;
+}
+
+.message-card-header strong {
+    font-size: 15px;
+}
+
+.message-card-email {
+    display: block;
+    opacity: 0.6;
+    font-size: 13px;
+}
+
+.message-card-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.message-card-date {
+    opacity: 0.55;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.message-card-body {
+    margin-bottom: 14px;
+
+    opacity: 0.85;
+    font-size: 14.5px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+}
+
+/* =========================
+   RESPONSIVE
+   ========================= */
+
+@media (max-width: 950px) {
+    .admin-shell {
+        flex-direction: column;
+        padding: 30px 20px 60px;
+    }
+
+    .admin-sidebar {
+        position: static;
+        width: 100%;
+
+        flex-direction: row;
+        overflow-x: auto;
+    }
+
+    .admin-sidebar h6 {
+        display: none;
+    }
+
+    .admin-nav-btn {
+        flex-shrink: 0;
+    }
+
+    .admin-form-grid,
+    .admin-form-grid.cols-2 {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-form-grid .primary-btn,
+    .admin-form-grid.cols-2 .primary-btn,
+    .admin-form-grid.cols-2 .full-width {
+        grid-column: 1;
+    }
+}
+
+/* =========================
+   PÁGINA "MIS PEDIDOS"
+   ========================= */
+
+.orders-shell {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+
+    padding: 50px 40px 90px;
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+
+    padding: 60px 20px;
+
+    text-align: center;
+    opacity: 0.7;
+}
+
+.empty-state i {
+    font-size: 40px;
+    color: var(--color-accent);
+    opacity: 0.8;
+}
+
+/* =========================
+   PÁGINA "MI PERFIL"
+   ========================= */
+
+.profile-shell {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+
+    padding: 50px 40px 90px;
+}
+
+.profile-summary-card {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+
+    padding: 30px;
+
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+}
+
+.profile-summary-avatar {
+    width: 84px;
+    height: 84px;
+    flex-shrink: 0;
+
+    border-radius: 50%;
+    object-fit: cover;
+
+    border: 3px solid var(--color-accent);
+}
+
+.avatar-upload-label {
+    position: relative;
+    display: inline-block;
+    flex-shrink: 0;
+
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.avatar-upload-overlay {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 28px;
+    height: 28px;
+
+    border-radius: 50%;
+    border: 2px solid var(--color-bg-dark);
+
+    background: var(--color-accent);
+    color: white;
+    font-size: 12px;
+
+    transition: 0.25s;
+}
+
+.avatar-upload-label:hover .avatar-upload-overlay {
+    transform: scale(1.1);
+}
+
+.profile-summary-info h1 {
+    font-size: 26px;
+    font-weight: 800;
+    margin-bottom: 6px;
+}
+
+.profile-summary-info p {
+    opacity: 0.65;
+    font-size: 14px;
+}
+
+.profile-role-badge {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 6px 14px;
+    border-radius: 50px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: capitalize;
+
+    color: var(--color-accent);
+    background: color-mix(in srgb, var(--color-accent) 15%, transparent);
+}
+
+.form-success-banner {
     display: flex;
     align-items: center;
     gap: 10px;
 
-    margin-top: 20px;
-    padding: 14px 18px;
-
-    background: rgba(74, 222, 128, 0.1);
-    border: 1px solid rgba(74, 222, 128, 0.4);
+    padding: 14px 20px;
     border-radius: 12px;
 
     color: #4ade80;
-    font-weight: bold;
+    background: rgba(74, 222, 128, 0.12);
+
+    font-size: 14px;
+}
+
+.quick-links-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+}
+
+.quick-link-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    padding: 22px;
+
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
+    backdrop-filter: blur(10px);
+
+    color: white;
+    text-decoration: none;
+
+    transition: 0.3s;
+}
+
+.quick-link-card:hover {
+    transform: translateY(-4px);
+    border-color: color-mix(in srgb, var(--color-accent) 40%, transparent);
+}
+
+.quick-link-card .stat-icon {
+    flex-shrink: 0;
+}
+
+.quick-link-title {
+    font-weight: 700;
+    font-size: 15px;
+}
+
+.quick-link-desc {
+    opacity: 0.6;
+    font-size: 13px;
+}
+
+@media (max-width: 600px) {
+    .profile-shell,
+    .orders-shell {
+        padding: 30px 20px 60px;
+    }
+
+    .profile-summary-card {
+        flex-direction: column;
+        text-align: center;
+    }
 }
