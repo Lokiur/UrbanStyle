@@ -65,6 +65,15 @@
 
     </div>
 
+    {% if error_checkout %}
+
+    <div class="checkout-error">
+      <i class="fa-solid fa-circle-exclamation"></i>
+      <span>{{ error_checkout }}</span>
+    </div>
+
+    {% endif %}
+
     {% if items %}
 
     <div class="carrito-grid">
@@ -127,8 +136,8 @@
           El envío y los impuestos se calculan al finalizar la compra.
         </p>
 
-        <button type="button" class="primary-btn checkout-btn" disabled>
-          Finalizar compra (próximamente)
+        <button type="button" class="primary-btn checkout-btn" id="checkoutTrigger">
+          Finalizar compra
         </button>
 
         <a href="{{ url_for('productos.products') }}" class="continue-link">
@@ -139,6 +148,162 @@
 
     </div>
 
+    <!-- PANEL FLOTANTE: CONFIRMAR PEDIDO -->
+
+    <div class="checkout-overlay" id="checkoutOverlay"></div>
+
+    <aside class="checkout-panel" id="checkoutPanel" aria-hidden="true">
+
+      <div class="checkout-panel-header">
+        <h3>Confirmar pedido</h3>
+        <button type="button" class="checkout-close" id="checkoutClose" aria-label="Cerrar">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form method="POST" action="{{ url_for('carrito.confirmar') }}" class="checkout-form">
+
+        <div class="checkout-accordion">
+
+          <div class="checkout-accordion-item active">
+            <button type="button" class="checkout-accordion-header">
+              <span>Resumen del pedido</span>
+              <i class="fa-solid fa-chevron-down"></i>
+            </button>
+
+            <div class="checkout-accordion-body">
+              <div class="checkout-items">
+                {% for item in items %}
+                <div class="checkout-item">
+                  <span>{{ item.cantidad }}x {{ item.producto_nombre }} <small>(Talla {{ item.talla }})</small></span>
+                  <span>$ {{ "{:,.0f}".format(item.subtotal) }}</span>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+
+          <div class="checkout-accordion-item">
+            <button type="button" class="checkout-accordion-header">
+              <span>Dirección de envío</span>
+              <i class="fa-solid fa-chevron-down"></i>
+            </button>
+
+            <div class="checkout-accordion-body">
+              {% for d in direcciones %}
+              <label class="checkout-radio">
+                <input
+                  type="radio"
+                  name="direccion_id"
+                  value="{{ d.id }}"
+                  {% if loop.first %}checked{% endif %}
+                >
+                <span>{{ d.direccion }}, {{ d.ciudad }}{% if d.departamento %} ({{ d.departamento }}){% endif %}</span>
+              </label>
+              {% endfor %}
+
+              <label class="checkout-radio">
+                <input
+                  type="radio"
+                  name="direccion_id"
+                  value="nueva"
+                  id="direccionNueva"
+                  {% if not direcciones %}checked{% endif %}
+                >
+                <span>Usar una dirección nueva</span>
+              </label>
+
+              <div class="checkout-nueva-direccion" id="nuevaDireccionFields">
+                <input type="text" name="direccion" placeholder="Dirección">
+                <input type="text" name="ciudad" placeholder="Ciudad">
+                <input type="text" name="departamento" placeholder="Departamento (opcional)">
+                <input type="text" name="codigo_postal" placeholder="Código postal (opcional)">
+              </div>
+            </div>
+          </div>
+
+          <div class="checkout-accordion-item">
+            <button type="button" class="checkout-accordion-header">
+              <span>Método de pago</span>
+              <i class="fa-solid fa-chevron-down"></i>
+            </button>
+
+            <div class="checkout-accordion-body">
+              <select name="metodo_pago_id" id="metodoPagoSelect" required>
+                <option value="" disabled selected>Selecciona un método</option>
+                {% for m in metodos_pago %}
+                <option
+                  value="{{ m.id }}"
+                  {% if 'Tarjeta' in m.nombre %}data-tipo="tarjeta"{% elif m.nombre == 'PSE' %}data-tipo="pse"{% elif m.nombre in ['Nequi', 'Daviplata'] %}data-tipo="billetera"{% endif %}
+                >{{ m.nombre }}</option>
+                {% endfor %}
+              </select>
+
+              <!-- los campos ocultos pierden el `required` desde main.js,
+                   si no el navegador bloquea el envio sin poder mostrarlos -->
+
+              <div class="checkout-metodo-fields" id="camposTarjeta">
+                <input type="text" name="tarjeta_nombre" placeholder="Nombre en la tarjeta" autocomplete="cc-name" required>
+                <input type="text" name="tarjeta_numero" placeholder="Número de tarjeta" inputmode="numeric" maxlength="19" autocomplete="cc-number" required>
+
+                <div class="checkout-metodo-fields-row">
+                  <input type="text" name="tarjeta_vencimiento" placeholder="MM/AA" maxlength="5" autocomplete="cc-exp" required>
+                  <input type="text" name="tarjeta_cvv" placeholder="CVV" inputmode="numeric" maxlength="4" autocomplete="cc-csc" required>
+                </div>
+              </div>
+
+              <div class="checkout-metodo-fields" id="camposBilletera">
+                <input type="text" name="billetera_celular" placeholder="Número de celular (10 dígitos)" inputmode="numeric" maxlength="10" autocomplete="tel-national" required>
+              </div>
+
+              <div class="checkout-metodo-fields" id="camposPse">
+                <select name="pse_banco" required>
+                  <option value="" disabled selected>Selecciona tu banco</option>
+                  <option>Bancolombia</option>
+                  <option>Banco de Bogotá</option>
+                  <option>Davivienda</option>
+                  <option>BBVA Colombia</option>
+                  <option>Banco de Occidente</option>
+                  <option>Banco Popular</option>
+                  <option>Banco Caja Social</option>
+                  <option>Scotiabank Colpatria</option>
+                </select>
+
+                <select name="pse_tipo_persona">
+                  <option value="natural" selected>Persona natural</option>
+                  <option value="juridica">Persona jurídica</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="checkout-totales">
+          <div class="summary-row small">
+            <span>Subtotal</span>
+            <span>$ {{ "{:,.0f}".format(total) }}</span>
+          </div>
+          <div class="summary-row small">
+            <span>IVA (19%)</span>
+            <span>$ {{ "{:,.0f}".format(iva) }}</span>
+          </div>
+          <div class="summary-row small">
+            <span>Envío</span>
+            <span>$ {{ "{:,.0f}".format(envio) }}</span>
+          </div>
+          <div class="summary-row">
+            <span>Total</span>
+            <span>$ {{ "{:,.0f}".format(total_final) }}</span>
+          </div>
+        </div>
+
+        <button type="submit" class="primary-btn" id="checkoutSubmit">Confirmar y pagar</button>
+
+      </form>
+
+    </aside>
+
     {% else %}
 
     <div class="carrito-empty">
@@ -146,6 +311,67 @@
       <p>Tu carrito está vacío.</p>
       <a href="{{ url_for('productos.products') }}" class="primary-btn">Ver productos</a>
     </div>
+
+    {% endif %}
+
+    <!-- PANEL FLOTANTE: PAGO APROBADO -->
+
+    {% if confirmacion %}
+
+    <div class="checkout-overlay active" id="confirmOverlay"></div>
+
+    <aside class="checkout-panel confirm-panel active" id="confirmPanel">
+
+      <div class="checkout-panel-header">
+        <h3>Pago aprobado</h3>
+        <button type="button" class="checkout-close" id="confirmClose" aria-label="Cerrar">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="confirm-check">
+        <i class="fa-solid fa-circle-check"></i>
+      </div>
+
+      <p class="confirm-mensaje">
+        Tu compra se realizó con éxito y ya descontamos los productos del inventario.
+      </p>
+
+      <div class="confirm-autorizacion">
+        <span>N° de autorización</span>
+        <strong>{{ confirmacion.numero_autorizacion }}</strong>
+      </div>
+
+      <div class="confirm-datos">
+        <div class="summary-row small">
+          <span>Factura</span>
+          <span>{{ confirmacion.numero_factura }}</span>
+        </div>
+        <div class="summary-row small">
+          <span>Método de pago</span>
+          <span>{{ confirmacion.metodo_pago }}</span>
+        </div>
+        <div class="summary-row">
+          <span>Total pagado</span>
+          <span>$ {{ "{:,.0f}".format(confirmacion.total|float) }}</span>
+        </div>
+      </div>
+
+      <a
+        href="{{ url_for('carrito.factura_pdf', factura_id=confirmacion.factura_id) }}"
+        class="primary-btn confirm-pdf"
+        target="_blank"
+        rel="noopener"
+      >
+        <i class="fa-solid fa-file-pdf"></i>
+        Descargar factura (PDF)
+      </a>
+
+      <a href="{{ url_for('usuario.mis_pedidos') }}" class="continue-link">
+        Ver mis pedidos
+      </a>
+
+    </aside>
 
     {% endif %}
 

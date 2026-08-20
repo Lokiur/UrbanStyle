@@ -1,4 +1,4 @@
-from flask import Flask, session
+from flask import Flask, session, url_for
 
 from app.services import cart_service
 
@@ -29,5 +29,11 @@ def create_app():
         if "user_id" in session:
             count = cart_service.contar_items(session["user_id"])
         return dict(carrito_count=count)
+
+    @app.context_processor
+    def inject_avatar_url():
+        avatar = session.get("avatar")
+        filename = f"img/avatars/{avatar}" if avatar else "img/user.png"
+        return dict(avatar_url=url_for("static", filename=filename))
 
     return app

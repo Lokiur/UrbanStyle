@@ -6,7 +6,7 @@ def obtener_items(user_id):
     cursor = conexion.cursor()
     cursor.execute(
         """
-        SELECT dc.id AS detalle_id, dc.cantidad, e.precio,
+        SELECT dc.id AS detalle_id, dc.cantidad, e.id AS existencia_id, e.precio,
                p.id AS producto_id, p.nombre AS producto_nombre,
                t.nombre AS talla, col.nombre AS color,
                (e.precio * dc.cantidad) AS subtotal,

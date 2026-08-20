@@ -672,6 +672,21 @@ INSERT INTO `marcas` (`id`, `nombre`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `mensajes`
+--
+
+CREATE TABLE `mensajes` (
+  `id` int(11) NOT NULL,
+  `nombre` varchar(150) NOT NULL,
+  `email` varchar(120) NOT NULL,
+  `mensaje` text NOT NULL,
+  `estado` enum('nuevo','leido') DEFAULT 'nuevo',
+  `fecha` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `metodos_pago`
 --
 
@@ -839,6 +854,7 @@ CREATE TABLE `users` (
   `email` varchar(120) NOT NULL,
   `password` varchar(255) NOT NULL,
   `celular` varchar(20) DEFAULT NULL,
+  `avatar` varchar(255) DEFAULT NULL,
   `fechanaci` date DEFAULT NULL,
   `rol` enum('admin','usuario') DEFAULT 'usuario',
   `estado` enum('activo','inactivo') DEFAULT 'activo',
@@ -963,6 +979,12 @@ ALTER TABLE `marcas`
   ADD UNIQUE KEY `nombre` (`nombre`);
 
 --
+-- Indices de la tabla `mensajes`
+--
+ALTER TABLE `mensajes`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indices de la tabla `metodos_pago`
 --
 ALTER TABLE `metodos_pago`
@@ -1078,6 +1100,12 @@ ALTER TABLE `imagenes_producto`
 --
 ALTER TABLE `marcas`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT de la tabla `mensajes`
+--
+ALTER TABLE `mensajes`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
 
 --
 -- AUTO_INCREMENT de la tabla `metodos_pago`
