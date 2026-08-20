@@ -5,13 +5,13 @@ from database.init_db import conectar
 
 def _consultar_productos(cursor, condicion="", parametros=()):
     sql = """
-        SELECT p.*,
+        SELECT p.id, p.referencia, p.nombre, p.descripcion, p.categoria_id,
+               p.marca_id, p.estado, p.created_at, p.updated_at,
+               (p.imagen IS NOT NULL) AS tiene_imagen,
                MIN(e.precio) AS precio_desde,
-               COALESCE(SUM(e.stock), 0) AS stock_total,
-               i.imagen AS imagen
+               COALESCE(SUM(e.stock), 0) AS stock_total
         FROM productos p
         LEFT JOIN existencias e ON e.producto_id = p.id AND e.estado = 'activo'
-        LEFT JOIN imagenes_producto i ON i.producto_id = p.id AND i.principal = 1
         WHERE p.estado = 'activo'
     """
     if condicion:
@@ -99,7 +99,10 @@ def listar_productos_admin():
     cursor = conexion.cursor()
     cursor.execute(
         """
-        SELECT p.*, c.nombre AS categoria_nombre, m.nombre AS marca_nombre
+        SELECT p.id, p.referencia, p.nombre, p.descripcion, p.categoria_id,
+               p.marca_id, p.estado, p.created_at, p.updated_at,
+               (p.imagen IS NOT NULL) AS tiene_imagen,
+               c.nombre AS categoria_nombre, m.nombre AS marca_nombre
         FROM productos p
         JOIN categorias c ON c.id = p.categoria_id
         JOIN marcas m ON m.id = p.marca_id
@@ -108,6 +111,17 @@ def listar_productos_admin():
     productos = cursor.fetchall()
     conexion.close()
     return productos
+
+
+def obtener_imagen_producto(id):
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute(
+        "SELECT imagen, imagen_mime FROM productos WHERE id = %s", (id,)
+    )
+    fila = cursor.fetchone()
+    conexion.close()
+    return fila
 
 
 def listar_categorias():
@@ -128,13 +142,27 @@ def listar_marcas():
     return marcas
 
 
-def crear_producto(datos):
+TIPOS_IMAGEN_PERMITIDOS = {"image/jpeg", "image/png", "image/webp", "image/gif"}
+
+
+def _leer_imagen(archivo):
+    """Valida y lee un archivo subido (werkzeug FileStorage). Devuelve (bytes, mime) o (None, None)."""
+    if archivo is None or not archivo.filename:
+        return None, None
+    if archivo.mimetype not in TIPOS_IMAGEN_PERMITIDOS:
+        raise ValueError("Formato de imagen no soportado (usa JPG, PNG, WEBP o GIF)")
+    return archivo.read(), archivo.mimetype
+
+
+def crear_producto(datos, archivo_imagen=None):
+    imagen, imagen_mime = _leer_imagen(archivo_imagen)
+
     conexion = conectar()
     cursor = conexion.cursor()
     cursor.execute(
         """
-        INSERT INTO productos (referencia, nombre, descripcion, categoria_id, marca_id, estado)
-        VALUES (%s, %s, %s, %s, %s, 'activo')
+        INSERT INTO productos (referencia, nombre, descripcion, categoria_id, marca_id, estado, imagen, imagen_mime)
+        VALUES (%s, %s, %s, %s, %s, 'activo', %s, %s)
         """,
         (
             datos["referencia"],
@@ -142,31 +170,56 @@ def crear_producto(datos):
             datos.get("descripcion", ""),
             datos["categoria_id"],
             datos["marca_id"],
+            imagen,
+            imagen_mime,
         ),
     )
     conexion.commit()
     conexion.close()
 
 
-def actualizar_producto(id, datos):
+def actualizar_producto(id, datos, archivo_imagen=None):
+    imagen, imagen_mime = _leer_imagen(archivo_imagen)
+
     conexion = conectar()
     cursor = conexion.cursor()
-    cursor.execute(
-        """
-        UPDATE productos
-        SET referencia=%s, nombre=%s, descripcion=%s, categoria_id=%s, marca_id=%s, estado=%s
-        WHERE id=%s
-        """,
-        (
-            datos["referencia"],
-            datos["nombre"],
-            datos.get("descripcion", ""),
-            datos["categoria_id"],
-            datos["marca_id"],
-            datos.get("estado", "activo"),
-            id,
-        ),
-    )
+    if imagen is not None:
+        cursor.execute(
+            """
+            UPDATE productos
+            SET referencia=%s, nombre=%s, descripcion=%s, categoria_id=%s, marca_id=%s,
+                estado=%s, imagen=%s, imagen_mime=%s
+            WHERE id=%s
+            """,
+            (
+                datos["referencia"],
+                datos["nombre"],
+                datos.get("descripcion", ""),
+                datos["categoria_id"],
+                datos["marca_id"],
+                datos.get("estado", "activo"),
+                imagen,
+                imagen_mime,
+                id,
+            ),
+        )
+    else:
+        cursor.execute(
+            """
+            UPDATE productos
+            SET referencia=%s, nombre=%s, descripcion=%s, categoria_id=%s, marca_id=%s, estado=%s
+            WHERE id=%s
+            """,
+            (
+                datos["referencia"],
+                datos["nombre"],
+                datos.get("descripcion", ""),
+                datos["categoria_id"],
+                datos["marca_id"],
+                datos.get("estado", "activo"),
+                id,
+            ),
+        )
     conexion.commit()
     conexion.close()
 

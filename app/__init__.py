@@ -7,7 +7,7 @@ def create_app():
     app = Flask(__name__)
 
     app.secret_key = "urbanstyle"
-    app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024  # 5 MB, para la foto de perfil
+    app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024  # 5 MB por subida
 
     from app.routes.admin_routes import admin
     from app.routes.auth_routes import auth

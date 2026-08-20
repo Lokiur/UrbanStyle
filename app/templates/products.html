@@ -71,7 +71,7 @@
 
       <div class="product-image">
         <img
-          src="{{ url_for('static', filename='img/' ~ (producto.imagen or 'urbanstyle.png')) }}"
+          src="{{ url_for('productos.imagen_producto', id=producto.id) if producto.tiene_imagen else url_for('static', filename='img/urbanstyle.png') }}"
           alt="{{ producto.nombre }}"
         >
       </div>

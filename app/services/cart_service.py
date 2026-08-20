@@ -10,14 +10,13 @@ def obtener_items(user_id):
                p.id AS producto_id, p.nombre AS producto_nombre,
                t.nombre AS talla, col.nombre AS color,
                (e.precio * dc.cantidad) AS subtotal,
-               i.imagen AS imagen
+               (p.imagen IS NOT NULL) AS tiene_imagen
         FROM carrito c
         JOIN detalle_carrito dc ON dc.carrito_id = c.id
         JOIN existencias e ON e.id = dc.existencia_id
         JOIN productos p ON p.id = e.producto_id
         JOIN tallas t ON t.id = e.talla_id
         JOIN colores col ON col.id = e.color_id
-        LEFT JOIN imagenes_producto i ON i.producto_id = p.id AND i.principal = 1
         WHERE c.user_id = %s
         ORDER BY dc.id
         """,
