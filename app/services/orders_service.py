@@ -21,6 +21,16 @@ TRANSICIONES_ADMIN = {
     "anulado": (),
 }
 
+# orden de las etapas de envio para pintar la linea de tiempo en "Mis
+# Pedidos" (no incluye "anulado", que es un estado aparte, no un paso).
+ETAPAS_ENVIO = ["pendiente", "enviado", "entregado"]
+
+ETAPAS_ENVIO_LABELS = {
+    "pendiente": "Pedido recibido",
+    "enviado": "Enviado",
+    "entregado": "Entregado",
+}
+
 # minutos que tiene el cliente, desde que paga, para cancelar su propio
 # pedido (solo si sigue "pendiente", es decir, aun no se ha despachado).
 VENTANA_CANCELACION_CLIENTE_MINUTOS = 30

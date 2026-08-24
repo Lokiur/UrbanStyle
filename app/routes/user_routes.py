@@ -1,7 +1,16 @@
 import os
 import uuid
 
-from flask import Blueprint, current_app, redirect, render_template, request, session, url_for
+from flask import (
+    Blueprint,
+    abort,
+    current_app,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
+)
 
 from app.services import orders_service, users_service
 from app.utils.decorators import login_required
@@ -85,3 +94,25 @@ def cancelar_pedido(factura_id):
     if error:
         session["error_pedido"] = error
     return redirect(url_for("usuario.mis_pedidos"))
+
+
+@usuario.route("/mis-pedidos/<int:factura_id>")
+@login_required
+def pedido_detalle(factura_id):
+    pedido = orders_service.obtener_factura(session["user_id"], factura_id)
+
+    if not pedido:
+        abort(404)
+
+    if pedido["estado"] in orders_service.ETAPAS_ENVIO:
+        paso_actual = orders_service.ETAPAS_ENVIO.index(pedido["estado"])
+    else:
+        paso_actual = -1
+
+    return render_template(
+        "pedido_detalle.html",
+        pedido=pedido,
+        etapas_envio=orders_service.ETAPAS_ENVIO,
+        etapas_envio_labels=orders_service.ETAPAS_ENVIO_LABELS,
+        paso_actual=paso_actual,
+    )

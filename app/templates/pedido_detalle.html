@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Pedido {{ pedido.numero_factura }} | UrbanStyle</title>
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/variables.css') }}"
+  >
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/style.css') }}"
+  >
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/admin.css') }}"
+  >
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/footer.css') }}"
+  >
+
+  <link
+    rel="shortcut icon"
+    href="{{ url_for('static', filename='img/urbanstyle.png') }}"
+    type="image/x-icon"
+  />
+
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+  />
+
+</head>
+
+<body>
+
+  {% include 'header.html' %}
+
+  <div class="orders-shell">
+
+    <div>
+      <a href="{{ url_for('usuario.mis_pedidos') }}" class="secondary-btn">
+        <i class="fa-solid fa-arrow-left"></i> Volver a mis pedidos
+      </a>
+    </div>
+
+    <div>
+      <h1 class="admin-page-title">Pedido {{ pedido.numero_factura }}</h1>
+      <p class="admin-page-subtitle">
+        Realizado el {{ pedido.fecha }}
+        <span class="badge-estado {{ pedido.estado }}">{{ pedido.estado }}</span>
+      </p>
+    </div>
+
+    {% if pedido.estado == 'anulado' %}
+    <div class="section-card">
+      <div class="empty-state">
+        <i class="fa-solid fa-ban"></i>
+        <p>Este pedido fue anulado, por lo que no tiene seguimiento de envío.</p>
+      </div>
+    </div>
+    {% else %}
+    <div class="section-card">
+      <div class="section-card-header">
+        <h2>Seguimiento del envío</h2>
+      </div>
+
+      <div class="tracking-timeline">
+        {% for paso in etapas_envio %}
+        <div class="tracking-step {% if loop.index0 < paso_actual %}done{% elif loop.index0 == paso_actual %}current{% endif %}">
+          <div class="tracking-dot">
+            {% if loop.index0 < paso_actual %}
+            <i class="fa-solid fa-check"></i>
+            {% elif loop.index0 == paso_actual %}
+            <i class="fa-solid fa-truck-fast"></i>
+            {% endif %}
+          </div>
+          <div class="tracking-label">{{ etapas_envio_labels[paso] }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="section-card">
+      <div class="section-card-header">
+        <h2>Datos del pedido</h2>
+      </div>
+
+      <div class="tracking-info-grid">
+        <div>
+          <span class="tracking-info-label">Dirección de envío</span>
+          <p>
+            {{ pedido.direccion }}<br />
+            {{ pedido.ciudad }}{% if pedido.departamento %}, {{ pedido.departamento }}{% endif %}
+            {% if pedido.codigo_postal %} — {{ pedido.codigo_postal }}{% endif %}
+          </p>
+        </div>
+
+        <div>
+          <span class="tracking-info-label">Método de pago</span>
+          <p>{{ pedido.metodo_pago }}</p>
+        </div>
+
+        <div>
+          <span class="tracking-info-label">N° de autorización</span>
+          <p>{{ pedido.numero_autorizacion or '—' }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-card-header">
+        <h2>Productos</h2>
+        <a
+          href="{{ url_for('carrito.factura_pdf', factura_id=pedido.id) }}"
+          target="_blank"
+          rel="noopener"
+          title="Descargar factura en PDF"
+        >
+          <i class="fa-solid fa-file-pdf"></i> Descargar factura
+        </a>
+      </div>
+
+      <div class="table-container">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Talla</th>
+              <th>Color</th>
+              <th>Cantidad</th>
+              <th>Precio unitario</th>
+              <th>Subtotal</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {% for item in pedido['items'] %}
+            <tr>
+              <td>{{ item.producto_nombre }}</td>
+              <td>{{ item.talla }}</td>
+              <td>{{ item.color }}</td>
+              <td>{{ item.cantidad }}</td>
+              <td>$ {{ "{:,.0f}".format(item.precio_unitario) }}</td>
+              <td>$ {{ "{:,.0f}".format(item.subtotal) }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+
+          <tfoot>
+            <tr>
+              <td colspan="5">Subtotal</td>
+              <td>$ {{ "{:,.0f}".format(pedido.subtotal) }}</td>
+            </tr>
+            <tr>
+              <td colspan="5">IVA</td>
+              <td>$ {{ "{:,.0f}".format(pedido.iva) }}</td>
+            </tr>
+            <tr>
+              <td colspan="5">Envío</td>
+              <td>$ {{ "{:,.0f}".format(pedido.envio) }}</td>
+            </tr>
+            <tr>
+              <td colspan="5"><strong>Total</strong></td>
+              <td><strong>$ {{ "{:,.0f}".format(pedido.total) }}</strong></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  {% include 'footer.html' %}
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+</body>
+
+</html>
