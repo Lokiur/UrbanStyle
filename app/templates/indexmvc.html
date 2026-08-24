@@ -622,6 +622,13 @@
                             <span>{{ total_pedidos }} en total</span>
                         </div>
 
+                        {% if error_pedido %}
+                        <div class="admin-error">
+                            <i class="fa-solid fa-circle-exclamation"></i>
+                            <span>{{ error_pedido }}</span>
+                        </div>
+                        {% endif %}
+
                         <div class="table-container">
                             <table class="admin-table">
                                 <thead>
@@ -634,6 +641,8 @@
                                         <th>Envío</th>
                                         <th>Total</th>
                                         <th>Estado</th>
+                                        <th>Factura</th>
+                                        <th>Acciones</th>
                                     </tr>
                                 </thead>
 
@@ -658,10 +667,62 @@
                                                 {{ p.estado }}
                                             </span>
                                         </td>
+                                        <td>
+                                            <a
+                                                href="{{ url_for('admin.factura_pdf', id=p.id) }}"
+                                                target="_blank"
+                                                rel="noopener"
+                                                title="Ver factura en PDF"
+                                            >
+                                                <i class="fa-solid fa-file-pdf"></i> PDF
+                                            </a>
+                                        </td>
+                                        <td>
+                                            {% if p.estado in ('pendiente', 'enviado') %}
+                                            <div class="action-btns">
+                                                {% if p.estado == 'pendiente' %}
+                                                <form
+                                                    action="{{ url_for('admin.actualizar_estado_pedido', id=p.id) }}"
+                                                    method="POST"
+                                                >
+                                                    <input type="hidden" name="estado" value="enviado" />
+                                                    <button type="submit" class="secondary-btn">
+                                                        Marcar enviado
+                                                    </button>
+                                                </form>
+                                                {% endif %}
+
+                                                {% if p.estado == 'enviado' %}
+                                                <form
+                                                    action="{{ url_for('admin.actualizar_estado_pedido', id=p.id) }}"
+                                                    method="POST"
+                                                >
+                                                    <input type="hidden" name="estado" value="entregado" />
+                                                    <button type="submit" class="secondary-btn">
+                                                        Marcar entregado
+                                                    </button>
+                                                </form>
+                                                {% endif %}
+
+                                                <form
+                                                    action="{{ url_for('admin.actualizar_estado_pedido', id=p.id) }}"
+                                                    method="POST"
+                                                    onsubmit="return confirm('¿Anular este pedido? Se restaura el stock vendido.');"
+                                                >
+                                                    <input type="hidden" name="estado" value="anulado" />
+                                                    <button type="submit" class="secondary-btn">
+                                                        Anular
+                                                    </button>
+                                                </form>
+                                            </div>
+                                            {% else %}
+                                            —
+                                            {% endif %}
+                                        </td>
                                     </tr>
                                     {% else %}
                                     <tr>
-                                        <td colspan="8">Aún no hay pedidos registrados.</td>
+                                        <td colspan="10">Aún no hay pedidos registrados.</td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>

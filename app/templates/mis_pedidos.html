@@ -86,6 +86,13 @@
         <span>{{ total_pedidos }} en total</span>
       </div>
 
+      {% if error_pedido %}
+      <div class="admin-error">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <span>{{ error_pedido }}</span>
+      </div>
+      {% endif %}
+
       {% if pedidos %}
       <div class="table-container">
         <table class="admin-table">
@@ -100,6 +107,7 @@
               <th>Total</th>
               <th>Estado</th>
               <th>Factura</th>
+              <th>Acciones</th>
             </tr>
           </thead>
 
@@ -127,6 +135,21 @@
                 >
                   <i class="fa-solid fa-file-pdf"></i> PDF
                 </a>
+              </td>
+              <td>
+                {% if p.estado == 'pendiente' and p.minutos_transcurridos <= ventana_cancelacion_minutos %}
+                <form
+                  action="{{ url_for('usuario.cancelar_pedido', factura_id=p.id) }}"
+                  method="POST"
+                  onsubmit="return confirm('¿Cancelar este pedido? El pago no queda registrado como enviado.');"
+                >
+                  <button type="submit" class="secondary-btn">
+                    Cancelar
+                  </button>
+                </form>
+                {% else %}
+                —
+                {% endif %}
               </td>
             </tr>
             {% endfor %}

@@ -386,15 +386,25 @@ select {
 }
 
 .badge-estado.activo,
-.badge-estado.activa {
+.badge-estado.entregado {
     color: #4ade80;
     background: rgba(74, 222, 128, 0.12);
 }
 
 .badge-estado.inactivo,
-.badge-estado.anulada {
+.badge-estado.anulado {
     color: #ff6b6b;
     background: rgba(255, 107, 107, 0.12);
+}
+
+.badge-estado.pendiente {
+    color: #facc15;
+    background: rgba(250, 204, 21, 0.12);
+}
+
+.badge-estado.enviado {
+    color: #38bdf8;
+    background: rgba(56, 189, 248, 0.12);
 }
 
 .badge-estado.nuevo {

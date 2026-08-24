@@ -1,26 +1,9 @@
--- ============================================================
--- UrbanStyle - Script unificado de base de datos
--- Generado a partir de BD/urbanstyle.sql (estructura + datos)
--- con la migración BD/migracion_v2.sql ya aplicada
--- (columna `documento_identidad` en `users`).
---
--- NOTA: BD/urbanstyle_backup.sql NO se incluyó porque define un
--- esquema antiguo e incompatible (mismas tablas, columnas
--- distintas: sin `existencias`, `colores`, `tallas`, `marcas`,
--- `sku`, etc.). Mezclarlo con urbanstyle.sql produciría choques
--- de definición. Si en verdad necesitas restaurar esa versión
--- antigua, debe ejecutarse sola, en una base de datos vacía.
--- ============================================================
-
-CREATE DATABASE IF NOT EXISTS `urbanstyle` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
-USE `urbanstyle`;
-
 -- phpMyAdmin SQL Dump
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 24-07-2026 a las 21:20:49
+-- Tiempo de generación: 24-08-2026 a las 04:20:14
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -56,7 +39,8 @@ CREATE TABLE `carrito` (
 
 INSERT INTO `carrito` (`id`, `user_id`, `fecha`) VALUES
 (1, 3, '2026-07-18 10:15:00'),
-(2, 5, '2026-07-19 16:40:00');
+(2, 5, '2026-07-19 16:40:00'),
+(3, 12, '2026-08-23 21:08:39');
 
 -- --------------------------------------------------------
 
@@ -298,7 +282,8 @@ INSERT INTO `detalle_factura` (`id`, `factura_id`, `existencia_id`, `cantidad`, 
 (184, 106, 6, 2, 65000.00, 130000.00),
 (185, 107, 1, 1, 85000.00, 85000.00),
 (186, 107, 11, 1, 135000.00, 135000.00),
-(187, 107, 13, 3, 110000.00, 330000.00);
+(187, 107, 13, 3, 110000.00, 330000.00),
+(188, 108, 1, 1, 85000.00, 85000.00);
 
 -- --------------------------------------------------------
 
@@ -326,7 +311,8 @@ INSERT INTO `direcciones` (`id`, `user_id`, `direccion`, `ciudad`, `departamento
 (3, 4, 'Avenida 68 #23-10', 'Cali', 'Valle del Cauca', '760001', 1),
 (4, 5, 'Calle 10 #5-20', 'Barranquilla', 'Atlántico', '080001', 1),
 (5, 6, 'Diagonal 30 #15-40', 'Bucaramanga', 'Santander', '680001', 1),
-(6, 2, 'Calle 200 #10-15, Apto 302', 'Bogotá', 'Cundinamarca', '110221', 0);
+(6, 2, 'Calle 200 #10-15, Apto 302', 'Bogotá', 'Cundinamarca', '110221', 0),
+(7, 12, 'dadada', 'adada', 'dadada', '1234', 0);
 
 --
 -- Disparadores `direcciones`
@@ -464,7 +450,7 @@ CREATE TABLE `existencias` (
 --
 
 INSERT INTO `existencias` (`id`, `producto_id`, `talla_id`, `color_id`, `sku`, `precio`, `stock`, `estado`, `fecha_actualizacion`) VALUES
-(1, 1, 2, 1, 'REF001-S-NEG', 85000.00, 10, 'activo', '2026-07-20 20:39:50'),
+(1, 1, 2, 1, 'REF001-S-NEG', 85000.00, 10, 'activo', '2026-08-24 02:09:08'),
 (2, 1, 3, 1, 'REF001-M-NEG', 85000.00, 8, 'activo', '2026-07-20 20:39:50'),
 (3, 1, 4, 1, 'REF001-L-NEG', 85000.00, 6, 'activo', '2026-07-20 20:39:50'),
 (4, 1, 3, 2, 'REF001-M-BLA', 85000.00, 5, 'activo', '2026-07-20 20:39:50'),
@@ -516,9 +502,9 @@ INSERT INTO `facturas` (`id`, `numero_factura`, `user_id`, `direccion_id`, `meto
 (2, 'FAC-0002', 4, 3, 3, '2026-07-16 14:05:00', 310000.00, 58900.00, 15000.00, 383900.00, 'anulado'),
 (3, 'FAC-0003', 6, 5, 4, '2026-07-19 11:30:00', 140000.00, 26600.00, 10000.00, 176600.00, 'pendiente'),
 (4, 'FAC-0004', 3, 1, 2, '2026-07-24 12:39:58', 294117.65, 55882.35, 12000.00, 350000.00, 'anulado'),
-(6, 'FAC-0005', 3, 1, 2, '2026-07-24 13:40:46', 294117.65, 55882.35, 12000.00, 350000.00, 'pendiente'),
+(6, 'FAC-0005', 3, 1, 2, '2026-07-24 13:40:46', 294117.65, 55882.35, 12000.00, 350000.00, 'entregado'),
 (7, 'FAC-0007', 5, 4, 3, '2026-06-04 05:25:57', 360000.00, 68400.00, 10000.00, 438400.00, 'pendiente'),
-(8, 'FAC-0006', 3, 1, 2, '2026-07-24 13:41:27', 294117.65, 55882.35, 12000.00, 350000.00, 'pendiente'),
+(8, 'FAC-0006', 3, 1, 2, '2026-07-24 13:41:27', 294117.65, 55882.35, 12000.00, 350000.00, 'entregado'),
 (9, 'FAC-0009', 2, 1, 3, '2026-06-05 13:14:48', 675000.00, 128250.00, 13500.00, 816750.00, 'pendiente'),
 (10, 'FAC-0010', 3, 2, 5, '2026-06-05 18:46:42', 350000.00, 66500.00, 15000.00, 431500.00, 'anulado'),
 (11, 'FAC-0011', 2, 1, 3, '2026-06-08 02:04:30', 675000.00, 128250.00, 15000.00, 818250.00, 'pendiente'),
@@ -558,12 +544,12 @@ INSERT INTO `facturas` (`id`, `numero_factura`, `user_id`, `direccion_id`, `meto
 (45, 'FAC-0045', 2, 1, 4, '2026-07-08 02:02:56', 745000.00, 141550.00, 18000.00, 904550.00, 'pendiente'),
 (46, 'FAC-0046', 4, 3, 3, '2026-07-08 05:17:41', 880000.00, 167200.00, 15000.00, 1062200.00, 'pendiente'),
 (47, 'FAC-0047', 3, 2, 4, '2026-07-12 01:33:07', 535000.00, 101650.00, 18000.00, 654650.00, 'pendiente'),
-(48, 'FAC-0048', 3, 2, 4, '2026-07-12 07:08:56', 410000.00, 77900.00, 12000.00, 499900.00, 'pendiente'),
+(48, 'FAC-0048', 3, 2, 4, '2026-07-12 07:08:56', 410000.00, 77900.00, 12000.00, 499900.00, 'enviado'),
 (49, 'FAC-0049', 4, 3, 1, '2026-07-12 08:45:46', 1115000.00, 211850.00, 10000.00, 1336850.00, 'pendiente'),
 (50, 'FAC-0050', 6, 5, 2, '2026-07-14 22:43:58', 375000.00, 71250.00, 18000.00, 464250.00, 'pendiente'),
 (51, 'FAC-0051', 3, 2, 5, '2026-07-15 22:32:15', 130000.00, 24700.00, 10000.00, 164700.00, 'pendiente'),
 (52, 'FAC-0052', 5, 4, 6, '2026-07-20 09:33:47', 780000.00, 148200.00, 12000.00, 940200.00, 'pendiente'),
-(53, 'FAC-0053', 2, 1, 5, '2026-07-23 09:30:07', 405000.00, 76950.00, 15000.00, 496950.00, 'pendiente'),
+(53, 'FAC-0053', 2, 1, 5, '2026-07-23 09:30:07', 405000.00, 76950.00, 15000.00, 496950.00, 'enviado'),
 (54, 'FAC-0054', 5, 4, 5, '2026-06-22 17:39:49', 85000.00, 16150.00, 12000.00, 113150.00, 'pendiente'),
 (55, 'FAC-0055', 5, 4, 2, '2026-06-23 00:07:07', 240000.00, 45600.00, 10000.00, 295600.00, 'pendiente'),
 (56, 'FAC-0056', 6, 5, 4, '2026-06-23 11:02:29', 195000.00, 37050.00, 10000.00, 242050.00, 'pendiente'),
@@ -609,15 +595,16 @@ INSERT INTO `facturas` (`id`, `numero_factura`, `user_id`, `direccion_id`, `meto
 (96, 'FAC-0096', 4, 3, 3, '2026-07-21 13:56:40', 430000.00, 81700.00, 18000.00, 529700.00, 'pendiente'),
 (97, 'FAC-0097', 3, 2, 3, '2026-07-22 02:00:59', 615000.00, 116850.00, 18000.00, 749850.00, 'pendiente'),
 (98, 'FAC-0098', 2, 1, 6, '2026-07-22 08:33:41', 170000.00, 32300.00, 13500.00, 215800.00, 'pendiente'),
-(99, 'FAC-0099', 6, 5, 6, '2026-07-22 12:44:49', 345000.00, 65550.00, 10000.00, 420550.00, 'pendiente'),
-(100, 'FAC-0100', 2, 1, 6, '2026-07-22 18:48:04', 210000.00, 39900.00, 10000.00, 259900.00, 'pendiente'),
-(101, 'FAC-0101', 5, 4, 4, '2026-07-23 01:09:45', 315000.00, 59850.00, 13500.00, 388350.00, 'pendiente'),
-(102, 'FAC-0102', 6, 5, 2, '2026-07-23 01:30:04', 690000.00, 131100.00, 10000.00, 831100.00, 'pendiente'),
+(99, 'FAC-0099', 6, 5, 6, '2026-07-22 12:44:49', 345000.00, 65550.00, 10000.00, 420550.00, 'enviado'),
+(100, 'FAC-0100', 2, 1, 6, '2026-07-22 18:48:04', 210000.00, 39900.00, 10000.00, 259900.00, 'enviado'),
+(101, 'FAC-0101', 5, 4, 4, '2026-07-23 01:09:45', 315000.00, 59850.00, 13500.00, 388350.00, 'enviado'),
+(102, 'FAC-0102', 6, 5, 2, '2026-07-23 01:30:04', 690000.00, 131100.00, 10000.00, 831100.00, 'enviado'),
 (103, 'FAC-0103', 2, 1, 6, '2026-07-23 08:22:25', 455000.00, 86450.00, 18000.00, 559450.00, 'anulado'),
-(104, 'FAC-0104', 5, 4, 4, '2026-07-23 13:36:47', 750000.00, 142500.00, 15000.00, 907500.00, 'pendiente'),
-(105, 'FAC-0105', 5, 4, 3, '2026-07-23 14:59:50', 980000.00, 186200.00, 12000.00, 1178200.00, 'pendiente'),
-(106, 'FAC-0106', 4, 3, 2, '2026-07-23 15:14:26', 710000.00, 134900.00, 15000.00, 859900.00, 'pendiente'),
-(107, 'FAC-0107', 4, 3, 1, '2026-07-23 18:12:18', 550000.00, 104500.00, 10000.00, 664500.00, 'pendiente');
+(104, 'FAC-0104', 5, 4, 4, '2026-07-23 13:36:47', 750000.00, 142500.00, 15000.00, 907500.00, 'enviado'),
+(105, 'FAC-0105', 5, 4, 3, '2026-07-23 14:59:50', 980000.00, 186200.00, 12000.00, 1178200.00, 'entregado'),
+(106, 'FAC-0106', 4, 3, 2, '2026-07-23 15:14:26', 710000.00, 134900.00, 15000.00, 859900.00, 'entregado'),
+(107, 'FAC-0107', 4, 3, 1, '2026-07-23 18:12:18', 550000.00, 104500.00, 10000.00, 664500.00, 'entregado'),
+(108, 'FAC-0108', 12, 7, 5, '2026-08-23 21:08:59', 85000.00, 16150.00, 12000.00, 113150.00, 'anulado');
 
 -- --------------------------------------------------------
 
@@ -779,7 +766,8 @@ INSERT INTO `pagos` (`id`, `factura_id`, `monto`, `fecha_pago`, `estado`) VALUES
 (50, 104, 907500.00, '2026-07-23 13:36:47', 'pendiente'),
 (51, 105, 1178200.00, '2026-07-23 15:03:50', 'pagado'),
 (52, 106, 859900.00, '2026-07-23 15:27:26', 'pagado'),
-(53, 107, 664500.00, '2026-07-23 18:25:18', 'pagado');
+(53, 107, 664500.00, '2026-07-23 18:25:18', 'pagado'),
+(54, 108, 113150.00, '2026-08-23 21:08:59', 'pagado');
 
 -- --------------------------------------------------------
 
@@ -866,16 +854,17 @@ CREATE TABLE `users` (
 -- Volcado de datos para la tabla `users`
 --
 
-INSERT INTO `users` (`id`, `username`, `name`, `apellidos`, `documento_identidad`, `email`, `password`, `celular`, `fechanaci`, `rol`, `estado`, `created_at`, `updated_at`) VALUES
-(1, 'Lokiur', 'Lokiur', 'Admin', NULL, 'test@test.com', '1233', NULL, NULL, 'admin', 'activo', '2026-07-20 23:41:44', '2026-07-20 23:41:44'),
-(2, 'jperez', 'Juan', 'Pérez', NULL, 'juan.perez@example.com', '$2y$10$examplehash0000000000000000000000000000000000000001', '3001234567', '1995-03-14', 'usuario', 'activo', '2026-07-20 23:41:44', '2026-07-20 23:41:44'),
-(3, 'mrodriguez', 'María', 'Rodríguez', NULL, 'maria.rodriguez@example.com', '$2y$10$examplehash0000000000000000000000000000000000000002', '3009876543', '1998-07-22', 'usuario', 'activo', '2026-07-20 23:41:44', '2026-07-20 23:41:44'),
-(4, 'clopez', 'Carlos', 'López', NULL, 'carlos.lopez@example.com', '$2y$10$examplehash0000000000000000000000000000000000000003', '3112345678', '1992-11-05', 'usuario', 'activo', '2026-07-20 23:41:44', '2026-07-20 23:41:44'),
-(5, 'agomez', 'Ana', 'Gómez', NULL, 'ana.gomez@example.com', '$2y$10$examplehash0000000000000000000000000000000000000004', '3157654321', '2000-01-30', 'usuario', 'activo', '2026-07-20 23:41:44', '2026-07-20 23:41:44'),
-(6, 'sfernandez', 'Sofía', 'Fernández', NULL, 'sofia.fernandez@example.com', '$2y$10$examplehash0000000000000000000000000000000000000005', '3201112233', '1997-09-18', 'usuario', 'activo', '2026-07-20 23:41:44', '2026-07-20 23:41:44'),
-(7, 'dmartinez', 'Diego', 'Martínez', NULL, 'diego.martinez@example.com', '$2y$10$examplehash0000000000000000000000000000000000000006', '3223334455', '1994-05-27', 'usuario', 'inactivo', '2026-07-20 23:41:44', '2026-07-20 23:41:44'),
-(8, 'juan01', 'Juan', 'Pérez', NULL, 'juan@gmail.com', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', '3001234567', NULL, 'usuario', 'activo', '2026-07-24 17:38:33', '2026-07-24 17:38:33'),
-(11, 'juan10', 'Juan', 'Pérez', NULL, 'juan_@gmail.com', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', '3001234567', NULL, 'usuario', 'activo', '2026-07-24 18:37:40', '2026-07-24 18:37:40');
+INSERT INTO `users` (`id`, `username`, `name`, `apellidos`, `documento_identidad`, `email`, `password`, `celular`, `avatar`, `fechanaci`, `rol`, `estado`, `created_at`, `updated_at`) VALUES
+(1, 'Lokiur', 'Lokiur', 'Admin', NULL, 'test@test.com', '1233', NULL, NULL, NULL, 'admin', 'activo', '2026-07-20 23:41:44', '2026-07-20 23:41:44'),
+(2, 'jperez', 'Juan', 'Pérez', NULL, 'juan.perez@example.com', '$2y$10$examplehash0000000000000000000000000000000000000001', '3001234567', NULL, '1995-03-14', 'usuario', 'activo', '2026-07-20 23:41:44', '2026-07-20 23:41:44'),
+(3, 'mrodriguez', 'María', 'Rodríguez', NULL, 'maria.rodriguez@example.com', '$2y$10$examplehash0000000000000000000000000000000000000002', '3009876543', NULL, '1998-07-22', 'usuario', 'activo', '2026-07-20 23:41:44', '2026-07-20 23:41:44'),
+(4, 'clopez', 'Carlos', 'López', NULL, 'carlos.lopez@example.com', '$2y$10$examplehash0000000000000000000000000000000000000003', '3112345678', NULL, '1992-11-05', 'usuario', 'activo', '2026-07-20 23:41:44', '2026-07-20 23:41:44'),
+(5, 'agomez', 'Ana', 'Gómez', NULL, 'ana.gomez@example.com', '$2y$10$examplehash0000000000000000000000000000000000000004', '3157654321', NULL, '2000-01-30', 'usuario', 'activo', '2026-07-20 23:41:44', '2026-07-20 23:41:44'),
+(6, 'sfernandez', 'Sofía', 'Fernández', NULL, 'sofia.fernandez@example.com', '$2y$10$examplehash0000000000000000000000000000000000000005', '3201112233', NULL, '1997-09-18', 'usuario', 'activo', '2026-07-20 23:41:44', '2026-07-20 23:41:44'),
+(7, 'dmartinez', 'Diego', 'Martínez', NULL, 'diego.martinez@example.com', '$2y$10$examplehash0000000000000000000000000000000000000006', '3223334455', NULL, '1994-05-27', 'usuario', 'inactivo', '2026-07-20 23:41:44', '2026-07-20 23:41:44'),
+(8, 'juan01', 'Juan', 'Pérez', NULL, 'juan@gmail.com', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', '3001234567', NULL, NULL, 'usuario', 'activo', '2026-07-24 17:38:33', '2026-07-24 17:38:33'),
+(11, 'juan10', 'Juan', 'Pérez', NULL, 'juan_@gmail.com', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', '3001234567', NULL, NULL, 'usuario', 'activo', '2026-07-24 18:37:40', '2026-07-24 18:37:40'),
+(12, 'Tuki', 'Tuk', 'Usuario', '1231312', 'test@tes.com', 'scrypt:32768:8:1$aEckb5raKo8aGhO7$07b0d708122015113afa014b4f9043ad91564957ab607565bb6f8b3a65ada43e70309332afa544d5e3b97b00e68fcf83f1d8eb930bc1617e957c2e3bacad638e', NULL, NULL, NULL, 'admin', 'activo', '2026-08-24 02:08:12', '2026-08-24 02:09:44');
 
 --
 -- Índices para tablas volcadas
@@ -1017,8 +1006,6 @@ ALTER TABLE `tallas`
 
 --
 -- Indices de la tabla `users`
--- (estas UNIQUE KEY ya cubren lo que pedía migracion_v2.sql
--- con `uq_username`/`uq_email`, por eso no se repiten)
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
@@ -1033,7 +1020,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT de la tabla `carrito`
 --
 ALTER TABLE `carrito`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de la tabla `categorias`
@@ -1051,19 +1038,19 @@ ALTER TABLE `colores`
 -- AUTO_INCREMENT de la tabla `detalle_carrito`
 --
 ALTER TABLE `detalle_carrito`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT de la tabla `detalle_factura`
 --
 ALTER TABLE `detalle_factura`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=188;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=189;
 
 --
 -- AUTO_INCREMENT de la tabla `direcciones`
 --
 ALTER TABLE `direcciones`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT de la tabla `empresas_envio`
@@ -1087,7 +1074,7 @@ ALTER TABLE `existencias`
 -- AUTO_INCREMENT de la tabla `facturas`
 --
 ALTER TABLE `facturas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=108;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=109;
 
 --
 -- AUTO_INCREMENT de la tabla `imagenes_producto`
@@ -1105,7 +1092,7 @@ ALTER TABLE `marcas`
 -- AUTO_INCREMENT de la tabla `mensajes`
 --
 ALTER TABLE `mensajes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `metodos_pago`
@@ -1117,7 +1104,7 @@ ALTER TABLE `metodos_pago`
 -- AUTO_INCREMENT de la tabla `pagos`
 --
 ALTER TABLE `pagos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=55;
 
 --
 -- AUTO_INCREMENT de la tabla `productos`
@@ -1135,7 +1122,7 @@ ALTER TABLE `tallas`
 -- AUTO_INCREMENT de la tabla `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- Restricciones para tablas volcadas

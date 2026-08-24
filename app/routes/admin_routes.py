@@ -1,6 +1,23 @@
-from flask import Blueprint, redirect, render_template, request, session, url_for
+from io import BytesIO
 
-from app.services import contact_service, orders_service, products_service, users_service
+from flask import (
+    Blueprint,
+    abort,
+    redirect,
+    render_template,
+    request,
+    send_file,
+    session,
+    url_for,
+)
+
+from app.services import (
+    contact_service,
+    invoice_service,
+    orders_service,
+    products_service,
+    users_service,
+)
 from app.utils.decorators import admin_required
 
 admin = Blueprint("admin", __name__)
@@ -31,11 +48,12 @@ def admin_panel():
         total_productos=len(productos),
         total_pedidos=len(pedidos),
         ventas_totales=sum(
-            float(p["total"]) for p in pedidos if p["estado"] == "activa"
+            float(p["total"]) for p in pedidos if p["estado"] != "anulado"
         ),
         total_mensajes=len(mensajes),
         mensajes_nuevos=sum(1 for m in mensajes if m["estado"] == "nuevo"),
         error_producto=session.pop("error_producto", None),
+        error_pedido=session.pop("error_pedido", None),
     )
 
 
@@ -95,6 +113,35 @@ def editar_producto(id):
 def eliminar_producto(id):
     products_service.eliminar_producto(id)
     return redirect(url_for("admin.admin_panel"))
+
+
+# =========================
+# ADMIN - ESTADOS DE PEDIDOS
+# =========================
+
+
+@admin.route("/pedido/<int:id>/estado", methods=["POST"])
+@admin_required
+def actualizar_estado_pedido(id):
+    error = orders_service.actualizar_estado_pedido(id, request.form.get("estado", ""))
+    if error:
+        session["error_pedido"] = error
+    return redirect(url_for("admin.admin_panel") + "#section-pedidos")
+
+
+@admin.route("/pedido/<int:id>/factura.pdf")
+@admin_required
+def factura_pdf(id):
+    factura = orders_service.obtener_factura_admin(id)
+
+    if not factura:
+        abort(404)
+
+    return send_file(
+        BytesIO(invoice_service.generar_pdf(factura)),
+        mimetype="application/pdf",
+        download_name="{}.pdf".format(factura["numero_factura"] or id),
+    )
 
 
 # =========================
