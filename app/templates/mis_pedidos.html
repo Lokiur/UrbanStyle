@@ -128,6 +128,13 @@
               </td>
               <td>
                 <a
+                  href="{{ url_for('usuario.pedido_detalle', factura_id=p.id) }}"
+                  title="Ver detalle y seguimiento del pedido"
+                >
+                  <i class="fa-solid fa-magnifying-glass"></i> Detalle
+                </a>
+                <br />
+                <a
                   href="{{ url_for('carrito.factura_pdf', factura_id=p.id) }}"
                   target="_blank"
                   rel="noopener"
