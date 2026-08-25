@@ -678,9 +678,21 @@
                                             </a>
                                         </td>
                                         <td>
-                                            {% if p.estado in ('pendiente', 'enviado') %}
+                                            {% if p.estado in ('pendiente', 'preparacion', 'enviado') %}
                                             <div class="action-btns">
                                                 {% if p.estado == 'pendiente' %}
+                                                <form
+                                                    action="{{ url_for('admin.actualizar_estado_pedido', id=p.id) }}"
+                                                    method="POST"
+                                                >
+                                                    <input type="hidden" name="estado" value="preparacion" />
+                                                    <button type="submit" class="secondary-btn">
+                                                        Marcar en preparación
+                                                    </button>
+                                                </form>
+                                                {% endif %}
+
+                                                {% if p.estado == 'preparacion' %}
                                                 <form
                                                     action="{{ url_for('admin.actualizar_estado_pedido', id=p.id) }}"
                                                     method="POST"

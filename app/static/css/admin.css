@@ -402,6 +402,11 @@ select {
     background: rgba(250, 204, 21, 0.12);
 }
 
+.badge-estado.preparacion {
+    color: #fb923c;
+    background: rgba(251, 146, 60, 0.12);
+}
+
 .badge-estado.enviado {
     color: #38bdf8;
     background: rgba(56, 189, 248, 0.12);

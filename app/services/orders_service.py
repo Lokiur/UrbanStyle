@@ -12,10 +12,12 @@ from app.services import cart_service
 ENVIO_COSTO = Decimal("12000")
 IVA_PORCENTAJE = Decimal("0.19")
 
-# flujo de un pedido: pendiente -> enviado -> entregado, o
-# pendiente/enviado -> anulado. entregado y anulado son estados finales.
+# flujo de un pedido: pendiente -> preparacion -> enviado -> entregado, o
+# pendiente/preparacion/enviado -> anulado. entregado y anulado son
+# estados finales.
 TRANSICIONES_ADMIN = {
-    "pendiente": ("enviado", "anulado"),
+    "pendiente": ("preparacion", "anulado"),
+    "preparacion": ("enviado", "anulado"),
     "enviado": ("entregado", "anulado"),
     "entregado": (),
     "anulado": (),
@@ -23,10 +25,11 @@ TRANSICIONES_ADMIN = {
 
 # orden de las etapas de envio para pintar la linea de tiempo en "Mis
 # Pedidos" (no incluye "anulado", que es un estado aparte, no un paso).
-ETAPAS_ENVIO = ["pendiente", "enviado", "entregado"]
+ETAPAS_ENVIO = ["pendiente", "preparacion", "enviado", "entregado"]
 
 ETAPAS_ENVIO_LABELS = {
     "pendiente": "Pedido recibido",
+    "preparacion": "En preparación",
     "enviado": "Enviado",
     "entregado": "Entregado",
 }
@@ -119,8 +122,9 @@ def _restaurar_stock(cursor, factura_id):
 def actualizar_estado_pedido(factura_id, nuevo_estado):
     """Cambia el estado de envio de un pedido (accion del admin).
 
-    Solo permite avanzar en el flujo pendiente -> enviado -> entregado,
-    o anular desde pendiente/enviado. Si se anula, restaura el stock.
+    Solo permite avanzar en el flujo pendiente -> preparacion -> enviado
+    -> entregado, o anular desde pendiente/preparacion/enviado. Si se
+    anula, restaura el stock.
 
     Devuelve un mensaje de error, o None si el cambio se aplico.
     """

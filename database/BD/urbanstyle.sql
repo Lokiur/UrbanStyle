@@ -490,7 +490,7 @@ CREATE TABLE `facturas` (
   `iva` decimal(10,2) NOT NULL,
   `envio` decimal(10,2) NOT NULL,
   `total` decimal(10,2) NOT NULL,
-  `estado` enum('pendiente','enviado','entregado','anulado') DEFAULT 'pendiente'
+  `estado` enum('pendiente','preparacion','enviado','entregado','anulado') DEFAULT 'pendiente'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
