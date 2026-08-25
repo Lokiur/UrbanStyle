@@ -36,6 +36,11 @@ def admin_panel():
     pedidos = orders_service.listar_pedidos()
     mensajes = contact_service.listar_mensajes()
 
+    conteo_pedidos = {
+        estado: sum(1 for p in pedidos if p["estado"] == estado)
+        for estado in ("pendiente", "preparacion", "enviado", "entregado", "anulado")
+    }
+
     return render_template(
         "indexmvc.html",
         users=users,
@@ -47,6 +52,7 @@ def admin_panel():
         total_usuarios=len(users),
         total_productos=len(productos),
         total_pedidos=len(pedidos),
+        conteo_pedidos=conteo_pedidos,
         ventas_totales=sum(
             float(p["total"]) for p in pedidos if p["estado"] != "anulado"
         ),

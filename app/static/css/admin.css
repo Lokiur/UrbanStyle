@@ -422,6 +422,144 @@ select {
     background: rgba(255, 255, 255, 0.06);
 }
 
+.badge-estado i {
+    margin-right: 6px;
+    font-size: 11px;
+}
+
+/* =========================
+   ACCIONES COMPACTAS EN TABLAS
+   ========================= */
+
+.action-btns .primary-btn,
+.action-btns .secondary-btn,
+.action-btns .danger-btn,
+.action-btns a {
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.action-btns .primary-btn:hover {
+    transform: none;
+}
+
+.danger-btn {
+    background: rgba(255, 107, 107, 0.12);
+    border: 1px solid rgba(255, 107, 107, 0.3);
+    border-radius: 50px;
+    padding: 20px 35px;
+
+    color: #ff6b6b;
+    font-size: 18px;
+
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.danger-btn:hover {
+    background: rgba(255, 107, 107, 0.22);
+    border-color: #ff6b6b;
+}
+
+/* =========================
+   FILTROS DE PEDIDOS
+   ========================= */
+
+.pedidos-filtros {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+
+    margin-bottom: 22px;
+}
+
+.pedidos-search {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    min-width: 260px;
+    flex: 1;
+
+    padding: 10px 16px;
+
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50px;
+
+    opacity: 0.8;
+    transition: 0.25s;
+}
+
+.pedidos-search:focus-within {
+    opacity: 1;
+    border-color: var(--color-accent);
+}
+
+.pedidos-search i {
+    opacity: 0.6;
+}
+
+.pedidos-search input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: white;
+    font-size: 14px;
+}
+
+.pedidos-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.pedido-tab {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    padding: 8px 16px;
+
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50px;
+
+    background: transparent;
+    color: white;
+    opacity: 0.65;
+
+    font-size: 13px;
+    cursor: pointer;
+    transition: 0.25s;
+}
+
+.pedido-tab:hover {
+    opacity: 1;
+}
+
+.pedido-tab.active {
+    opacity: 1;
+    background: color-mix(in srgb, var(--color-accent) 18%, transparent);
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+}
+
+.pedido-tab-count {
+    padding: 1px 7px;
+    border-radius: 50px;
+    background: rgba(255, 255, 255, 0.1);
+    font-size: 11px;
+}
+
+.pedido-tab.active .pedido-tab-count {
+    background: color-mix(in srgb, var(--color-accent) 25%, transparent);
+}
+
 /* =========================
    MENSAJES DE CONTACTO
    ========================= */
