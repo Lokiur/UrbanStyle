@@ -54,6 +54,7 @@ def admin_panel():
         mensajes_nuevos=sum(1 for m in mensajes if m["estado"] == "nuevo"),
         error_producto=session.pop("error_producto", None),
         error_pedido=session.pop("error_pedido", None),
+        error_categoria=session.pop("error_categoria", None),
     )
 
 
@@ -113,6 +114,41 @@ def editar_producto(id):
 def eliminar_producto(id):
     products_service.eliminar_producto(id)
     return redirect(url_for("admin.admin_panel"))
+
+
+# =========================
+# CRUD ADMIN - CATEGORIAS
+# =========================
+
+
+@admin.route("/categoria", methods=["POST"])
+@admin_required
+def crear_categoria():
+    try:
+        products_service.crear_categoria(request.form)
+    except ValueError as error:
+        session["error_categoria"] = str(error)
+    return redirect(url_for("admin.admin_panel") + "#section-categorias")
+
+
+@admin.route("/categoria/editar/<int:id>", methods=["POST"])
+@admin_required
+def editar_categoria(id):
+    try:
+        products_service.actualizar_categoria(id, request.form)
+    except ValueError as error:
+        session["error_categoria"] = str(error)
+    return redirect(url_for("admin.admin_panel") + "#section-categorias")
+
+
+@admin.route("/categoria/eliminar/<int:id>")
+@admin_required
+def eliminar_categoria(id):
+    try:
+        products_service.eliminar_categoria(id)
+    except ValueError as error:
+        session["error_categoria"] = str(error)
+    return redirect(url_for("admin.admin_panel") + "#section-categorias")
 
 
 # =========================
