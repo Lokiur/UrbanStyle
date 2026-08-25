@@ -1,7 +1,7 @@
 import os
 import uuid
 
-from flask import Blueprint, current_app, render_template, request, session
+from flask import Blueprint, current_app, redirect, render_template, request, session, url_for
 
 from app.services import orders_service, users_service
 from app.utils.decorators import login_required
@@ -65,7 +65,7 @@ def mis_pedidos():
     pedidos = orders_service.obtener_pedidos(session["user_id"])
 
     total_gastado = sum(
-        float(p["total"]) for p in pedidos if p["estado"] == "activa"
+        float(p["total"]) for p in pedidos if p["estado"] != "anulado"
     )
 
     return render_template(
@@ -73,4 +73,15 @@ def mis_pedidos():
         pedidos=pedidos,
         total_pedidos=len(pedidos),
         total_gastado=total_gastado,
+        ventana_cancelacion_minutos=orders_service.VENTANA_CANCELACION_CLIENTE_MINUTOS,
+        error_pedido=session.pop("error_pedido", None),
     )
+
+
+@usuario.route("/mis-pedidos/<int:factura_id>/cancelar", methods=["POST"])
+@login_required
+def cancelar_pedido(factura_id):
+    error = orders_service.cancelar_pedido_cliente(session["user_id"], factura_id)
+    if error:
+        session["error_pedido"] = error
+    return redirect(url_for("usuario.mis_pedidos"))

@@ -12,6 +12,19 @@ from app.services import cart_service
 ENVIO_COSTO = Decimal("12000")
 IVA_PORCENTAJE = Decimal("0.19")
 
+# flujo de un pedido: pendiente -> enviado -> entregado, o
+# pendiente/enviado -> anulado. entregado y anulado son estados finales.
+TRANSICIONES_ADMIN = {
+    "pendiente": ("enviado", "anulado"),
+    "enviado": ("entregado", "anulado"),
+    "entregado": (),
+    "anulado": (),
+}
+
+# minutos que tiene el cliente, desde que paga, para cancelar su propio
+# pedido (solo si sigue "pendiente", es decir, aun no se ha despachado).
+VENTANA_CANCELACION_CLIENTE_MINUTOS = 30
+
 
 def numero_autorizacion(pago_id):
     """Numero de autorizacion de un pago.
@@ -37,7 +50,8 @@ def obtener_pedidos(user_id):
     cursor.execute(
         """
         SELECT f.*,
-               (SELECT MAX(p.id) FROM pagos p WHERE p.factura_id = f.id) AS pago_id
+               (SELECT MAX(p.id) FROM pagos p WHERE p.factura_id = f.id) AS pago_id,
+               TIMESTAMPDIFF(MINUTE, f.fecha, NOW()) AS minutos_transcurridos
         FROM facturas f
         WHERE f.user_id=%s
         ORDER BY f.fecha DESC
@@ -72,14 +86,152 @@ def listar_pedidos():
     return pedidos
 
 
+def _restaurar_stock(cursor, factura_id):
+    """Devuelve a `existencias` lo que se habia descontado de un pedido.
+
+    Se usa al anular, tanto desde el admin como desde el cliente. Si una
+    existencia habia quedado "agotada" por esta venta, vuelve a quedar
+    disponible porque el stock devuelto siempre es mayor a 0.
+    """
+    cursor.execute(
+        "SELECT existencia_id, cantidad FROM detalle_factura WHERE factura_id=%s",
+        (factura_id,),
+    )
+    detalle = cursor.fetchall()
+
+    for item in detalle:
+        cursor.execute(
+            "UPDATE existencias SET stock = stock + %s, estado='activo' WHERE id=%s",
+            (item["cantidad"], item["existencia_id"]),
+        )
+
+
+def actualizar_estado_pedido(factura_id, nuevo_estado):
+    """Cambia el estado de envio de un pedido (accion del admin).
+
+    Solo permite avanzar en el flujo pendiente -> enviado -> entregado,
+    o anular desde pendiente/enviado. Si se anula, restaura el stock.
+
+    Devuelve un mensaje de error, o None si el cambio se aplico.
+    """
+    if nuevo_estado not in TRANSICIONES_ADMIN:
+        return "Estado no valido."
+
+    conexion = conectar()
+    cursor = conexion.cursor()
+
+    try:
+        cursor.execute(
+            "SELECT estado FROM facturas WHERE id=%s FOR UPDATE", (factura_id,)
+        )
+        factura = cursor.fetchone()
+
+        if not factura:
+            conexion.rollback()
+            return "El pedido no existe."
+
+        if nuevo_estado not in TRANSICIONES_ADMIN[factura["estado"]]:
+            conexion.rollback()
+            return "El pedido esta '{}' y no se puede pasar a '{}'.".format(
+                factura["estado"], nuevo_estado
+            )
+
+        if nuevo_estado == "anulado":
+            _restaurar_stock(cursor, factura_id)
+
+        cursor.execute(
+            "UPDATE facturas SET estado=%s WHERE id=%s", (nuevo_estado, factura_id)
+        )
+        conexion.commit()
+        return None
+
+    except Exception:
+        conexion.rollback()
+        raise
+
+    finally:
+        conexion.close()
+
+
+def cancelar_pedido_cliente(user_id, factura_id):
+    """Permite que el cliente cancele su propio pedido.
+
+    Solo si el pedido es suyo, sigue "pendiente" (no se ha despachado) y
+    no pasaron mas de VENTANA_CANCELACION_CLIENTE_MINUTOS desde el pago.
+    Restaura el stock igual que una anulacion del admin.
+
+    Devuelve un mensaje de error, o None si se cancelo.
+    """
+    conexion = conectar()
+    cursor = conexion.cursor()
+
+    try:
+        cursor.execute(
+            """
+            SELECT estado, TIMESTAMPDIFF(MINUTE, fecha, NOW()) AS minutos
+            FROM facturas WHERE id=%s AND user_id=%s FOR UPDATE
+            """,
+            (factura_id, user_id),
+        )
+        factura = cursor.fetchone()
+
+        if not factura:
+            conexion.rollback()
+            return "El pedido no existe."
+
+        if factura["estado"] != "pendiente":
+            conexion.rollback()
+            return "Este pedido ya no se puede cancelar."
+
+        if factura["minutos"] > VENTANA_CANCELACION_CLIENTE_MINUTOS:
+            conexion.rollback()
+            return "Ya pasaron los {} minutos para cancelar este pedido.".format(
+                VENTANA_CANCELACION_CLIENTE_MINUTOS
+            )
+
+        _restaurar_stock(cursor, factura_id)
+        cursor.execute(
+            "UPDATE facturas SET estado='anulado' WHERE id=%s", (factura_id,)
+        )
+        conexion.commit()
+        return None
+
+    except Exception:
+        conexion.rollback()
+        raise
+
+    finally:
+        conexion.close()
+
+
 def obtener_factura(user_id, factura_id):
     """Trae una factura del usuario con todo lo que necesita el PDF.
 
     Devuelve None si la factura no existe o no es de ese usuario, para
     que nadie pueda descargar la factura de otro.
     """
+    return _obtener_factura(factura_id, user_id)
+
+
+def obtener_factura_admin(factura_id):
+    """Trae cualquier factura con todo lo que necesita el PDF.
+
+    A diferencia de `obtener_factura`, no filtra por dueño: es para el
+    panel admin, donde se puede consultar la factura de cualquier
+    pedido.
+    """
+    return _obtener_factura(factura_id)
+
+
+def _obtener_factura(factura_id, user_id=None):
     conexion = conectar()
     cursor = conexion.cursor()
+
+    condicion = "f.id=%s"
+    parametros = [factura_id]
+    if user_id is not None:
+        condicion += " AND f.user_id=%s"
+        parametros.append(user_id)
 
     cursor.execute(
         """
@@ -92,9 +244,9 @@ def obtener_factura(user_id, factura_id):
         JOIN users u ON u.id = f.user_id
         JOIN direcciones d ON d.id = f.direccion_id
         JOIN metodos_pago mp ON mp.id = f.metodo_pago_id
-        WHERE f.id=%s AND f.user_id=%s
-        """,
-        (factura_id, user_id),
+        WHERE {}
+        """.format(condicion),
+        parametros,
     )
     factura = cursor.fetchone()
 
@@ -324,7 +476,7 @@ def crear_pedido(user_id, form, metodo_pago_id):
             """
             INSERT INTO facturas
             (user_id, direccion_id, metodo_pago_id, subtotal, iva, envio, total, estado)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, 'activa')
+            VALUES (%s, %s, %s, %s, %s, %s, %s, 'pendiente')
             """,
             (user_id, direccion_id, metodo_pago_id, subtotal, iva, envio, total),
         )
