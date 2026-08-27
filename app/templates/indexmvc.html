@@ -138,6 +138,15 @@
 
                 <button
                     class="admin-nav-btn"
+                    data-section="section-ventas"
+                    onclick="showAdminSection('section-ventas', this)"
+                >
+                    <i class="fa-solid fa-chart-line"></i>
+                    Ventas
+                </button>
+
+                <button
+                    class="admin-nav-btn"
                     data-section="section-mensajes"
                     onclick="showAdminSection('section-mensajes', this)"
                 >
@@ -982,6 +991,153 @@
                         <div class="empty-state">
                             <i class="fa-solid fa-box-open"></i>
                             <p>Aún no hay pedidos registrados.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </section>
+
+                <!-- ================= VENTAS ================= -->
+                <section class="admin-section" id="section-ventas">
+                    <div>
+                        <h1 class="admin-page-title">Ventas</h1>
+                        <p class="admin-page-subtitle">
+                            Analiza las ventas totales por periodo, método de pago y ciudad de envío.
+                        </p>
+                    </div>
+
+                    <div class="section-card">
+                        <div class="section-card-header">
+                            <h2>Periodo</h2>
+                        </div>
+
+                        <form
+                            action="{{ url_for('admin.admin_panel') }}#section-ventas"
+                            method="GET"
+                            class="ventas-filtros"
+                        >
+                            <div class="ventas-presets">
+                                <a
+                                    href="{{ url_for('admin.admin_panel', desde=preset_hoy, hasta=preset_hoy) }}#section-ventas"
+                                    class="{{ 'active' if filtro_desde == preset_hoy and filtro_hasta == preset_hoy else '' }}"
+                                >
+                                    Hoy
+                                </a>
+                                <a
+                                    href="{{ url_for('admin.admin_panel', desde=preset_7dias, hasta=preset_hoy) }}#section-ventas"
+                                    class="{{ 'active' if filtro_desde == preset_7dias and filtro_hasta == preset_hoy else '' }}"
+                                >
+                                    Últimos 7 días
+                                </a>
+                                <a
+                                    href="{{ url_for('admin.admin_panel', desde=preset_30dias, hasta=preset_hoy) }}#section-ventas"
+                                    class="{{ 'active' if filtro_desde == preset_30dias and filtro_hasta == preset_hoy else '' }}"
+                                >
+                                    Últimos 30 días
+                                </a>
+                                <a
+                                    href="{{ url_for('admin.admin_panel', desde=preset_mes, hasta=preset_hoy) }}#section-ventas"
+                                    class="{{ 'active' if filtro_desde == preset_mes and filtro_hasta == preset_hoy else '' }}"
+                                >
+                                    Este mes
+                                </a>
+                                <a
+                                    href="{{ url_for('admin.admin_panel') }}#section-ventas"
+                                    class="{{ 'active' if not filtro_desde and not filtro_hasta else '' }}"
+                                >
+                                    Todo el tiempo
+                                </a>
+                            </div>
+
+                            <div class="ventas-rango">
+                                <label>
+                                    Desde
+                                    <input type="date" name="desde" value="{{ filtro_desde }}" />
+                                </label>
+                                <label>
+                                    Hasta
+                                    <input type="date" name="hasta" value="{{ filtro_hasta }}" />
+                                </label>
+                                <button type="submit" class="secondary-btn">Filtrar</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fa-solid fa-sack-dollar"></i>
+                            </div>
+                            <div>
+                                <div class="stat-value">$ {{ "{:,.0f}".format(resumen_ventas.total) }}</div>
+                                <div class="stat-label">Ventas totales en el periodo</div>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fa-solid fa-receipt"></i>
+                            </div>
+                            <div>
+                                <div class="stat-value">{{ resumen_ventas.cantidad }}</div>
+                                <div class="stat-label">Pedidos en el periodo</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section-card">
+                        <div class="section-card-header">
+                            <h2>Ventas por método de pago</h2>
+                        </div>
+
+                        {% if ventas_metodo %}
+                        <div class="bar-list">
+                            {% for v in ventas_metodo %}
+                            <div class="bar-row">
+                                <span class="bar-label" title="{{ v.etiqueta }}">{{ v.etiqueta }}</span>
+                                <div class="bar-track">
+                                    <div
+                                        class="bar-fill"
+                                        style="width: {{ (v.total / max_ventas_metodo * 100) if max_ventas_metodo else 0 }}%"
+                                    ></div>
+                                </div>
+                                <span class="bar-value">$ {{ "{:,.0f}".format(v.total) }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="empty-state">
+                            <i class="fa-solid fa-chart-simple"></i>
+                            <p>No hay ventas registradas en este periodo.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="section-card">
+                        <div class="section-card-header">
+                            <h2>Ventas por ciudad / departamento</h2>
+                        </div>
+
+                        {% if ventas_ciudad %}
+                        <div class="bar-list">
+                            {% for v in ventas_ciudad %}
+                            <div class="bar-row">
+                                <span class="bar-label" title="{{ v.ciudad }}{% if v.departamento %}, {{ v.departamento }}{% endif %}">
+                                    {{ v.ciudad }}{% if v.departamento %}, {{ v.departamento }}{% endif %}
+                                </span>
+                                <div class="bar-track">
+                                    <div
+                                        class="bar-fill"
+                                        style="width: {{ (v.total / max_ventas_ciudad * 100) if max_ventas_ciudad else 0 }}%"
+                                    ></div>
+                                </div>
+                                <span class="bar-value">$ {{ "{:,.0f}".format(v.total) }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="empty-state">
+                            <i class="fa-solid fa-chart-simple"></i>
+                            <p>No hay ventas registradas en este periodo.</p>
                         </div>
                         {% endif %}
                     </div>

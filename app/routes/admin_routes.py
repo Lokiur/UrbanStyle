@@ -1,3 +1,4 @@
+from datetime import date, timedelta
 from io import BytesIO
 
 from flask import (
@@ -41,6 +42,27 @@ def admin_panel():
         for estado in ("pendiente", "preparacion", "enviado", "entregado", "anulado")
     }
 
+    filtro_desde = request.args.get("desde") or ""
+    filtro_hasta = request.args.get("hasta") or ""
+
+    resumen_ventas = orders_service.resumen_ventas_periodo(
+        filtro_desde or None, filtro_hasta or None
+    )
+    ventas_metodo = orders_service.ventas_por_metodo_pago(
+        filtro_desde or None, filtro_hasta or None
+    )
+    ventas_ciudad = orders_service.ventas_por_ciudad(
+        filtro_desde or None, filtro_hasta or None
+    )
+    max_ventas_metodo = max((v["total"] for v in ventas_metodo), default=0)
+    max_ventas_ciudad = max((v["total"] for v in ventas_ciudad), default=0)
+
+    hoy = date.today()
+    preset_hoy = hoy.isoformat()
+    preset_7dias = (hoy - timedelta(days=6)).isoformat()
+    preset_30dias = (hoy - timedelta(days=29)).isoformat()
+    preset_mes = hoy.replace(day=1).isoformat()
+
     return render_template(
         "indexmvc.html",
         users=users,
@@ -61,6 +83,17 @@ def admin_panel():
         error_producto=session.pop("error_producto", None),
         error_pedido=session.pop("error_pedido", None),
         error_categoria=session.pop("error_categoria", None),
+        filtro_desde=filtro_desde,
+        filtro_hasta=filtro_hasta,
+        resumen_ventas=resumen_ventas,
+        ventas_metodo=ventas_metodo,
+        ventas_ciudad=ventas_ciudad,
+        max_ventas_metodo=max_ventas_metodo,
+        max_ventas_ciudad=max_ventas_ciudad,
+        preset_hoy=preset_hoy,
+        preset_7dias=preset_7dias,
+        preset_30dias=preset_30dias,
+        preset_mes=preset_mes,
     )
 
 

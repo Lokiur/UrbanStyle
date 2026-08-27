@@ -99,6 +99,98 @@ def listar_pedidos():
     return pedidos
 
 
+def _condicion_periodo(fecha_inicio, fecha_fin, alias):
+    """Arma el WHERE de un reporte de ventas: excluye anulados y, si se
+    dan, acota por fecha (inclusive en ambos extremos).
+
+    Devuelve (sql_where, parametros) para usar con `.format()` + cursor.
+    """
+    condiciones = ["{}.estado != 'anulado'".format(alias)]
+    parametros = []
+
+    if fecha_inicio:
+        condiciones.append("{}.fecha >= %s".format(alias))
+        parametros.append(fecha_inicio + " 00:00:00")
+
+    if fecha_fin:
+        condiciones.append("{}.fecha <= %s".format(alias))
+        parametros.append(fecha_fin + " 23:59:59")
+
+    return " AND ".join(condiciones), parametros
+
+
+def resumen_ventas_periodo(fecha_inicio=None, fecha_fin=None):
+    """Total vendido y cantidad de pedidos (no anulados) en un rango de
+    fechas. Sin fecha_inicio/fecha_fin no hay limite en ese extremo.
+    """
+    where, parametros = _condicion_periodo(fecha_inicio, fecha_fin, "facturas")
+
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute(
+        """
+        SELECT COUNT(*) AS cantidad, COALESCE(SUM(total), 0) AS total
+        FROM facturas
+        WHERE {}
+        """.format(where),
+        parametros,
+    )
+    resumen = cursor.fetchone()
+    conexion.close()
+    return resumen
+
+
+def ventas_por_metodo_pago(fecha_inicio=None, fecha_fin=None):
+    """Ventas (no anuladas) agrupadas por metodo de pago, de mayor a menor."""
+    where, parametros = _condicion_periodo(fecha_inicio, fecha_fin, "f")
+
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute(
+        """
+        SELECT mp.nombre AS etiqueta,
+               COUNT(*) AS cantidad,
+               COALESCE(SUM(f.total), 0) AS total
+        FROM facturas f
+        JOIN metodos_pago mp ON mp.id = f.metodo_pago_id
+        WHERE {}
+        GROUP BY mp.id, mp.nombre
+        ORDER BY total DESC
+        """.format(where),
+        parametros,
+    )
+    filas = cursor.fetchall()
+    conexion.close()
+    return filas
+
+
+def ventas_por_ciudad(fecha_inicio=None, fecha_fin=None):
+    """Ventas (no anuladas) agrupadas por ciudad/departamento de envio,
+    de mayor a menor.
+    """
+    where, parametros = _condicion_periodo(fecha_inicio, fecha_fin, "f")
+
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute(
+        """
+        SELECT COALESCE(NULLIF(d.ciudad, ''), 'Sin ciudad') AS ciudad,
+               d.departamento,
+               COUNT(*) AS cantidad,
+               COALESCE(SUM(f.total), 0) AS total
+        FROM facturas f
+        JOIN direcciones d ON d.id = f.direccion_id
+        WHERE {}
+        GROUP BY d.ciudad, d.departamento
+        ORDER BY total DESC
+        """.format(where),
+        parametros,
+    )
+    filas = cursor.fetchall()
+    conexion.close()
+    return filas
+
+
 def _restaurar_stock(cursor, factura_id):
     """Devuelve a `existencias` lo que se habia descontado de un pedido.
 
