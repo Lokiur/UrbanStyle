@@ -995,3 +995,147 @@ select {
     color: #fca5a5;
     font-size: 14px;
 }
+
+/* =========================
+   SECCIÓN "VENTAS"
+   ========================= */
+
+.ventas-filtros {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 18px;
+}
+
+.ventas-presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.ventas-presets a {
+    padding: 8px 16px;
+
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50px;
+
+    color: white;
+    opacity: 0.65;
+    font-size: 13px;
+
+    transition: 0.25s;
+}
+
+.ventas-presets a:hover {
+    opacity: 1;
+}
+
+.ventas-presets a.active {
+    opacity: 1;
+    background: color-mix(in srgb, var(--color-accent) 18%, transparent);
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+}
+
+.ventas-rango {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+}
+
+.ventas-rango label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 12px;
+}
+
+.ventas-rango input[type="date"] {
+    padding: 9px 12px;
+
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+
+    background: rgba(255, 255, 255, 0.04);
+    color: white;
+    font-size: 13px;
+}
+
+.ventas-rango .secondary-btn {
+    padding: 9px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+}
+
+/* lista de barras horizontales de una sola serie: la longitud codifica
+   la magnitud, sin necesidad de leyenda (ver skill de dataviz) */
+.bar-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.bar-row {
+    display: grid;
+    grid-template-columns: minmax(120px, 200px) 1fr auto;
+    align-items: center;
+    gap: 16px;
+}
+
+.bar-label {
+    overflow: hidden;
+
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 13px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.bar-track {
+    height: 18px;
+
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 4px;
+
+    overflow: hidden;
+}
+
+.bar-fill {
+    height: 100%;
+    min-width: 3px;
+
+    background: var(--color-accent);
+    border-radius: 0 4px 4px 0;
+
+    transition:
+        width 0.4s ease,
+        filter 0.2s ease;
+}
+
+.bar-row:hover .bar-fill {
+    filter: brightness(1.15);
+}
+
+.bar-value {
+    min-width: 90px;
+
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+}
+
+@media (max-width: 700px) {
+    .bar-row {
+        grid-template-columns: 1fr;
+        gap: 6px;
+    }
+
+    .bar-value {
+        text-align: left;
+    }
+}
