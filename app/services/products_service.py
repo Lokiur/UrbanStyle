@@ -133,6 +133,55 @@ def listar_categorias():
     return categorias
 
 
+def crear_categoria(datos):
+    nombre = datos.get("nombre", "").strip()
+    if not nombre:
+        raise ValueError("El nombre de la categoría es obligatorio")
+
+    conexion = conectar()
+    cursor = conexion.cursor()
+    try:
+        cursor.execute("INSERT INTO categorias (nombre) VALUES (%s)", (nombre,))
+        conexion.commit()
+    except pymysql.err.IntegrityError:
+        conexion.rollback()
+        raise ValueError("Ya existe una categoría con ese nombre")
+    finally:
+        conexion.close()
+
+
+def actualizar_categoria(id, datos):
+    nombre = datos.get("nombre", "").strip()
+    if not nombre:
+        raise ValueError("El nombre de la categoría es obligatorio")
+
+    conexion = conectar()
+    cursor = conexion.cursor()
+    try:
+        cursor.execute("UPDATE categorias SET nombre=%s WHERE id=%s", (nombre, id))
+        conexion.commit()
+    except pymysql.err.IntegrityError:
+        conexion.rollback()
+        raise ValueError("Ya existe una categoría con ese nombre")
+    finally:
+        conexion.close()
+
+
+def eliminar_categoria(id):
+    conexion = conectar()
+    cursor = conexion.cursor()
+    try:
+        cursor.execute("DELETE FROM categorias WHERE id=%s", (id,))
+        conexion.commit()
+    except pymysql.err.IntegrityError:
+        conexion.rollback()
+        raise ValueError(
+            "No se puede eliminar: hay productos asignados a esta categoría"
+        )
+    finally:
+        conexion.close()
+
+
 def listar_marcas():
     conexion = conectar()
     cursor = conexion.cursor()

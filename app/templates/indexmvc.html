@@ -120,6 +120,15 @@
 
                 <button
                     class="admin-nav-btn"
+                    data-section="section-categorias"
+                    onclick="showAdminSection('section-categorias', this)"
+                >
+                    <i class="fa-solid fa-tags"></i>
+                    Categorías
+                </button>
+
+                <button
+                    class="admin-nav-btn"
                     data-section="section-pedidos"
                     onclick="showAdminSection('section-pedidos', this)"
                 >
@@ -438,6 +447,7 @@
                             <input name="nombre" placeholder="Nombre" required />
 
                             <select name="categoria_id" required>
+                                <option value="" disabled selected>Categoría</option>
                                 {% for c in categorias %}
                                 <option value="{{ c.id }}">{{ c.nombre }}</option>
                                 {% endfor %}
@@ -594,6 +604,109 @@
                                             <button
                                                 class="secondary-btn"
                                                 onclick="closeModal('producto-{{ p.id }}')"
+                                            >
+                                                Cerrar
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ================= CATEGORIAS ================= -->
+                <section class="admin-section" id="section-categorias">
+                    <div>
+                        <h1 class="admin-page-title">Categorías</h1>
+                        <p class="admin-page-subtitle">
+                            Administra las categorías del catálogo.
+                        </p>
+                    </div>
+
+                    <div class="section-card">
+                        <div class="section-card-header">
+                            <h2>Crear categoría</h2>
+                        </div>
+
+                        {% if error_categoria %}
+                        <div class="admin-error">
+                            <i class="fa-solid fa-circle-exclamation"></i>
+                            <span>{{ error_categoria }}</span>
+                        </div>
+                        {% endif %}
+
+                        <form
+                            action="{{ url_for('admin.crear_categoria') }}"
+                            method="POST"
+                            class="admin-form-grid"
+                        >
+                            <input name="nombre" placeholder="Nombre de la categoría" required />
+
+                            <button class="primary-btn">Crear Categoría</button>
+                        </form>
+                    </div>
+
+                    <div class="section-card">
+                        <div class="section-card-header">
+                            <h2>Listado de categorías</h2>
+                            <span>{{ categorias|length }} en total</span>
+                        </div>
+
+                        <div class="table-container">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nombre</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    {% for c in categorias %}
+                                    <tr>
+                                        <td>{{ c.id }}</td>
+                                        <td>{{ c.nombre }}</td>
+
+                                        <td>
+                                            <div class="action-btns">
+                                                <button
+                                                    class="secondary-btn"
+                                                    onclick="openModal('categoria-{{ c.id }}')"
+                                                >
+                                                    Editar
+                                                </button>
+
+                                                <a
+                                                    href="{{ url_for('admin.eliminar_categoria', id=c.id) }}"
+                                                    style="color: #ff4d4d"
+                                                >
+                                                    Eliminar
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                    <!-- ================= MODAL CATEGORIA ================= -->
+                                    <div class="modal" id="modal-categoria-{{ c.id }}">
+                                        <div class="modal-content">
+                                            <h3>Editar Categoría</h3>
+
+                                            <form
+                                                action="{{ url_for('admin.editar_categoria', id=c.id) }}"
+                                                method="POST"
+                                            >
+                                                <input name="nombre" value="{{ c.nombre }}" />
+
+                                                <button class="primary-btn">Guardar</button>
+                                            </form>
+
+                                            <button
+                                                class="secondary-btn"
+                                                onclick="closeModal('categoria-{{ c.id }}')"
                                             >
                                                 Cerrar
                                             </button>
