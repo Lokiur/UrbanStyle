@@ -1,7 +1,7 @@
 import hashlib
 import hmac
 import re
-from datetime import datetime
+from datetime import date, datetime, timedelta
 from decimal import Decimal
 
 from flask import current_app
@@ -184,6 +184,135 @@ def ventas_por_ciudad(fecha_inicio=None, fecha_fin=None):
         GROUP BY d.ciudad, d.departamento
         ORDER BY total DESC
         """.format(where),
+        parametros,
+    )
+    filas = cursor.fetchall()
+    conexion.close()
+    return filas
+
+
+MESES_ES = [
+    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
+]
+
+
+def comparativo_ventas_mes_actual():
+    """Compara las ventas (no anuladas) del mes calendario en curso con
+    las del mes anterior: total facturado, cantidad de pedidos y
+    variacion porcentual.
+
+    No depende del filtro de periodo del panel; siempre toma el mes en
+    curso segun la fecha de hoy.
+    """
+    hoy = date.today()
+    inicio_mes_actual = hoy.replace(day=1)
+    inicio_mes_anterior = (inicio_mes_actual - timedelta(days=1)).replace(day=1)
+
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute(
+        """
+        SELECT
+            COALESCE(SUM(CASE WHEN fecha >= %s THEN total END), 0) AS total_actual,
+            COUNT(CASE WHEN fecha >= %s THEN 1 END) AS cantidad_actual,
+            COALESCE(SUM(CASE WHEN fecha < %s THEN total END), 0) AS total_anterior,
+            COUNT(CASE WHEN fecha < %s THEN 1 END) AS cantidad_anterior
+        FROM facturas
+        WHERE estado != 'anulado' AND fecha >= %s
+        """,
+        (
+            inicio_mes_actual,
+            inicio_mes_actual,
+            inicio_mes_actual,
+            inicio_mes_actual,
+            inicio_mes_anterior,
+        ),
+    )
+    fila = cursor.fetchone()
+    conexion.close()
+
+    total_actual = float(fila["total_actual"])
+    total_anterior = float(fila["total_anterior"])
+    diferencia = total_actual - total_anterior
+    variacion_pct = (diferencia / total_anterior * 100) if total_anterior else None
+
+    return {
+        "mes_actual_label": "{} {}".format(
+            MESES_ES[inicio_mes_actual.month - 1], inicio_mes_actual.year
+        ),
+        "mes_anterior_label": "{} {}".format(
+            MESES_ES[inicio_mes_anterior.month - 1], inicio_mes_anterior.year
+        ),
+        "total_actual": total_actual,
+        "total_anterior": total_anterior,
+        "cantidad_actual": fila["cantidad_actual"],
+        "cantidad_anterior": fila["cantidad_anterior"],
+        "diferencia": diferencia,
+        "variacion_pct": variacion_pct,
+    }
+
+
+def ingresos_envio_por_empresa(fecha_inicio=None, fecha_fin=None):
+    """Ingresos por costos de envio agrupados por empresa transportadora.
+
+    Suma `envios.costo_envio` de los envios cuya factura no esta anulada,
+    acotado por la fecha de la factura si se pasa un rango. De mayor a
+    menor.
+    """
+    where, parametros = _condicion_periodo(fecha_inicio, fecha_fin, "f")
+
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute(
+        """
+        SELECT ee.nombre AS etiqueta,
+               COUNT(*) AS cantidad,
+               COALESCE(SUM(e.costo_envio), 0) AS total
+        FROM envios e
+        JOIN empresas_envio ee ON ee.id = e.empresa_envio_id
+        JOIN facturas f ON f.id = e.factura_id
+        WHERE {}
+        GROUP BY ee.id, ee.nombre
+        ORDER BY total DESC
+        """.format(where),
+        parametros,
+    )
+    filas = cursor.fetchall()
+    conexion.close()
+    return filas
+
+
+def listar_facturas_anuladas(fecha_inicio=None, fecha_fin=None):
+    """Listado de facturas anuladas para el reporte del panel admin, con
+    el cliente y el metodo de pago, mas recientes primero. Acotado por la
+    fecha de la factura si se pasa un rango.
+    """
+    condiciones = ["f.estado = 'anulado'"]
+    parametros = []
+
+    if fecha_inicio:
+        condiciones.append("f.fecha >= %s")
+        parametros.append(fecha_inicio + " 00:00:00")
+
+    if fecha_fin:
+        condiciones.append("f.fecha <= %s")
+        parametros.append(fecha_fin + " 23:59:59")
+
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute(
+        """
+        SELECT f.id, f.numero_factura, f.fecha, f.total,
+               u.name AS cliente_nombre, u.apellidos AS cliente_apellidos,
+               u.username AS cliente_usuario,
+               mp.nombre AS metodo_pago
+        FROM facturas f
+        JOIN users u ON u.id = f.user_id
+        JOIN metodos_pago mp ON mp.id = f.metodo_pago_id
+        WHERE {}
+        ORDER BY f.fecha DESC
+        """.format(" AND ".join(condiciones)),
         parametros,
     )
     filas = cursor.fetchall()
