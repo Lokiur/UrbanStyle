@@ -40,7 +40,7 @@
         <!-- ================= HERO ================= -->
         <section class="hero">
             <div class="hero-text">
-                <div class="badge">⚡ Nueva Colección!</div>
+                <div class="badge">Nueva Colección 2026</div>
 
                 <h1>
                     Ponte En Tu <br />
@@ -48,39 +48,39 @@
                 </h1>
 
                 <p>
-                    Ropa de alta calidad diseñada para inspirar confianza y
-                    estilo
+                    Ropa urbana de alta calidad, diseñada para inspirar
+                    confianza y estilo en cada outfit.
                 </p>
 
                 <div class="buttons">
-                    <button class="primary-btn">Compra ahora</button>
-                    <button class="secondary-btn">Explorar categorías</button>
+                    <a
+                        href="{{ url_for('productos.products') }}"
+                        class="primary-btn"
+                    >
+                        <i class="fa-solid fa-bag-shopping"></i>
+                        Compra ahora
+                    </a>
+                    <a
+                        href="{{ url_for('productos.categories') }}"
+                        class="secondary-btn"
+                    >
+                        Explorar categorías
+                    </a>
                 </div>
 
-                <!-- FEATURES -->
-                <div class="hero-features">
-                    <div class="feature">
-                        <i class="fa-solid fa-truck"></i>
-                        <div>
-                            <h5>Envío gratis</h5>
-                            <p>Pedidos mayores a $150.000</p>
-                        </div>
+                <!-- STATS -->
+                <div class="hero-stats">
+                    <div class="hero-stat">
+                        <strong>{{ total_productos }}+</strong>
+                        <span>Productos</span>
                     </div>
-
-                    <div class="feature">
-                        <i class="fa-solid fa-shield"></i>
-                        <div>
-                            <h5>Devolución fácil</h5>
-                            <p>Garantía de 60 días</p>
-                        </div>
+                    <div class="hero-stat">
+                        <strong>24-48h</strong>
+                        <span>Envío nacional</span>
                     </div>
-
-                    <div class="feature">
-                        <i class="fa-solid fa-award"></i>
-                        <div>
-                            <h5>Productos premium</h5>
-                            <p>Calidad garantizada</p>
-                        </div>
+                    <div class="hero-stat">
+                        <strong>4.9<i class="fa-solid fa-star"></i></strong>
+                        <span>Valoración</span>
                     </div>
                 </div>
             </div>
@@ -90,9 +90,26 @@
 
                 <img
                     src="{{ url_for('static', filename='img/ropa.png') }}"
-                    class="product-image"
+                    class="hero-product-img"
                     alt="ropa"
                 />
+
+                <!-- tarjetas flotantes -->
+                <div class="spec-card spec-card-top">
+                    <i class="fa-solid fa-truck-fast"></i>
+                    <div>
+                        <strong>Envío gratis</strong>
+                        <span>Pedidos +$150.000</span>
+                    </div>
+                </div>
+
+                <div class="spec-card spec-card-bottom">
+                    <i class="fa-solid fa-rotate-left"></i>
+                    <div>
+                        <strong>60 días</strong>
+                        <span>Devolución fácil</span>
+                    </div>
+                </div>
             </div>
         </section>
 

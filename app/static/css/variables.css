@@ -5,4 +5,23 @@
   --color-accent-dark: #2563eb;
   --color-accent-strong: #2113e9;
   --color-text: #ffffff;
+
+  /* --- Nuevos tokens para dar variedad al diseño --- */
+
+  /* tono intermedio y superficie de tarjetas */
+  --color-bg-mid: #131c33;
+  --color-surface: rgba(255, 255, 255, 0.04);
+  --color-surface-border: rgba(255, 255, 255, 0.09);
+
+  /* acento secundario (violeta) para romper la monotonía del azul */
+  --color-accent-2: #a855f7;
+  --color-accent-2-soft: rgba(168, 85, 247, 0.14);
+
+  /* fondo con tinte violeta para el pie de página */
+  --color-footer-bg: #0b1024;
+
+  /* sombras reutilizables */
+  --shadow-soft: 0 18px 45px rgba(0, 0, 0, 0.4);
+  --shadow-glow: 0 0 0 1px rgba(77, 163, 255, 0.15),
+    0 20px 50px rgba(0, 0, 0, 0.45);
 }

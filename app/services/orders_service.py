@@ -140,6 +140,80 @@ def resumen_ventas_periodo(fecha_inicio=None, fecha_fin=None):
     return resumen
 
 
+ESTADOS_PEDIDO = ("pendiente", "preparacion", "enviado", "entregado", "anulado")
+
+
+def ticket_promedio_por_estado():
+    """Ticket promedio de compra (AVG del total de la factura) desglosado
+    por estado del pedido.
+
+    No depende del filtro de periodo del panel: es para el resumen
+    general. Devuelve un dict con una entrada por cada estado posible
+    ({promedio, cantidad}); los estados sin facturas quedan en cero.
+    """
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute(
+        """
+        SELECT estado,
+               COALESCE(AVG(total), 0) AS promedio,
+               COUNT(*) AS cantidad
+        FROM facturas
+        GROUP BY estado
+        """
+    )
+    filas = {fila["estado"]: fila for fila in cursor.fetchall()}
+    conexion.close()
+
+    return {
+        estado: {
+            "promedio": float(filas[estado]["promedio"]) if estado in filas else 0.0,
+            "cantidad": filas[estado]["cantidad"] if estado in filas else 0,
+        }
+        for estado in ESTADOS_PEDIDO
+    }
+
+
+def producto_mas_vendido():
+    """Producto con mas unidades vendidas en facturas no anuladas.
+
+    No depende del filtro de periodo del panel: es el mas vendido
+    historico, para mostrarlo en el resumen general. Devuelve un dict con
+    id, nombre, referencia, marca, categoria, unidades (suma de
+    `cantidad`), ingresos (suma de `subtotal`), pedidos (facturas
+    distintas que lo incluyen) y tiene_imagen. Devuelve None si todavia
+    no se ha vendido nada.
+    """
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute(
+        """
+        SELECT p.id,
+               p.nombre,
+               p.referencia,
+               (p.imagen IS NOT NULL) AS tiene_imagen,
+               ma.nombre AS marca,
+               ca.nombre AS categoria,
+               COALESCE(SUM(df.cantidad), 0) AS unidades,
+               COALESCE(SUM(df.subtotal), 0) AS ingresos,
+               COUNT(DISTINCT df.factura_id) AS pedidos
+        FROM detalle_factura df
+        JOIN facturas f ON f.id = df.factura_id
+        JOIN existencias e ON e.id = df.existencia_id
+        JOIN productos p ON p.id = e.producto_id
+        LEFT JOIN marcas ma ON ma.id = p.marca_id
+        LEFT JOIN categorias ca ON ca.id = p.categoria_id
+        WHERE f.estado != 'anulado'
+        GROUP BY p.id, p.nombre, p.referencia, tiene_imagen, ma.nombre, ca.nombre
+        ORDER BY unidades DESC, ingresos DESC
+        LIMIT 1
+        """
+    )
+    fila = cursor.fetchone()
+    conexion.close()
+    return fila
+
+
 def ventas_por_metodo_pago(fecha_inicio=None, fecha_fin=None):
     """Ventas (no anuladas) agrupadas por metodo de pago, de mayor a menor."""
     where, parametros = _condicion_periodo(fecha_inicio, fecha_fin, "f")

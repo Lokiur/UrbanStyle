@@ -1,76 +1,262 @@
-/* FOOTER */
+/* =========================================================
+   FOOTER
+   ========================================================= */
 
-.footer{
-  padding:100px 80px 40px;
+.footer {
+  position: relative;
+  padding: 90px 80px 36px;
 
-  background:var(--color-bg-darker);
+  /* color propio: azul-violeta profundo con brillo de acento arriba */
+  background:
+    radial-gradient(
+      90% 140% at 15% 0%,
+      color-mix(in srgb, var(--color-accent) 12%, transparent),
+      transparent 55%
+    ),
+    radial-gradient(
+      80% 130% at 100% 0%,
+      var(--color-accent-2-soft),
+      transparent 50%
+    ),
+    linear-gradient(180deg, var(--color-bg-mid), var(--color-footer-bg));
 
-  border-top:1px solid rgba(255,255,255,.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.footer-grid{
-  display:grid;
-  grid-template-columns:2fr 1fr 1fr 1fr;
+/* filo luminoso superior */
+.footer::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
 
-  gap:50px;
-
-  margin-bottom:60px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-accent),
+    var(--color-accent-2),
+    transparent
+  );
 }
 
-.footer h2,
-.footer h3{
-  margin-bottom:20px;
+.footer-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 50px;
+  margin-bottom: 55px;
 }
 
-.footer p{
-  opacity:.7;
-  line-height:1.7;
+/* ---------- MARCA ---------- */
+
+.footer-brand p {
+  max-width: 340px;
 }
 
-.footer ul{
-  list-style:none;
+.footer-logo {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
 }
 
-.footer ul li{
-  margin-bottom:15px;
+.footer-logo i {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+
+  border-radius: 14px;
+  background: linear-gradient(
+    135deg,
+    var(--color-accent-strong),
+    var(--color-accent)
+  );
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--color-accent) 35%, transparent);
+
+  font-size: 20px;
+  color: #fff;
 }
 
-.footer ul li a{
-  text-decoration:none;
-  color:white;
-
-  opacity:.7;
-
-  transition:.3s;
+.footer-logo h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 800;
+  background: linear-gradient(120deg, #fff, var(--color-accent));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #fff;
 }
 
-.footer ul li a:hover{
-  opacity:1;
-  color:var(--color-accent);
+/* ---------- TITULOS / TEXTO ---------- */
+
+.footer h3 {
+  margin-bottom: 22px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.9);
 }
 
-.social-icons{
-  display:flex;
-  gap:20px;
-
-  font-size:24px;
+.footer p {
+  opacity: 0.6;
+  line-height: 1.7;
 }
 
-.social-icons i{
-  cursor:pointer;
-  transition:.3s;
+/* ---------- ENLACES ---------- */
+
+.footer ul {
+  list-style: none;
 }
 
-.social-icons i:hover{
-  color:var(--color-accent);
+.footer ul li {
+  margin-bottom: 14px;
 }
 
-.footer-bottom{
-  text-align:center;
+.footer ul li a {
+  position: relative;
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.65);
+  transition: 0.25s;
+}
 
-  padding-top:30px;
+.footer ul li a::before {
+  content: "";
+  position: absolute;
+  left: -14px;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  transform: translateY(-50%) scale(0);
 
-  border-top:1px solid rgba(255,255,255,.08);
+  border-radius: 50%;
+  background: var(--color-accent);
+  transition: transform 0.25s ease;
+}
 
-  opacity:.6;
+.footer ul li a:hover {
+  color: #fff;
+  padding-left: 4px;
+}
+
+.footer ul li a:hover::before {
+  transform: translateY(-50%) scale(1);
+}
+
+/* ---------- REDES ---------- */
+
+.social-icons {
+  display: flex;
+  gap: 14px;
+  font-size: 18px;
+}
+
+.social-icon {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+
+  /* cada red pinta su icono con su color de marca ya en reposo */
+  color: var(--brand, rgba(255, 255, 255, 0.8));
+
+  transition:
+    transform 0.28s ease,
+    border-color 0.28s ease,
+    box-shadow 0.28s ease,
+    background 0.28s ease,
+    color 0.28s ease;
+}
+
+/* al pasar el cursor: se rellena con el color/gradiente de la marca,
+   el icono pasa a blanco, sube y emite un brillo del mismo color */
+.social-icon:hover {
+  transform: translateY(-5px) scale(1.06);
+  border-color: transparent;
+  background: var(--brand-bg, var(--brand));
+  color: #fff;
+  box-shadow: 0 12px 26px var(--brand-glow, rgba(77, 163, 255, 0.45));
+}
+
+.social-icon i {
+  position: relative;
+  z-index: 1;
+}
+
+/* --- Colores de marca --- */
+
+.social-instagram {
+  --brand: #e1306c;
+  --brand-bg: linear-gradient(45deg, #f9ce34, #ee2a7b 45%, #6228d7);
+  --brand-glow: rgba(238, 42, 123, 0.5);
+}
+
+.social-tiktok {
+  --brand: #ff0050;
+  --brand-bg: linear-gradient(135deg, #25f4ee, #000 45%, #fe2c55);
+  --brand-glow: rgba(254, 44, 85, 0.5);
+}
+
+.social-facebook {
+  --brand: #1877f2;
+  --brand-bg: #1877f2;
+  --brand-glow: rgba(24, 119, 242, 0.5);
+}
+
+.social-x {
+  --brand: #ffffff;
+  --brand-bg: #000000;
+  --brand-glow: rgba(255, 255, 255, 0.35);
+}
+
+.social-x:hover {
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+/* ---------- BARRA INFERIOR ---------- */
+
+.footer-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 28px;
+
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+
+  opacity: 0.55;
+  font-size: 14px;
+  letter-spacing: 0.3px;
+}
+
+/* ---------- RESPONSIVE ---------- */
+
+@media (max-width: 900px) {
+  .footer {
+    padding: 70px 40px 32px;
+  }
+
+  .footer-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+  }
+}
+
+@media (max-width: 540px) {
+  .footer {
+    padding: 60px 22px 28px;
+  }
+
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: 34px;
+  }
 }

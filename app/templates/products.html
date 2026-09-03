@@ -57,8 +57,14 @@
 
     {% if query %}
     <h2>Resultados para "{{ query }}"</h2>
+    <p>
+      {{ productos|length }}
+      {{ 'artículo encontrado' if productos|length == 1 else 'artículos encontrados' }}
+      en el catálogo.
+    </p>
     {% else %}
     <h2>Nuestra Colección</h2>
+    <p>Prendas seleccionadas para llevar tu estilo urbano al siguiente nivel.</p>
     {% endif %}
 
   </div>
@@ -70,6 +76,16 @@
     <div class="product-card">
 
       <div class="product-image">
+        {% if producto.stock_total and producto.stock_total <= 5 %}
+        <span class="product-badge low">
+          <i class="fa-solid fa-fire"></i> Últimas unidades
+        </span>
+        {% else %}
+        <span class="product-badge">
+          <i class="fa-solid fa-bolt"></i> Nuevo
+        </span>
+        {% endif %}
+
         <img
           src="{{ url_for('productos.imagen_producto', id=producto.id) if producto.tiene_imagen else url_for('static', filename='img/urbanstyle.png') }}"
           alt="{{ producto.nombre }}"
@@ -86,11 +102,12 @@
           {{ producto.descripcion }}
         </p>
 
-        <div class="price">
+        <div class="price-row">
           {% if producto.precio_desde %}
-          $ {{ "{:,.0f}".format(producto.precio_desde) }}
+          <span class="price-hint">desde</span>
+          <div class="price">$ {{ "{:,.0f}".format(producto.precio_desde) }}</div>
           {% else %}
-          Precio no disponible
+          <div class="price">Precio no disponible</div>
           {% endif %}
         </div>
 
@@ -123,11 +140,13 @@
           </div>
 
           <button type="submit">
+            <i class="fa-solid fa-bag-shopping"></i>
             Agregar al carrito
           </button>
         </form>
         {% else %}
         <button type="button" disabled>
+          <i class="fa-solid fa-ban"></i>
           Agotado
         </button>
         {% endif %}

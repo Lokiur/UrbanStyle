@@ -205,9 +205,7 @@
                                 <i class="fa-solid fa-sack-dollar"></i>
                             </div>
                             <div>
-                                <div class="stat-value">
-                                    $ {{ "{:,.0f}".format(ventas_totales) }}
-                                </div>
+                                <div class="stat-value">$ {{ "{:,.0f}".format(ventas_totales) }}</div>
                                 <div class="stat-label">Ventas activas</div>
                             </div>
                         </div>
@@ -221,7 +219,107 @@
                                 <div class="stat-label">Mensajes sin leer</div>
                             </div>
                         </div>
+
+                        {% set estados_ticket = [
+                            ('entregado', 'Entregado'),
+                            ('pendiente', 'Pendiente'),
+                            ('preparacion', 'En preparación'),
+                            ('enviado', 'Enviado'),
+                            ('anulado', 'Anulado'),
+                        ] %}
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fa-solid fa-receipt"></i>
+                            </div>
+                            <div class="stat-body">
+                                <div
+                                    class="stat-value"
+                                    id="ticket-promedio-valor"
+                                    title="Promedio de {{ ticket_promedio['entregado'].cantidad }} pedidos entregados"
+                                >$ {{ "{:,.0f}".format(ticket_promedio['entregado'].promedio) }}</div>
+                                <div class="stat-label">Ticket promedio de compra</div>
+                                <select
+                                    id="ticket-promedio-estado"
+                                    class="stat-select"
+                                    onchange="actualizarTicketPromedio(this)"
+                                >
+                                    {% for valor, etiqueta in estados_ticket %}
+                                    <option
+                                        value="{{ valor }}"
+                                        {% if loop.first %}selected{% endif %}
+                                        data-valor="$ {{ '{:,.0f}'.format(ticket_promedio[valor].promedio) }}"
+                                        data-cantidad="{{ ticket_promedio[valor].cantidad }}"
+                                        data-etiqueta="{{ etiqueta|lower }}"
+                                    >
+                                        {{ etiqueta }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
                     </div>
+
+                    {% if producto_mas_vendido %}
+                    <div class="bestseller-card">
+                        <div class="bestseller-media">
+                            <span class="bestseller-rank" title="Nº 1 en ventas">
+                                <i class="fa-solid fa-crown"></i>
+                            </span>
+                            {% if producto_mas_vendido.tiene_imagen %}
+                            <img
+                                src="{{ url_for('productos.imagen_producto', id=producto_mas_vendido.id) }}"
+                                alt="{{ producto_mas_vendido.nombre }}"
+                            />
+                            {% else %}
+                            <i class="fa-solid fa-shirt bestseller-media-fallback"></i>
+                            {% endif %}
+                        </div>
+
+                        <div class="bestseller-body">
+                            <span class="bestseller-eyebrow">
+                                <i class="fa-solid fa-arrow-trend-up"></i>
+                                Producto más vendido
+                            </span>
+                            <h3 class="bestseller-name">
+                                {{ producto_mas_vendido.nombre }}
+                            </h3>
+                            <p class="bestseller-meta">
+                                {% if producto_mas_vendido.marca %}{{ producto_mas_vendido.marca }}{% endif %}
+                                {%- if producto_mas_vendido.categoria %} · {{ producto_mas_vendido.categoria }}{% endif %}
+                                {%- if producto_mas_vendido.referencia %} · Ref. {{ producto_mas_vendido.referencia }}{% endif %}
+                            </p>
+                        </div>
+
+                        <div class="bestseller-stats">
+                            <div class="bestseller-stat">
+                                <span class="bestseller-stat-value">
+                                    {{ "{:,.0f}".format(producto_mas_vendido.unidades) }}
+                                </span>
+                                <span class="bestseller-stat-label">Unidades vendidas</span>
+                            </div>
+                            <div class="bestseller-stat">
+                                <span class="bestseller-stat-value">
+                                    $ {{ "{:,.0f}".format(producto_mas_vendido.ingresos) }}
+                                </span>
+                                <span class="bestseller-stat-label">Ingresos generados</span>
+                            </div>
+                            <div class="bestseller-stat">
+                                <span class="bestseller-stat-value">
+                                    {{ producto_mas_vendido.pedidos }}
+                                </span>
+                                <span class="bestseller-stat-label">Pedidos</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="bestseller-empty">
+                        <span class="bestseller-eyebrow">
+                            <i class="fa-solid fa-arrow-trend-up"></i>
+                            Producto más vendido
+                        </span>
+                        <p>Todavía no hay ventas registradas para calcular un ranking.</p>
+                    </div>
+                    {% endif %}
 
                     <div class="section-card">
                         <div class="section-card-header">
