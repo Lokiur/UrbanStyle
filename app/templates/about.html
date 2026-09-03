@@ -47,6 +47,7 @@
     type="image/x-icon"
   />
 
+<link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}" />
 </head>
 
 <body>
@@ -55,42 +56,144 @@
 
   {% include 'header.html' %}
 
-  <!-- ABOUT -->
+  <!-- SOBRE NOSOTROS -->
 
-  <section class="about">
+  <section class="story">
 
-    <div class="about-image">
+    <!-- RETÍCULA BENTO -->
 
-      <img
-        src="{{ url_for('static', filename='img/urbanstyle.png') }}"
-        alt="UrbanStyle"
-      >
+    <div class="story-bento">
+
+      <article class="bento bento-lead">
+        <p class="bento-eyebrow">Sobre UrbanStyle</p>
+        <h1>Nacimos para que tu ropa <em>diga algo</em></h1>
+        <p>
+          UrbanStyle une estilo, comodidad y autenticidad en cada prenda.
+          Diseñamos streetwear moderno y de calidad premium para quienes
+          quieren expresar su personalidad a través de la ropa.
+        </p>
+        <div class="bento-lead-actions">
+          <a href="{{ url_for('productos.products') }}" class="primary-btn">
+            <i class="fa-solid fa-bag-shopping"></i>
+            Ver colección
+          </a>
+          <a href="{{ url_for('home.contacto') }}" class="secondary-btn">
+            Contáctanos
+          </a>
+        </div>
+      </article>
+
+      <article class="bento bento-brand">
+        <img
+          src="{{ url_for('static', filename='img/urbanstyle.png') }}"
+          alt="UrbanStyle"
+        >
+      </article>
+
+      <article class="bento bento-stat">
+        <b>{{ total_productos }}+</b>
+        <span>Prendas en catálogo</span>
+      </article>
+
+      <article class="bento bento-stat">
+        <b>24-48h</b>
+        <span>Envío nacional</span>
+      </article>
+
+      <article class="bento bento-stat">
+        <b>60 días</b>
+        <span>Devolución fácil</span>
+      </article>
+
+      <article class="bento bento-stat">
+        <b>4.9<i class="fa-solid fa-star"></i></b>
+        <span>Valoración media</span>
+      </article>
 
     </div>
 
-    <div class="about-content">
+    <!-- VALORES -->
 
-      <span>SOBRE NOSOTROS</span>
+    <div class="story-values">
+      <p class="story-eyebrow">Lo que nos mueve</p>
+      <h2>Tres ideas que guían cada colección</h2>
 
-      <h2>
-        Moda Urbana Que Inspira
-      </h2>
+      <ol class="values-list">
 
-      <p>
-        UrbanStyle nace con el objetivo de combinar estilo,
-        comodidad y autenticidad en cada prenda.
-      </p>
+        <li>
+          <span class="values-num">01</span>
+          <div>
+            <h3><i class="fa-solid fa-gem"></i> Calidad premium</h3>
+            <p>
+              Tejidos resistentes y acabados cuidados en cada prenda,
+              pensados para acompañarte durante mucho tiempo.
+            </p>
+          </div>
+        </li>
 
-      <p>
-        Diseñamos ropa para personas que buscan expresar
-        su personalidad a través de la moda streetwear,
-        ofreciendo diseños modernos y calidad premium.
-      </p>
+        <li>
+          <span class="values-num">02</span>
+          <div>
+            <h3><i class="fa-solid fa-fingerprint"></i> Diseño con identidad</h3>
+            <p>
+              Colecciones con carácter propio para que expreses quién eres
+              sin decir una sola palabra.
+            </p>
+          </div>
+        </li>
 
-      <button>
-        Conocer más
-      </button>
+        <li>
+          <span class="values-num">03</span>
+          <div>
+            <h3><i class="fa-solid fa-heart"></i> Cercanía real</h3>
+            <p>
+              Atención directa, cambios sin complicaciones y una comunidad
+              que crece contigo.
+            </p>
+          </div>
+        </li>
 
+      </ol>
+    </div>
+
+    <!-- MISIÓN / VISIÓN -->
+
+    <div class="story-mv">
+
+      <div class="mv-item">
+        <span class="mv-index">01</span>
+        <div>
+          <h3 class="story-mv-title">Misión</h3>
+          <p>
+            Llevar streetwear de calidad premium a quienes viven la moda
+            como una forma de expresión, con precios justos y una
+            experiencia de compra impecable de principio a fin.
+          </p>
+        </div>
+      </div>
+
+      <div class="mv-item">
+        <span class="mv-index">02</span>
+        <div>
+          <h3 class="story-mv-title">Visión</h3>
+          <p>
+            Ser la marca de moda urbana de referencia en la región,
+            reconocida por su diseño, su comunidad y su compromiso con
+            hacer las cosas bien.
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- LLAMADO FINAL -->
+
+    <div class="story-cta">
+      <h3>¿Listo para renovar tu estilo?</h3>
+      <a href="{{ url_for('productos.products') }}" class="primary-btn">
+        <i class="fa-solid fa-arrow-right"></i>
+        Ver colección
+      </a>
     </div>
 
   </section>

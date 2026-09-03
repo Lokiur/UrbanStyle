@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8" />
 
-        <title>Recuperar Contraseña | UrbanStyle</title>
+        <title>Recuperar contraseña | UrbanStyle</title>
 
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
@@ -29,141 +29,143 @@
             href="{{ url_for('static', filename='img/urbanstyle.png') }}"
             type="image/x-icon"
         />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}" />
     </head>
 
     <body>
 
-        <div class="form">
+        <main class="auth">
 
-            <!-- LOGO -->
-
-            <div class="logo">
-
-                <a href="{{ url_for('home.index') }}">
-
-                    <img
-                        src="{{ url_for('static', filename='img/urbanstyle.png') }}"
-                        alt="Logo"
-                    />
-
+            <!-- PANEL DE MARCA -->
+            <aside class="auth-brand">
+                <a class="auth-logo" href="{{ url_for('home.index') }}">
+                    <img src="{{ url_for('static', filename='img/urbanstyle.png') }}" alt="" />
+                    UrbanStyle
                 </a>
 
-            </div>
+                <div class="auth-brand-mid">
+                    <h2>Recupera<br /><em>tu acceso</em></h2>
+                    <p>
+                        Verifica tu identidad con tu usuario y tu documento
+                        para definir una contraseña nueva.
+                    </p>
 
-            <!-- TITULO -->
-
-            <h2>Recuperar Contraseña</h2>
-
-            <!-- FORMULARIO -->
-
-            <form action="{{ url_for('auth.recuperar') }}" method="POST">
-
-                <div class="input">
-
-                    <!-- USUARIO -->
-
-                    <div class="inputBox">
-
-                        <label for="username"><i class="bi bi-person-fill"></i> Usuario</label>
-
-                        <input
-                            type="text"
-                            id="username"
-                            name="username"
-                            placeholder="Ingrese su usuario"
-                            required
-                        />
-
-                    </div>
-
-                    <!-- DOCUMENTO DE IDENTIDAD -->
-
-                    <div class="inputBox">
-
-                        <label for="documento_identidad"><i class="bi bi-credit-card-2-front-fill"></i> Documento de identidad</label>
-
-                        <input
-                            type="text"
-                            id="documento_identidad"
-                            name="documento_identidad"
-                            placeholder="Ingrese su documento de identidad"
-                            required
-                        />
-
-                    </div>
-
-                    <!-- NUEVA CONTRASEÑA -->
-
-                    <div class="inputBox">
-
-                        <label for="nueva_password"><i class="bi bi-lock-fill"></i> Nueva contraseña</label>
-
-                        <input
-                            type="password"
-                            id="nueva_password"
-                            name="nueva_password"
-                            placeholder="Ingrese su nueva contraseña"
-                            required
-                        />
-
-                    </div>
-
-                    <!-- CAPTCHA -->
-
-                    <div class="inputBox">
-
-                        <label for="captcha"><i class="bi bi-calculator-fill"></i> ¿Cuánto es {{ captcha_a }} + {{ captcha_b }}?</label>
-
-                        <input
-                            type="text"
-                            id="captcha"
-                            name="captcha"
-                            placeholder="Resuelve la suma"
-                            required
-                        />
-
-                    </div>
-
-                    <!-- BOTON -->
-
-                    <div class="inputBox">
-
-                        <input
-                            type="submit"
-                            value="Actualizar Contraseña"
-                        />
-
-                    </div>
-
+                    <ul class="auth-points">
+                        <li><i class="bi bi-shield-lock"></i> Verificación por documento</li>
+                        <li><i class="bi bi-key"></i> Nueva contraseña al instante</li>
+                        <li><i class="bi bi-shield-check"></i> Proceso 100&nbsp;% cifrado</li>
+                    </ul>
                 </div>
 
-            </form>
+                <p class="auth-brand-foot">© 2026 UrbanStyle</p>
+            </aside>
 
-            <!-- MENSAJE -->
+            <!-- PANEL DE FORMULARIO -->
+            <section class="auth-form-side">
 
-            {% if message %}
+                <header class="auth-head">
+                    <h1>Recuperar contraseña</h1>
+                    <p>Confirma tus datos para continuar.</p>
+                </header>
 
-            <div class="error-message">
+                {% if message %}
+                <div class="auth-alert">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <span>{{ message }}</span>
+                </div>
+                {% endif %}
 
-                {{ message }}
+                <form class="auth-form" action="{{ url_for('auth.recuperar') }}" method="POST" novalidate>
 
-            </div>
+                    <input
+                        type="text"
+                        name="website"
+                        class="auth-hp"
+                        tabindex="-1"
+                        autocomplete="off"
+                        aria-hidden="true"
+                    />
 
-            {% endif %}
+                    <label class="field">
+                        <span class="field-label"><i class="bi bi-person"></i> Usuario</span>
+                        <input type="text" name="username" placeholder="Tu usuario" autocomplete="username" required />
+                    </label>
 
-            <!-- LOGIN -->
+                    <label class="field">
+                        <span class="field-label"><i class="bi bi-credit-card-2-front"></i> Documento de identidad</span>
+                        <input type="text" name="documento_identidad" placeholder="Tu documento" inputmode="numeric" required />
+                    </label>
 
-            <p class="forgot">
+                    <label class="field">
+                        <span class="field-label"><i class="bi bi-lock"></i> Nueva contraseña</span>
+                        <span class="field-control">
+                            <input
+                                type="password"
+                                name="nueva_password"
+                                id="pw"
+                                placeholder="Mínimo 8 caracteres, con letras y números"
+                                autocomplete="new-password"
+                                required
+                            />
+                            <button type="button" class="field-toggle" data-target="pw" aria-label="Mostrar u ocultar contraseña">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </span>
+                    </label>
 
-                ¿Ya recordaste tu contraseña?
+                    <!-- CAPTCHA -->
+                    <div class="field captcha">
+                        <span class="field-label"><i class="bi bi-patch-check"></i> Verificación</span>
 
-                <a href="{{ url_for('auth.login') }}">
-                    Iniciar sesión
-                </a>
+                        {% if captcha_bloqueado %}
+                        <div class="captcha-locked">
+                            <i class="bi bi-hourglass-split"></i>
+                            Demasiados intentos. Espera {{ captcha_espera }} s y recarga la página.
+                        </div>
+                        {% else %}
+                        <div class="captcha-row">
+                            <span class="captcha-q">{{ captcha_question }}&nbsp;=</span>
+                            <input
+                                type="text"
+                                name="captcha"
+                                inputmode="numeric"
+                                placeholder="?"
+                                autocomplete="off"
+                                required
+                            />
+                        </div>
+                        <span class="field-hint">Resuelve la operación para confirmar que eres una persona.</span>
+                        {% endif %}
+                    </div>
 
-            </p>
+                    <button type="submit" class="auth-submit" {{ 'disabled' if captcha_bloqueado }}>
+                        Actualizar contraseña
+                    </button>
 
-        </div>
+                </form>
+
+                <div class="auth-links">
+                    <span>¿Ya la recordaste?</span>
+                    <a href="{{ url_for('auth.login') }}">Iniciar sesión</a>
+                </div>
+
+            </section>
+
+        </main>
+
+        <script>
+            document.querySelectorAll(".field-toggle").forEach(function (btn) {
+                btn.addEventListener("click", function () {
+                    var input = document.getElementById(btn.dataset.target);
+                    if (!input) return;
+                    var toText = input.type === "password";
+                    input.type = toText ? "text" : "password";
+                    btn.querySelector("i").className = toText
+                        ? "bi bi-eye-slash"
+                        : "bi bi-eye";
+                });
+            });
+        </script>
 
     </body>
 </html>

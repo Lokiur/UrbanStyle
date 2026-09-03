@@ -1,67 +1,293 @@
-/* OFFERS */
+/* =========================================================
+   OFERTAS  —  "promo tipográfica"
+   ---------------------------------------------------------
+   Misma identidad que la tienda (fondo oscuro, acentos
+   azul / violeta, glass, degradados, esquinas redondeadas)
+   pero con una composición propia: centrada, guiada por la
+   tipografía, con un gran número fantasma de fondo y bandas
+   planas en lugar del hero partido de la portada.
+   ========================================================= */
 
-.offers{
-  padding:120px 80px;
+.promo {
+  position: relative;
+  overflow: hidden;
 
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 130px 60px 110px;
 
-  gap:60px;
+  text-align: center;
 }
 
-.offers-content{
-  width:50%;
+/* número gigante en contorno, detrás de todo */
+.promo-ghost {
+  position: absolute;
+  left: 50%;
+  bottom: -8%;
+  translate: -50% 0;
+  z-index: 0;
+
+  font-size: clamp(220px, 40vw, 560px);
+  font-weight: 900;
+  line-height: 0.8;
+  letter-spacing: -0.05em;
+
+  color: transparent;
+  -webkit-text-stroke: 2px color-mix(in srgb, var(--color-accent) 26%, transparent);
+
+  opacity: 0.7;
+  user-select: none;
+  pointer-events: none;
+  white-space: nowrap;
 }
 
-.offers-content span{
-  color:var(--color-accent);
-  font-weight:bold;
-  letter-spacing:2px;
+/* halo suave centrado */
+.promo::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  left: 50%;
+  top: 42%;
+  translate: -50% -50%;
+
+  width: 780px;
+  height: 780px;
+
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--color-accent) 16%, transparent),
+    color-mix(in srgb, var(--color-accent-2) 10%, transparent) 45%,
+    transparent 70%
+  );
+  filter: blur(20px);
+  pointer-events: none;
 }
 
-.offers-content h2{
-  font-size:65px;
-  margin:25px 0;
+/* ---------------- CONTENIDO ---------------- */
+
+.promo-main {
+  position: relative;
+  z-index: 2;
+
+  max-width: 840px;
+  margin: 0 auto;
 }
 
-.offers-content p{
-  font-size:20px;
-  opacity:.7;
+.promo-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
 
-  margin-bottom:35px;
+  margin-bottom: 26px;
+
+  color: color-mix(in srgb, var(--color-accent) 90%, #fff);
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
 }
 
-.offers-content .cta-btn{
-  display:inline-block;
-
-  padding:20px 40px;
-
-  border:none;
-  border-radius:50px;
-
-  background:var(--color-accent);
-
-  color:white;
-  text-decoration:none;
-
-  font-size:18px;
-  font-weight:bold;
-
-  cursor:pointer;
-
-  transition:.3s;
+.promo-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-accent) 60%, transparent);
+  animation: promoPulse 2.4s ease-out infinite;
 }
 
-.offers-content .cta-btn:hover{
-  background:var(--color-accent-dark);
-  transform:scale(1.03);
+@keyframes promoPulse {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-accent) 55%, transparent); }
+  70%, 100% { box-shadow: 0 0 0 14px transparent; }
 }
 
-.offers-image{
-  width:50%;
+.promo-title {
+  font-size: clamp(40px, 6vw, 74px);
+  line-height: 1.04;
+  font-weight: 800;
+  letter-spacing: -1.5px;
+
+  margin-bottom: 22px;
 }
 
-.offers-image img{
-  width:100%;
+.promo-title em {
+  font-style: normal;
+  background: linear-gradient(
+    120deg,
+    var(--color-accent),
+    var(--color-accent-2)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  text-shadow: 0 0 34px color-mix(in srgb, var(--color-accent) 35%, transparent);
+}
+
+.promo-sub {
+  max-width: 520px;
+  margin: 0 auto 34px;
+
+  font-size: 18px;
+  line-height: 1.7;
+  opacity: 0.72;
+}
+
+.promo-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+.promo-actions .primary-btn,
+.promo-actions .secondary-btn {
+  padding: 16px 32px;
+  font-size: 16px;
+}
+
+/* contador: una sola píldora fina, en una línea */
+.promo-countdown {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+
+  padding: 12px 24px;
+
+  border: 1px solid var(--color-surface-border);
+  border-radius: 50px;
+  background: var(--color-surface);
+  backdrop-filter: blur(10px);
+}
+
+.promo-countdown-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  opacity: 0.5;
+}
+
+.promo-countdown-time {
+  font-size: 16px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.5px;
+}
+
+.promo-countdown-time b {
+  color: var(--color-accent);
+}
+
+.promo-countdown-time i {
+  font-style: normal;
+  margin: 0 4px;
+  opacity: 0.35;
+}
+
+/* ---------------- BANDA DE BENEFICIOS ---------------- */
+
+.promo-perks {
+  position: relative;
+  z-index: 2;
+
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+
+  margin-top: 80px;
+  padding-top: 40px;
+
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.promo-perk {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 10px 36px;
+}
+
+.promo-perk + .promo-perk {
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.promo-perk i {
+  font-size: 20px;
+  color: var(--color-accent);
+}
+
+.promo-perk:nth-child(2) i {
+  color: var(--color-accent-2);
+}
+
+.promo-perk span {
+  font-size: 14px;
+  opacity: 0.62;
+}
+
+.promo-perk b {
+  opacity: 1;
+  font-weight: 700;
+}
+
+/* ---------------- MOVIMIENTO REDUCIDO ---------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .promo-dot {
+    animation: none;
+  }
+}
+
+/* ---------------- RESPONSIVE ---------------- */
+
+@media (max-width: 900px) {
+  .promo {
+    padding: 100px 30px 90px;
+  }
+
+  .promo-ghost {
+    font-size: clamp(200px, 62vw, 420px);
+  }
+}
+
+@media (max-width: 620px) {
+  .promo {
+    padding: 80px 20px 80px;
+  }
+
+  .promo-sub {
+    font-size: 16px;
+  }
+
+  .promo-actions .primary-btn,
+  .promo-actions .secondary-btn {
+    flex: 1 1 100%;
+  }
+
+  .promo-countdown {
+    gap: 10px;
+    padding: 12px 18px;
+  }
+
+  .promo-countdown-label {
+    display: none;
+  }
+
+  .promo-perks {
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    margin-top: 60px;
+  }
+
+  .promo-perk {
+    padding: 0;
+  }
+
+  .promo-perk + .promo-perk {
+    border-left: none;
+  }
 }
