@@ -22,6 +22,24 @@ function showAdminSection(id, btn) {
   }
 }
 
+// Cubiculo "Ticket promedio de compra" del resumen: el <select> cambia
+// que estado se muestra sin recargar; cada <option> lleva el valor ya
+// calculado en data-valor.
+function actualizarTicketPromedio(select) {
+  const opcion = select.options[select.selectedIndex];
+  const valor = document.getElementById("ticket-promedio-valor");
+  if (!opcion || !valor) return;
+
+  valor.textContent = opcion.dataset.valor;
+  valor.setAttribute(
+    "title",
+    "Promedio de " +
+      opcion.dataset.cantidad +
+      " pedidos " +
+      opcion.dataset.etiqueta,
+  );
+}
+
 function filtrarPedidos() {
   const tabla = document.getElementById("tabla-pedidos");
   if (!tabla) return;
@@ -64,6 +82,18 @@ function filtrarPedidosPorEstado(estado, btn) {
   btn.classList.add("active");
   filtrarPedidos();
 }
+
+// Tooltip nativo con el valor exacto de cada cubiculo de estadisticas:
+// al pasar el cursor la tarjeta se amplia (CSS) y ademas el navegador
+// muestra el numero completo aunque en pantalla se hubiera recortado.
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".stat-value").forEach((el) => {
+    const exacto = el.textContent.replace(/\s+/g, " ").trim();
+    if (exacto && !el.hasAttribute("title")) {
+      el.setAttribute("title", exacto);
+    }
+  });
+});
 
 document.addEventListener("DOMContentLoaded", () => {
   const navButtons = document.querySelectorAll(".admin-nav-btn");

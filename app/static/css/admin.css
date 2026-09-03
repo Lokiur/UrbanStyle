@@ -283,6 +283,8 @@ select {
 }
 
 .stat-card {
+    position: relative;
+
     display: flex;
     align-items: center;
     gap: 18px;
@@ -297,9 +299,14 @@ select {
     transition: 0.3s;
 }
 
+/* al pasar el cursor la tarjeta se amplia, se eleva sobre las demas y
+   muestra el valor completo (ver .stat-card:hover .stat-value abajo) */
 .stat-card:hover {
-    transform: translateY(-4px);
-    border-color: color-mix(in srgb, var(--color-accent) 40%, transparent);
+    transform: translateY(-4px) scale(1.06);
+    z-index: 5;
+
+    border-color: color-mix(in srgb, var(--color-accent) 45%, transparent);
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
 }
 
 .stat-icon {
@@ -322,12 +329,67 @@ select {
 .stat-value {
     font-size: 26px;
     font-weight: 800;
-    line-height: 1.2;
+
+    /* alto fijo: al reducir la letra en hover el numero no mueve a la
+       etiqueta de abajo (sin saltos / "tock") */
+    height: 32px;
+    line-height: 32px;
+
+    /* en reposo el importe ocupa una sola linea; si es demasiado largo se
+       recorta con puntos suspensivos y se revela completo al hacer hover
+       (ver .stat-card:hover .stat-value) */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    transition: font-size 0.2s ease;
 }
 
 .stat-label {
     opacity: 0.65;
     font-size: 13px;
+}
+
+/* cubiculo con selector (ej. Ticket promedio de compra) */
+.stat-body {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.stat-select {
+    margin-top: 8px;
+    align-self: flex-start;
+    max-width: 100%;
+
+    padding: 5px 26px 5px 10px;
+
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.9);
+
+    font-family: inherit;
+    font-size: 12px;
+    cursor: pointer;
+
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease;
+}
+
+.stat-select:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.stat-select:focus {
+    outline: none;
+    border-color: color-mix(in srgb, var(--color-accent) 55%, transparent);
+}
+
+.stat-select option {
+    background: var(--color-bg-dark);
+    color: white;
 }
 
 /* =========================
@@ -1165,4 +1227,234 @@ select {
 .comparativo-delta.neutro {
     color: rgba(255, 255, 255, 0.55);
     font-weight: 500;
+}
+
+/* =========================
+   STAT CARDS - ADAPTABILIDAD Y HOVER
+   ========================= */
+
+/* el bloque de texto (valor + etiqueta) debe poder encogerse dentro del
+   flex para que el ancho del icono no lo desborde */
+.stat-card > div:not(.stat-icon) {
+    min-width: 0;
+}
+
+/* al hacer hover el valor solo REDUCE su tamano de letra para que el
+   numero completo quepa; el recorte (overflow:hidden) se mantiene todo
+   el tiempo, asi la transicion ocurre siempre dentro del recuadro y sin
+   saltos: nunca se pinta texto fuera de la tarjeta */
+.stat-card:hover .stat-value {
+    font-size: 15px;
+}
+
+/* =========================
+   PRODUCTO MAS VENDIDO (RESUMEN)
+   ========================= */
+
+.bestseller-card {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+
+    margin-top: 24px;
+    padding: 26px 30px;
+    overflow: hidden;
+
+    border: 1px solid color-mix(in srgb, var(--color-accent) 30%, transparent);
+    border-radius: 20px;
+    background:
+        radial-gradient(
+            130% 150% at 0% 0%,
+            color-mix(in srgb, var(--color-accent) 22%, transparent) 0%,
+            transparent 55%
+        ),
+        rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(10px);
+
+    transition: 0.3s;
+}
+
+.bestseller-card::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(
+        var(--color-accent),
+        var(--color-accent-strong)
+    );
+}
+
+.bestseller-card:hover {
+    transform: translateY(-4px);
+    border-color: color-mix(in srgb, var(--color-accent) 55%, transparent);
+}
+
+.bestseller-media {
+    position: relative;
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 96px;
+    height: 96px;
+
+    border-radius: 16px;
+    overflow: hidden;
+    background: color-mix(in srgb, var(--color-accent) 15%, transparent);
+}
+
+.bestseller-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.bestseller-media-fallback {
+    font-size: 34px;
+    color: var(--color-accent);
+}
+
+.bestseller-rank {
+    position: absolute;
+    top: -6px;
+    left: -6px;
+    z-index: 1;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 30px;
+    height: 30px;
+
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ffd76a, #f5a623);
+    color: #4a2c00;
+    font-size: 13px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+.bestseller-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.bestseller-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+
+    padding: 4px 11px;
+
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--color-accent) 18%, transparent);
+    color: var(--color-accent);
+
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.bestseller-name {
+    margin: 12px 0 4px;
+
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1.25;
+}
+
+.bestseller-meta {
+    margin: 0;
+
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 13px;
+}
+
+.bestseller-stats {
+    display: flex;
+    flex-shrink: 0;
+    gap: 14px;
+}
+
+.bestseller-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+
+    min-width: 112px;
+    padding: 16px 14px;
+
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.bestseller-stat-value {
+    font-size: 20px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+}
+
+.bestseller-stat-label {
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 11px;
+    text-align: center;
+}
+
+.bestseller-empty {
+    margin-top: 24px;
+    padding: 24px 30px;
+
+    border: 1px dashed rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.bestseller-empty p {
+    margin: 12px 0 0;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 14px;
+}
+
+@media (max-width: 900px) {
+    .bestseller-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+    }
+
+    .bestseller-stats {
+        width: 100%;
+    }
+
+    .bestseller-stat {
+        flex: 1;
+        min-width: 0;
+    }
+}
+
+@media (max-width: 520px) {
+    .bestseller-stats {
+        flex-direction: column;
+    }
+
+    .bestseller-stat {
+        flex-direction: row;
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    .bestseller-stat-label {
+        text-align: right;
+    }
 }

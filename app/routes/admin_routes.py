@@ -59,6 +59,9 @@ def admin_panel():
 
     comparativo_mensual = orders_service.comparativo_ventas_mes_actual()
 
+    producto_mas_vendido = orders_service.producto_mas_vendido()
+    ticket_promedio = orders_service.ticket_promedio_por_estado()
+
     ingresos_envio = orders_service.ingresos_envio_por_empresa(
         filtro_desde or None, filtro_hasta or None
     )
@@ -103,6 +106,8 @@ def admin_panel():
         max_ventas_metodo=max_ventas_metodo,
         max_ventas_ciudad=max_ventas_ciudad,
         comparativo_mensual=comparativo_mensual,
+        producto_mas_vendido=producto_mas_vendido,
+        ticket_promedio=ticket_promedio,
         ingresos_envio=ingresos_envio,
         max_ingresos_envio=max_ingresos_envio,
         facturas_anuladas=facturas_anuladas,
