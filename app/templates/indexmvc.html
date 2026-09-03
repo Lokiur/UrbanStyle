@@ -1001,7 +1001,8 @@
                     <div>
                         <h1 class="admin-page-title">Ventas</h1>
                         <p class="admin-page-subtitle">
-                            Analiza las ventas totales por periodo, método de pago y ciudad de envío.
+                            Analiza las ventas por periodo, método de pago y ciudad de envío, el
+                            comparativo mes a mes, los ingresos por envío y las facturas anuladas.
                         </p>
                     </div>
 
@@ -1138,6 +1139,150 @@
                         <div class="empty-state">
                             <i class="fa-solid fa-chart-simple"></i>
                             <p>No hay ventas registradas en este periodo.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- #26 Comparativo de ventas: mes actual vs. mes anterior -->
+                    <div class="section-card">
+                        <div class="section-card-header">
+                            <h2>Comparativo de ventas: mes actual vs. mes anterior</h2>
+                            <span>Independiente del filtro de periodo</span>
+                        </div>
+
+                        {% set cmp_max = [comparativo_mensual.total_actual, comparativo_mensual.total_anterior] | max %}
+                        <div class="bar-list">
+                            <div class="bar-row">
+                                <span class="bar-label">
+                                    {{ comparativo_mensual.mes_actual_label }}
+                                    ({{ comparativo_mensual.cantidad_actual }} pedidos)
+                                </span>
+                                <div class="bar-track">
+                                    <div
+                                        class="bar-fill"
+                                        style="width: {{ (comparativo_mensual.total_actual / cmp_max * 100) if cmp_max else 0 }}%"
+                                    ></div>
+                                </div>
+                                <span class="bar-value">$ {{ "{:,.0f}".format(comparativo_mensual.total_actual) }}</span>
+                            </div>
+                            <div class="bar-row">
+                                <span class="bar-label">
+                                    {{ comparativo_mensual.mes_anterior_label }}
+                                    ({{ comparativo_mensual.cantidad_anterior }} pedidos)
+                                </span>
+                                <div class="bar-track">
+                                    <div
+                                        class="bar-fill"
+                                        style="width: {{ (comparativo_mensual.total_anterior / cmp_max * 100) if cmp_max else 0 }}%"
+                                    ></div>
+                                </div>
+                                <span class="bar-value">$ {{ "{:,.0f}".format(comparativo_mensual.total_anterior) }}</span>
+                            </div>
+                        </div>
+
+                        <p class="comparativo-resumen">
+                            Diferencia: $ {{ "{:+,.0f}".format(comparativo_mensual.diferencia) }}
+                            {% if comparativo_mensual.variacion_pct is none %}
+                            <span class="comparativo-delta neutro">
+                                Sin ventas el mes anterior para comparar.
+                            </span>
+                            {% else %}
+                            <span class="comparativo-delta {{ 'negativo' if comparativo_mensual.variacion_pct < 0 else 'positivo' }}">
+                                {{ '▲' if comparativo_mensual.variacion_pct >= 0 else '▼' }}
+                                {{ "{:+.1f}".format(comparativo_mensual.variacion_pct) }}%
+                            </span>
+                            {% endif %}
+                        </p>
+                    </div>
+
+                    <!-- #28 Ingresos por costos de envío, agrupado por empresa -->
+                    <div class="section-card">
+                        <div class="section-card-header">
+                            <h2>Ingresos por costos de envío, agrupado por empresa</h2>
+                        </div>
+
+                        {% if ingresos_envio %}
+                        <div class="bar-list">
+                            {% for v in ingresos_envio %}
+                            <div class="bar-row">
+                                <span class="bar-label" title="{{ v.etiqueta }}">
+                                    {{ v.etiqueta }} ({{ v.cantidad }} envíos)
+                                </span>
+                                <div class="bar-track">
+                                    <div
+                                        class="bar-fill"
+                                        style="width: {{ (v.total / max_ingresos_envio * 100) if max_ingresos_envio else 0 }}%"
+                                    ></div>
+                                </div>
+                                <span class="bar-value">$ {{ "{:,.0f}".format(v.total) }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="empty-state">
+                            <i class="fa-solid fa-truck-fast"></i>
+                            <p>No hay envíos registrados en este periodo.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- #27 Reporte de facturas anuladas -->
+                    <div class="section-card">
+                        <div class="section-card-header">
+                            <h2>Reporte de facturas anuladas</h2>
+                            <span>
+                                {{ facturas_anuladas | length }} anuladas ·
+                                $ {{ "{:,.0f}".format(total_facturas_anuladas) }}
+                            </span>
+                        </div>
+
+                        {% if facturas_anuladas %}
+                        <div class="table-container">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>N° Factura</th>
+                                        <th>Cliente</th>
+                                        <th>Fecha</th>
+                                        <th>Método de pago</th>
+                                        <th>Total</th>
+                                        <th>Factura</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    {% for f in facturas_anuladas %}
+                                    <tr>
+                                        <td>{{ f.numero_factura }}</td>
+                                        <td>
+                                            {{ f.cliente_nombre }} {{ f.cliente_apellidos }}
+                                            <br />
+                                            <span style="opacity: 0.6; font-size: 12px">
+                                                @{{ f.cliente_usuario }}
+                                            </span>
+                                        </td>
+                                        <td>{{ f.fecha }}</td>
+                                        <td>{{ f.metodo_pago }}</td>
+                                        <td>$ {{ "{:,.0f}".format(f.total) }}</td>
+                                        <td>
+                                            <a
+                                                href="{{ url_for('admin.factura_pdf', id=f.id) }}"
+                                                target="_blank"
+                                                rel="noopener"
+                                                title="Ver factura en PDF"
+                                            >
+                                                <i class="fa-solid fa-file-pdf"></i> PDF
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="empty-state">
+                            <i class="fa-solid fa-ban"></i>
+                            <p>No hay facturas anuladas en este periodo.</p>
                         </div>
                         {% endif %}
                     </div>

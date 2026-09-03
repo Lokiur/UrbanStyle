@@ -57,6 +57,18 @@ def admin_panel():
     max_ventas_metodo = max((v["total"] for v in ventas_metodo), default=0)
     max_ventas_ciudad = max((v["total"] for v in ventas_ciudad), default=0)
 
+    comparativo_mensual = orders_service.comparativo_ventas_mes_actual()
+
+    ingresos_envio = orders_service.ingresos_envio_por_empresa(
+        filtro_desde or None, filtro_hasta or None
+    )
+    max_ingresos_envio = max((v["total"] for v in ingresos_envio), default=0)
+
+    facturas_anuladas = orders_service.listar_facturas_anuladas(
+        filtro_desde or None, filtro_hasta or None
+    )
+    total_facturas_anuladas = sum(float(f["total"]) for f in facturas_anuladas)
+
     hoy = date.today()
     preset_hoy = hoy.isoformat()
     preset_7dias = (hoy - timedelta(days=6)).isoformat()
@@ -90,6 +102,11 @@ def admin_panel():
         ventas_ciudad=ventas_ciudad,
         max_ventas_metodo=max_ventas_metodo,
         max_ventas_ciudad=max_ventas_ciudad,
+        comparativo_mensual=comparativo_mensual,
+        ingresos_envio=ingresos_envio,
+        max_ingresos_envio=max_ingresos_envio,
+        facturas_anuladas=facturas_anuladas,
+        total_facturas_anuladas=total_facturas_anuladas,
         preset_hoy=preset_hoy,
         preset_7dias=preset_7dias,
         preset_30dias=preset_30dias,

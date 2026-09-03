@@ -1139,3 +1139,30 @@ select {
         text-align: left;
     }
 }
+
+.comparativo-resumen {
+    margin-top: 18px;
+
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 13px;
+}
+
+.comparativo-delta {
+    display: inline-block;
+    margin-left: 8px;
+
+    font-weight: 600;
+}
+
+.comparativo-delta.positivo {
+    color: #4ade80;
+}
+
+.comparativo-delta.negativo {
+    color: #ff6b6b;
+}
+
+.comparativo-delta.neutro {
+    color: rgba(255, 255, 255, 0.55);
+    font-weight: 500;
+}
