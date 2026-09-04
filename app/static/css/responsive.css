@@ -1,0 +1,219 @@
+/* =========================================================
+   RESPONSIVE.CSS  —  Capa adicional de adaptabilidad
+   ---------------------------------------------------------
+   NO cambia el diseño ni la estructura en escritorio.
+   Solo rellena los huecos donde el contenido se salía o
+   se encimaba en pantallas medianas y pequeñas.
+   Se carga SIEMPRE de último para poder ajustar.
+   ========================================================= */
+
+/* ---------------------------------------------------------
+   0. PANTALLAS DE PC MÁS PEQUEÑAS  (1101px – 1535px)
+   ---------------------------------------------------------
+   El diseño está pensado para monitores grandes (~1536px+).
+   En portátiles y ventanas más angostas el navbar, el hero
+   y las secciones con padding de 80px se encimaban.
+
+   Solución: se mantiene EXACTAMENTE la misma distribución de
+   escritorio (mismas columnas, mismas proporciones) y solo
+   se reduce la escala del conjunto para que quepa completo,
+   igual que se vería en una pantalla de PC más grande.
+
+   Por debajo de 1101px entra el diseño móvil ya existente.
+   Por encima de 1535px no se toca nada (tamaño nativo).
+   --------------------------------------------------------- */
+
+/* Escalado fluido: el contenido se reduce lo justo para caber a lo
+   ancho de la ventana, SIN dejar franjas a los lados.
+   Referencia de diseño: 1536px = escala 1.0 (a ese ancho no reduce nada). */
+@media (min-width: 1101px) and (max-width: 1535px) {
+  body { zoom: calc(100vw / 1536px); }
+}
+
+/* El fondo del documento acompaña al del diseño, así cualquier
+   diferencia de sub-píxel en los bordes no se ve como un marco claro. */
+html {
+  background: var(--color-bg-darker, #020617);
+}
+
+/* ---------------------------------------------------------
+   1. RED DE SEGURIDAD GLOBAL (todas las resoluciones)
+   --------------------------------------------------------- */
+
+/* Ninguna imagen/medio debe desbordar su contenedor */
+img,
+video,
+canvas,
+svg,
+iframe {
+  max-width: 100%;
+}
+
+/* La imagen del hero es intencionalmente grande en escritorio:
+   se respeta tal cual por encima del breakpoint del menú */
+@media (min-width: 1101px) {
+  .hero-image img,
+  .hero-product-img {
+    max-width: none;
+  }
+}
+
+/* Palabras/correos/URLs largas nunca fuerzan scroll horizontal
+   ni se montan sobre otros bloques */
+h1, h2, h3, h4, h5, h6,
+p, li, dd, dt, td, th, span, a, label, strong, small,
+.message-card-email,
+.bar-label,
+.bestseller-name,
+.bestseller-meta,
+.stat-value,
+.admin-page-title {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* Nada se sale del ancho de la ventana */
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Las tablas anchas se desplazan dentro de su caja, no de la página */
+.table-container {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Nota: «Sobre Nosotros» y «Ofertas» se adaptan cada uno en su
+   propio about.css / offers.css. */
+
+/* ---------------------------------------------------------
+   3. TABLET INTERMEDIA (menú ya colapsado en <=1100)
+   Ajusta títulos gigantes que solo bajaban a ~900px
+   --------------------------------------------------------- */
+
+@media (max-width: 768px) {
+  .section-title h2,
+  .contacto .section-title h2,
+  .faq .section-title h2,
+  .terminos .section-title h2,
+  .carrito .section-title h2,
+  .products .section-title h2 {
+    font-size: 38px;
+    line-height: 1.15;
+  }
+
+  .section-title {
+    margin-bottom: 50px;
+  }
+}
+
+/* ---------------------------------------------------------
+   4. MÓVIL (<=600px)
+   --------------------------------------------------------- */
+
+@media (max-width: 600px) {
+  /* padding lateral homogéneo y sin exceso */
+  .categories,
+  .contacto,
+  .faq,
+  .terminos,
+  .carrito {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .products {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  /* Hero: texto legible y contenido sin encimarse */
+  .hero {
+    padding: 50px 22px;
+  }
+
+  .hero-text h1 {
+    font-size: 44px;
+  }
+
+  .hero-text p {
+    font-size: 16px;
+  }
+
+  .buttons {
+    width: 100%;
+  }
+
+  .buttons .primary-btn,
+  .buttons .secondary-btn {
+    flex: 1 1 100%;
+    padding: 16px 24px;
+    font-size: 16px;
+  }
+
+  /* Barras de datos del hero: una sola columna limpia */
+  .hero-stats {
+    flex-direction: column;
+  }
+
+  .hero-stat {
+    width: 100%;
+  }
+}
+
+/* ---------------------------------------------------------
+   5. MÓVIL ESTRECHO (<=400px)
+   Evita que los títulos se corten o se solapen
+   --------------------------------------------------------- */
+
+@media (max-width: 400px) {
+  .section-title h2,
+  .contacto .section-title h2,
+  .faq .section-title h2,
+  .terminos .section-title h2,
+  .carrito .section-title h2,
+  .products .section-title h2 {
+    font-size: 27px;
+  }
+
+  .hero-text h1 {
+    font-size: 38px;
+  }
+
+  /* Navbar móvil: logo sin apretar al botón */
+  .navbar {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .logo span {
+    font-size: 20px;
+  }
+}
+
+/* ---------------------------------------------------------
+   6. PANEL ADMIN  /  PERFIL  /  PEDIDOS
+   Refuerza el desbordamiento de tablas y textos largos
+   --------------------------------------------------------- */
+
+@media (max-width: 700px) {
+  .admin-shell {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  /* filtros y pestañas de pedidos: envuelven en vez de salirse */
+  .pedidos-filtros,
+  .pedidos-tabs,
+  .ventas-presets,
+  .ventas-rango,
+  .stats-grid {
+    flex-wrap: wrap;
+  }
+
+  .message-card-header {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+}

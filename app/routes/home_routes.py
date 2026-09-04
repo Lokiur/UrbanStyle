@@ -18,7 +18,8 @@ def offers():
 
 @home.route("/about")
 def about():
-    return render_template("about.html")
+    total_productos = len(products_service.obtener_productos())
+    return render_template("about.html", total_productos=total_productos)
 
 
 @home.route("/contacto", methods=["GET", "POST"])

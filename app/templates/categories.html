@@ -47,6 +47,7 @@
     type="image/x-icon"
   />
 
+<link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}" />
 </head>
 
 <body>
@@ -55,118 +56,109 @@
 
   {% include 'header.html' %}
 
-  <!-- CATEGORIES -->
+  <!-- CATEGORÍAS -->
 
-  <section class="categories">
+  <section class="cats">
 
-    <div class="section-title">
-
-      <span>CATEGORÍAS</span>
-
-      <h2>Explora Nuestro Estilo</h2>
-
-      <p>
-        Descubre prendas urbanas diseñadas para cada ocasión
-      </p>
-
+    <div class="cats-intro">
+      <h1>Explora por <b>categoría</b></h1>
+      <div class="cats-intro-meta">
+        <b>04</b>
+        <span>Colecciones · Temporada 2026</span>
+      </div>
     </div>
 
-    <div class="categories-grid">
+    <div class="cats-marquee" aria-hidden="true">
+      <div class="cats-marquee-track">
+        <span>Streetwear</span><span class="dot">·</span>
+        <span>Oversize</span><span class="dot">·</span>
+        <span>Algodón premium</span><span class="dot">·</span>
+        <span>Nueva temporada</span><span class="dot">·</span>
+        <span>Edición 2026</span><span class="dot">·</span>
+        <span>Streetwear</span><span class="dot">·</span>
+        <span>Oversize</span><span class="dot">·</span>
+        <span>Algodón premium</span><span class="dot">·</span>
+        <span>Nueva temporada</span><span class="dot">·</span>
+        <span>Edición 2026</span><span class="dot">·</span>
+      </div>
+    </div>
 
-      <!-- CAMISETAS -->
+    <div class="cats-list">
 
-      <a
-        href="{{ url_for('productos.categoria_productos', id=1) }}"
-        class="category-card"
-      >
-
-        <img
-          src="{{ url_for('static', filename='img/camiseta.png') }}"
-          alt="Camisetas"
-        >
-
-        <div class="category-overlay">
-
-          <h3>Camisetas</h3>
-
-          <button>
-            Ver colección
-          </button>
-
+      <a href="{{ url_for('productos.categoria_productos', id=1) }}" class="chapter">
+        <div class="chapter-media">
+          <span class="chapter-media-tag">01</span>
+          <img src="{{ url_for('static', filename='img/camiseta.png') }}" alt="Camisetas" />
         </div>
-
+        <div class="chapter-body">
+          <span class="chapter-num" aria-hidden="true">01</span>
+          <span class="chapter-kicker">Colección 01</span>
+          <h2 class="chapter-title">Camisetas</h2>
+          <ul class="chapter-tags">
+            <li>Algodón premium</li>
+            <li>Estampados</li>
+            <li>Fit regular</li>
+          </ul>
+          <p>Básicos y gráficos que aguantan el día completo sin perder la forma.</p>
+          <span class="chapter-cta">Ver colección <i class="fa-solid fa-arrow-right"></i></span>
+        </div>
       </a>
 
-      <!-- SUDADERAS -->
-
-      <a
-        href="{{ url_for('productos.categoria_productos', id=2) }}"
-        class="category-card"
-      >
-
-        <img
-          src="{{ url_for('static', filename='img/sudaderas.jpg') }}"
-          alt="Sudaderas"
-        >
-
-        <div class="category-overlay">
-
-          <h3>Sudaderas</h3>
-
-          <button>
-            Ver colección
-          </button>
-
+      <a href="{{ url_for('productos.categoria_productos', id=2) }}" class="chapter">
+        <div class="chapter-media">
+          <span class="chapter-media-tag">02</span>
+          <img src="{{ url_for('static', filename='img/sudaderas.jpg') }}" alt="Sudaderas" />
         </div>
-
+        <div class="chapter-body">
+          <span class="chapter-num" aria-hidden="true">02</span>
+          <span class="chapter-kicker">Colección 02</span>
+          <h2 class="chapter-title">Sudaderas</h2>
+          <ul class="chapter-tags">
+            <li>Felpa interior</li>
+            <li>Oversize</li>
+            <li>Capucha forrada</li>
+          </ul>
+          <p>Felpa suave, capuchas amplias y siluetas holgadas para el frío urbano.</p>
+          <span class="chapter-cta">Ver colección <i class="fa-solid fa-arrow-right"></i></span>
+        </div>
       </a>
 
-      <!-- CHAQUETAS -->
-
-      <a
-        href="{{ url_for('productos.categoria_productos', id=3) }}"
-        class="category-card"
-      >
-
-        <img
-          src="{{ url_for('static', filename='img/chaqueta.png') }}"
-          alt="Chaquetas"
-        >
-
-        <div class="category-overlay">
-
-          <h3>Chaquetas</h3>
-
-          <button>
-            Ver colección
-          </button>
-
+      <a href="{{ url_for('productos.categoria_productos', id=3) }}" class="chapter">
+        <div class="chapter-media">
+          <span class="chapter-media-tag">03</span>
+          <img src="{{ url_for('static', filename='img/chaqueta.png') }}" alt="Chaquetas" />
         </div>
-
+        <div class="chapter-body">
+          <span class="chapter-num" aria-hidden="true">03</span>
+          <span class="chapter-kicker">Colección 03</span>
+          <h2 class="chapter-title">Chaquetas</h2>
+          <ul class="chapter-tags">
+            <li>Cortavientos</li>
+            <li>Bomber</li>
+            <li>Impermeable</li>
+          </ul>
+          <p>Cortavientos, bombers y abrigo con acabados técnicos para cualquier clima.</p>
+          <span class="chapter-cta">Ver colección <i class="fa-solid fa-arrow-right"></i></span>
+        </div>
       </a>
 
-      <!-- ACCESORIOS -->
-
-      <a
-        href="{{ url_for('productos.categoria_productos', id=4) }}"
-        class="category-card"
-      >
-
-        <img
-          src="{{ url_for('static', filename='img/gorras.png') }}"
-          alt="Accesorios"
-        >
-
-        <div class="category-overlay">
-
-          <h3>Accesorios</h3>
-
-          <button>
-            Ver colección
-          </button>
-
+      <a href="{{ url_for('productos.categoria_productos', id=4) }}" class="chapter">
+        <div class="chapter-media">
+          <span class="chapter-media-tag">04</span>
+          <img src="{{ url_for('static', filename='img/gorras.png') }}" alt="Accesorios" />
         </div>
-
+        <div class="chapter-body">
+          <span class="chapter-num" aria-hidden="true">04</span>
+          <span class="chapter-kicker">Colección 04</span>
+          <h2 class="chapter-title">Accesorios</h2>
+          <ul class="chapter-tags">
+            <li>Gorras</li>
+            <li>Beanies</li>
+            <li>Edición limitada</li>
+          </ul>
+          <p>Gorras, gorros y complementos para rematar cualquier outfit con carácter.</p>
+          <span class="chapter-cta">Ver colección <i class="fa-solid fa-arrow-right"></i></span>
+        </div>
       </a>
 
     </div>
@@ -178,6 +170,52 @@
   {% include 'footer.html' %}
 
   <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+  <script>
+    (function () {
+      var chapters = Array.prototype.slice.call(
+        document.querySelectorAll(".chapter")
+      );
+      if (!chapters.length) return;
+
+      var reveal = function (el) {
+        el.classList.add("in");
+      };
+
+      var reduce =
+        window.matchMedia &&
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      if (reduce || !("IntersectionObserver" in window)) {
+        chapters.forEach(reveal);
+        return;
+      }
+
+      try {
+        var io = new IntersectionObserver(
+          function (entries) {
+            entries.forEach(function (e) {
+              if (e.isIntersecting) {
+                reveal(e.target);
+                io.unobserve(e.target);
+              }
+            });
+          },
+          { threshold: 0.18, rootMargin: "0px 0px -8% 0px" }
+        );
+        chapters.forEach(function (el) {
+          io.observe(el);
+        });
+      } catch (err) {
+        chapters.forEach(reveal);
+      }
+
+      // Salvavidas: si algo falla, muestra todo pasado un momento.
+      setTimeout(function () {
+        chapters.forEach(reveal);
+      }, 1800);
+    })();
+  </script>
 
 </body>
 

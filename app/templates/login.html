@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8" />
 
-        <title>Login UrbanStyle</title>
+        <title>Iniciar sesión | UrbanStyle</title>
 
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
@@ -29,172 +29,145 @@
             href="{{ url_for('static', filename='img/urbanstyle.png') }}"
             type="image/x-icon"
         />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}" />
     </head>
 
     <body>
 
-        <div class="form">
+        <main class="auth">
 
-            <!-- LOGO -->
-
-            <div class="logo">
-
-                <a href="./">
-
-                    <img
-                        src="{{ url_for('static', filename='img/urbanstyle.png') }}"
-                        alt="Logo"
-                    />
-
+            <!-- PANEL DE MARCA -->
+            <aside class="auth-brand">
+                <a class="auth-logo" href="{{ url_for('home.index') }}">
+                    <img src="{{ url_for('static', filename='img/urbanstyle.png') }}" alt="" />
+                    UrbanStyle
                 </a>
 
-            </div>
+                <div class="auth-brand-mid">
+                    <h2>Tu estilo,<br /><em>a un paso</em></h2>
+                    <p>
+                        Entra a tu cuenta para seguir tus pedidos, guardar tus
+                        datos de envío y comprar más rápido.
+                    </p>
 
-            <!-- TITULO -->
-
-            <h2>Login UrbanStyle</h2>
-
-            <!-- FORMULARIO -->
-
-            <form action="/login" method="POST">
-
-                <div class="input">
-
-                    <!-- USUARIO -->
-
-                    <div class="inputBox">
-
-                        <label for="username">
-                            <i class="bi bi-person-fill"></i>
-                            Usuario
-                        </label>
-
-                        <input
-                            type="text"
-                            id="username"
-                            name="username"
-                            placeholder="Ingrese su usuario"
-                            required
-                        />
-
-                    </div>
-
-                    <!-- PASSWORD -->
-
-                    <div class="inputBox">
-
-                        <label for="password">
-                            <i class="bi bi-lock-fill"></i>
-                            Contraseña
-                        </label>
-
-                        <input
-                            type="password"
-                            id="password"
-                            name="password"
-                            placeholder="Ingrese su contraseña"
-                            required
-                        />
-
-                    </div>
-
-                    <!-- CAPTCHA -->
-
-                    <div class="inputBox">
-
-                        <label for="captcha">
-                            <i class="bi bi-calculator-fill"></i>
-                            ¿Cuánto es {{ captcha_a }} + {{ captcha_b }}?
-                        </label>
-
-                        <input
-                            type="text"
-                            id="captcha"
-                            name="captcha"
-                            placeholder="Resuelve la suma"
-                            required
-                        />
-
-                    </div>
-
-                    <!-- BOTON -->
-
-                    <div class="inputBox">
-
-                        <input
-                            type="submit"
-                            value="Iniciar Sesión"
-                        />
-
-                    </div>
-
+                    <ul class="auth-points">
+                        <li><i class="bi bi-truck"></i> Envío gratis desde $150.000</li>
+                        <li><i class="bi bi-arrow-repeat"></i> 60 días para cambios y devoluciones</li>
+                        <li><i class="bi bi-shield-check"></i> Pago 100&nbsp;% seguro y cifrado</li>
+                    </ul>
                 </div>
 
-            </form>
+                <p class="auth-brand-foot">© 2026 UrbanStyle</p>
+            </aside>
 
-            <!-- MENSAJE -->
+            <!-- PANEL DE FORMULARIO -->
+            <section class="auth-form-side">
 
-            {% if message %}
+                <header class="auth-head">
+                    <h1>Iniciar sesión</h1>
+                    <p>Bienvenido de nuevo a UrbanStyle.</p>
+                </header>
 
-            <div class="error-message">
+                {% if message %}
+                <div class="auth-alert">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <span>{{ message }}</span>
+                </div>
+                {% endif %}
 
-                {{ message }}
+                <form class="auth-form" action="{{ url_for('auth.login') }}" method="POST" novalidate>
 
-            </div>
+                    <input
+                        type="text"
+                        name="website"
+                        class="auth-hp"
+                        tabindex="-1"
+                        autocomplete="off"
+                        aria-hidden="true"
+                    />
 
-            {% endif %}
+                    <label class="field">
+                        <span class="field-label"><i class="bi bi-person"></i> Usuario</span>
+                        <input
+                            type="text"
+                            name="username"
+                            placeholder="Tu usuario"
+                            autocomplete="username"
+                            required
+                        />
+                    </label>
 
-            <!-- REGISTRO -->
+                    <label class="field">
+                        <span class="field-label"><i class="bi bi-lock"></i> Contraseña</span>
+                        <span class="field-control">
+                            <input
+                                type="password"
+                                name="password"
+                                id="pw"
+                                placeholder="Tu contraseña"
+                                autocomplete="current-password"
+                                required
+                            />
+                            <button type="button" class="field-toggle" data-target="pw" aria-label="Mostrar u ocultar contraseña">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </span>
+                    </label>
 
-            <p class="forgot">
+                    <!-- CAPTCHA -->
+                    <div class="field captcha">
+                        <span class="field-label"><i class="bi bi-patch-check"></i> Verificación</span>
 
-                ¿No tienes cuenta?
+                        {% if captcha_bloqueado %}
+                        <div class="captcha-locked">
+                            <i class="bi bi-hourglass-split"></i>
+                            Demasiados intentos. Espera {{ captcha_espera }} s y recarga la página.
+                        </div>
+                        {% else %}
+                        <div class="captcha-row">
+                            <span class="captcha-q">{{ captcha_question }}&nbsp;=</span>
+                            <input
+                                type="text"
+                                name="captcha"
+                                inputmode="numeric"
+                                placeholder="?"
+                                autocomplete="off"
+                                required
+                            />
+                        </div>
+                        <span class="field-hint">Resuelve la operación para confirmar que eres una persona.</span>
+                        {% endif %}
+                    </div>
 
-                <a href="{{ url_for('auth.register') }}">
-                    Registrarse
-                </a>
+                    <button type="submit" class="auth-submit" {{ 'disabled' if captcha_bloqueado }}>
+                        Iniciar sesión
+                    </button>
 
-            </p>
+                </form>
 
-            <!-- RECUPERAR -->
+                <div class="auth-links">
+                    <a href="{{ url_for('auth.register') }}">Crear cuenta</a>
+                    <span>·</span>
+                    <a href="{{ url_for('auth.recuperar') }}">Olvidé mi contraseña</a>
+                </div>
 
-            <p class="forgot">
+            </section>
 
-                ¿Olvidaste tu contraseña?
+        </main>
 
-                <a href="{{ url_for('auth.recuperar') }}">
-                    Click Aquí
-                </a>
-
-            </p>
-
-            <!-- LOGOUT -->
-
-            <div class="logout">
-
-                <a href="{{ url_for('auth.logout') }}">
-
-                    <i class="bi bi-arrow-clockwise"></i>
-
-                    Salir
-
-                </a>
-
-            </div>
-
-        </div>
-
-        <!-- JS -->
-
-        <script src="{{ url_for('static', filename='js/jquery-3.6.0.js') }}"></script>
-
-        <script src="{{ url_for('static', filename='js/menu.js') }}"></script>
-
-        <script src="{{ url_for('static', filename='js/pace.min.js') }}"></script>
-
-        <script src="{{ url_for('static', filename='js/custom_alert.js') }}"></script>
-
-        <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+        <script>
+            document.querySelectorAll(".field-toggle").forEach(function (btn) {
+                btn.addEventListener("click", function () {
+                    var input = document.getElementById(btn.dataset.target);
+                    if (!input) return;
+                    var toText = input.type === "password";
+                    input.type = toText ? "text" : "password";
+                    btn.querySelector("i").className = toText
+                        ? "bi bi-eye-slash"
+                        : "bi bi-eye";
+                });
+            });
+        </script>
 
     </body>
 </html>
