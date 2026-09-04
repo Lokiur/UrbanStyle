@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Historial de {{ cliente.name }} {{ cliente.apellidos }} | UrbanStyle Admin</title>
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/variables.css') }}"
+  >
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/style.css') }}"
+  >
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/admin.css') }}"
+  >
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/footer.css') }}"
+  >
+
+  <link
+    rel="shortcut icon"
+    href="{{ url_for('static', filename='img/urbanstyle.png') }}"
+    type="image/x-icon"
+  />
+
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+  />
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}" />
+</head>
+
+<body>
+
+  {% include 'header.html' %}
+
+  <div class="profile-shell">
+
+    <a href="{{ url_for('admin.admin_panel') }}#section-clientes" class="secondary-btn" style="display:inline-flex;width:fit-content;margin-bottom:20px">
+      <i class="fa-solid fa-arrow-left"></i> Volver a Clientes
+    </a>
+
+    <div>
+      <h1 class="admin-page-title">{{ cliente.name }} {{ cliente.apellidos }}</h1>
+      <p class="admin-page-subtitle">
+        @{{ cliente.username }} · {{ cliente.email }}{% if cliente.celular %} · {{ cliente.celular }}{% endif %}
+      </p>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="fa-solid fa-receipt"></i>
+        </div>
+        <div>
+          <div class="stat-value">{{ historial | map(attribute='factura_id') | unique | list | length }}</div>
+          <div class="stat-label">Facturas</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="fa-solid fa-sack-dollar"></i>
+        </div>
+        <div>
+          <div class="stat-value">$ {{ "{:,.0f}".format(total_gastado) }}</div>
+          <div class="stat-label">Total gastado (no anulado)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-card-header">
+        <h2>Historial de compras</h2>
+        <span>{{ historial|length }} artículos</span>
+      </div>
+
+      {% if historial %}
+      <div class="table-container">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>N° Factura</th>
+              <th>Fecha</th>
+              <th>Producto</th>
+              <th>Talla</th>
+              <th>Color</th>
+              <th>Cantidad</th>
+              <th>Subtotal</th>
+              <th>Estado factura</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in historial %}
+            <tr>
+              <td>{{ item.numero_factura }}</td>
+              <td>{{ item.fecha }}</td>
+              <td>{{ item.producto_nombre }}</td>
+              <td>{{ item.talla }}</td>
+              <td>{{ item.color }}</td>
+              <td>{{ item.cantidad }}</td>
+              <td>$ {{ "{:,.0f}".format(item.subtotal) }}</td>
+              <td>
+                <span class="badge-estado {{ item.factura_estado }}">
+                  {{ item.factura_estado }}
+                </span>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <i class="fa-solid fa-box-open"></i>
+        <p>Este cliente todavía no ha realizado compras.</p>
+      </div>
+      {% endif %}
+    </div>
+
+  </div>
+
+  {% include 'footer.html' %}
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+</body>
+
+</html>

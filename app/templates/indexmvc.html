@@ -130,6 +130,24 @@
 
                 <button
                     class="admin-nav-btn"
+                    data-section="section-inventario"
+                    onclick="showAdminSection('section-inventario', this)"
+                >
+                    <i class="fa-solid fa-boxes-stacked"></i>
+                    Inventario
+                </button>
+
+                <button
+                    class="admin-nav-btn"
+                    data-section="section-clientes"
+                    onclick="showAdminSection('section-clientes', this)"
+                >
+                    <i class="fa-solid fa-address-book"></i>
+                    Clientes
+                </button>
+
+                <button
+                    class="admin-nav-btn"
                     data-section="section-pedidos"
                     onclick="showAdminSection('section-pedidos', this)"
                 >
@@ -144,6 +162,15 @@
                 >
                     <i class="fa-solid fa-chart-line"></i>
                     Ventas
+                </button>
+
+                <button
+                    class="admin-nav-btn"
+                    data-section="section-top-compradores"
+                    onclick="showAdminSection('section-top-compradores', this)"
+                >
+                    <i class="fa-solid fa-trophy"></i>
+                    Top compradores
                 </button>
 
                 <button
@@ -439,7 +466,8 @@
                                             <div class="action-btns">
                                                 <button
                                                     class="secondary-btn"
-                                                    onclick="openModal({{ u.id }})"
+                                                    data-id="{{ u.id }}"
+                                                    onclick="openModal(this.dataset.id)"
                                                 >
                                                     Editar
                                                 </button>
@@ -828,6 +856,131 @@
                     </div>
                 </section>
 
+                <!-- ================= INVENTARIO (RF18) ================= -->
+                <section class="admin-section" id="section-inventario">
+                    <div>
+                        <h1 class="admin-page-title">Inventario</h1>
+                        <p class="admin-page-subtitle">
+                            Consulta y actualiza el stock de cada talla y color por producto.
+                        </p>
+                    </div>
+
+                    <div class="section-card">
+                        <div class="section-card-header">
+                            <h2>Inventario completo</h2>
+                            <span>{{ inventario|length }} existencias</span>
+                        </div>
+
+                        {% if inventario %}
+                        <div class="table-container">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th>Referencia</th>
+                                        <th>Talla</th>
+                                        <th>Color</th>
+                                        <th>Precio</th>
+                                        <th>Estado</th>
+                                        <th>Stock</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for e in inventario %}
+                                    <tr>
+                                        <td>{{ e.producto_nombre }}</td>
+                                        <td>{{ e.referencia }}</td>
+                                        <td>{{ e.talla }}</td>
+                                        <td>{{ e.color }}</td>
+                                        <td>$ {{ "{:,.0f}".format(e.precio) }}</td>
+                                        <td>
+                                            <span class="badge-estado {{ e.estado }}">{{ e.estado }}</span>
+                                        </td>
+                                        <td>
+                                            <form
+                                                action="{{ url_for('admin.actualizar_stock', id=e.id) }}"
+                                                method="POST"
+                                                class="stock-form"
+                                            >
+                                                <input
+                                                    type="number"
+                                                    name="stock"
+                                                    value="{{ e.stock }}"
+                                                    min="0"
+                                                >
+                                                <button type="submit" class="secondary-btn">Guardar</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="empty-state">
+                            <i class="fa-solid fa-boxes-stacked"></i>
+                            <p>Todavía no hay existencias registradas.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </section>
+
+                <!-- ================= CLIENTES (RF21/RF22) ================= -->
+                <section class="admin-section" id="section-clientes">
+                    <div>
+                        <h1 class="admin-page-title">Clientes</h1>
+                        <p class="admin-page-subtitle">
+                            Consulta los datos de contacto y el historial de compras de tus clientes.
+                        </p>
+                    </div>
+
+                    <div class="section-card">
+                        <div class="section-card-header">
+                            <h2>Listado de clientes</h2>
+                            <span>{{ clientes|length }} en total</span>
+                        </div>
+
+                        {% if clientes %}
+                        <div class="table-container">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nombre</th>
+                                        <th>Email</th>
+                                        <th>Celular</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for c in clientes %}
+                                    <tr>
+                                        <td>{{ c.id }}</td>
+                                        <td>{{ c.name }} {{ c.apellidos }}</td>
+                                        <td>{{ c.email }}</td>
+                                        <td>{{ c.celular or '—' }}</td>
+                                        <td>
+                                            <a
+                                                href="{{ url_for('admin.historial_cliente', id=c.id) }}"
+                                                class="secondary-btn"
+                                            >
+                                                Ver compras
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="empty-state">
+                            <i class="fa-solid fa-address-book"></i>
+                            <p>Todavía no hay clientes registrados.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </section>
+
                 <!-- ================= PEDIDOS ================= -->
                 <section class="admin-section" id="section-pedidos">
                     <div>
@@ -1184,6 +1337,168 @@
                         </div>
                     </div>
 
+                    <!-- RF1: Ventas totales por periodo (dia / mes) -->
+                    <div class="section-card">
+                        <div class="section-card-header">
+                            <h2>Ventas por día y por mes</h2>
+                            <span>Dentro del periodo filtrado arriba</span>
+                        </div>
+
+                        <details class="ventas-detalle">
+                            <summary>Ver desglose por día ({{ ventas_dia|length }})</summary>
+                            <div class="table-container">
+                                <table class="admin-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Día</th>
+                                            <th>Pedidos</th>
+                                            <th>Total vendido</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for v in ventas_dia %}
+                                        <tr>
+                                            <td>{{ v.periodo }}</td>
+                                            <td>{{ v.cantidad }}</td>
+                                            <td>$ {{ "{:,.0f}".format(v.total) }}</td>
+                                        </tr>
+                                        {% else %}
+                                        <tr><td colspan="3">No hay ventas registradas en este periodo.</td></tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </details>
+
+                        <details class="ventas-detalle">
+                            <summary>Ver desglose por mes ({{ ventas_mes|length }})</summary>
+                            <div class="table-container">
+                                <table class="admin-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Mes</th>
+                                            <th>Pedidos</th>
+                                            <th>Total vendido</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for v in ventas_mes %}
+                                        <tr>
+                                            <td>{{ v.periodo }}</td>
+                                            <td>{{ v.cantidad }}</td>
+                                            <td>$ {{ "{:,.0f}".format(v.total) }}</td>
+                                        </tr>
+                                        {% else %}
+                                        <tr><td colspan="3">No hay ventas registradas en este periodo.</td></tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </details>
+                    </div>
+
+                    <!-- RF2: Top 10 productos mas vendidos -->
+                    <div class="section-card">
+                        <div class="section-card-header">
+                            <h2>Top 10 productos más vendidos</h2>
+                            <span>Independiente del filtro de periodo</span>
+                        </div>
+
+                        {% if top_productos %}
+                        <div class="table-container">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Producto</th>
+                                        <th>Marca</th>
+                                        <th>Categoría</th>
+                                        <th>Unidades</th>
+                                        <th>Ingresos</th>
+                                        <th>Pedidos</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for p in top_productos %}
+                                    <tr>
+                                        <td>{{ loop.index }}</td>
+                                        <td>{{ p.nombre }}{% if p.referencia %} <span style="opacity:.6">({{ p.referencia }})</span>{% endif %}</td>
+                                        <td>{{ p.marca or '—' }}</td>
+                                        <td>{{ p.categoria or '—' }}</td>
+                                        <td>{{ "{:,.0f}".format(p.unidades) }}</td>
+                                        <td>$ {{ "{:,.0f}".format(p.ingresos) }}</td>
+                                        <td>{{ p.pedidos }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="empty-state">
+                            <i class="fa-solid fa-chart-simple"></i>
+                            <p>Todavía no hay ventas registradas.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- RF3: Ventas por categoria -->
+                    <div class="section-card">
+                        <div class="section-card-header">
+                            <h2>Ventas por categoría</h2>
+                        </div>
+
+                        {% if ventas_categoria %}
+                        <div class="bar-list">
+                            {% for v in ventas_categoria %}
+                            <div class="bar-row">
+                                <span class="bar-label" title="{{ v.etiqueta }}">{{ v.etiqueta }}</span>
+                                <div class="bar-track">
+                                    <div
+                                        class="bar-fill"
+                                        style="width: {{ (v.total / max_ventas_categoria * 100) if max_ventas_categoria else 0 }}%"
+                                    ></div>
+                                </div>
+                                <span class="bar-value">$ {{ "{:,.0f}".format(v.total) }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="empty-state">
+                            <i class="fa-solid fa-chart-simple"></i>
+                            <p>No hay ventas registradas en este periodo.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- RF4: Ventas por marca -->
+                    <div class="section-card">
+                        <div class="section-card-header">
+                            <h2>Ventas por marca</h2>
+                        </div>
+
+                        {% if ventas_marca %}
+                        <div class="bar-list">
+                            {% for v in ventas_marca %}
+                            <div class="bar-row">
+                                <span class="bar-label" title="{{ v.etiqueta }}">{{ v.etiqueta }}</span>
+                                <div class="bar-track">
+                                    <div
+                                        class="bar-fill"
+                                        style="width: {{ (v.total / max_ventas_marca * 100) if max_ventas_marca else 0 }}%"
+                                    ></div>
+                                </div>
+                                <span class="bar-value">$ {{ "{:,.0f}".format(v.total) }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="empty-state">
+                            <i class="fa-solid fa-chart-simple"></i>
+                            <p>No hay ventas registradas en este periodo.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+
                     <div class="section-card">
                         <div class="section-card-header">
                             <h2>Ventas por método de pago</h2>
@@ -1382,6 +1697,69 @@
                         <div class="empty-state">
                             <i class="fa-solid fa-ban"></i>
                             <p>No hay facturas anuladas en este periodo.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </section>
+
+                <!-- ================= TOP DE MEJORES COMPRADORES ================= -->
+                <section class="admin-section" id="section-top-compradores">
+                    <div>
+                        <h1 class="admin-page-title">Top de mejores compradores</h1>
+                        <p class="admin-page-subtitle">
+                            Historial de todos los usuarios con compras, ordenados del que
+                            más productos ha comprado y más dinero ha gastado al que menos.
+                            No se cuentan las facturas anuladas.
+                        </p>
+                    </div>
+
+                    <div class="section-card">
+                        <div class="section-card-header">
+                            <h2>Ranking de compradores</h2>
+                            <span>{{ top_compradores | length }} con compras</span>
+                        </div>
+
+                        {% if top_compradores %}
+                        <div class="table-container">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Cliente</th>
+                                        <th>Pedidos</th>
+                                        <th>Productos comprados</th>
+                                        <th>Total en productos</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    {% for c in top_compradores %}
+                                    {% set pos_clase = loop.index if loop.index in [1, 2, 3] else 'n' %}
+                                    <tr>
+                                        <td>
+                                            <span class="ranking-pos ranking-pos-{{ pos_clase }}">
+                                                {{ loop.index }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {{ c.name }} {{ c.apellidos }}
+                                            <br />
+                                            <span style="opacity: 0.6; font-size: 12px">
+                                                @{{ c.username }} · {{ c.email }}
+                                            </span>
+                                        </td>
+                                        <td>{{ c.num_pedidos }}</td>
+                                        <td>{{ c.cantidad_productos }}</td>
+                                        <td>$ {{ "{:,.0f}".format(c.total_gastado) }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="empty-state">
+                            <i class="fa-solid fa-trophy"></i>
+                            <p>Todavía no hay usuarios con compras registradas.</p>
                         </div>
                         {% endif %}
                     </div>

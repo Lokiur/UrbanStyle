@@ -70,6 +70,68 @@
 
   </div>
 
+  {% set hay_filtros = filtro_talla_id or filtro_precio_min or filtro_precio_max %}
+
+  <!-- RF13: filtrar por talla y rango de precio -->
+  <div class="products-filters-card">
+    <form method="GET" action="{{ request.path }}" class="products-filters">
+      {% if query %}
+      <input type="hidden" name="q" value="{{ query }}">
+      {% endif %}
+
+      <div class="products-filters-title">
+        <i class="fa-solid fa-sliders"></i> Filtrar catálogo
+      </div>
+
+      <div class="products-filters-fields">
+        <label>
+          <span>Talla</span>
+          <select name="talla_id">
+            <option value="">Todas</option>
+            {% for t in tallas %}
+            <option value="{{ t.id }}" {% if filtro_talla_id == t.id %}selected{% endif %}>{{ t.nombre }}</option>
+            {% endfor %}
+          </select>
+        </label>
+
+        <label>
+          <span>Precio mín.</span>
+          <input type="number" name="precio_min" min="0" step="1000" value="{{ filtro_precio_min or '' }}" placeholder="$ 0">
+        </label>
+
+        <label>
+          <span>Precio máx.</span>
+          <input type="number" name="precio_max" min="0" step="1000" value="{{ filtro_precio_max or '' }}" placeholder="Sin límite">
+        </label>
+
+        <button type="submit">
+          <i class="fa-solid fa-filter"></i> Filtrar
+        </button>
+      </div>
+    </form>
+
+    {% if hay_filtros %}
+    <div class="products-filters-active">
+      <i class="fa-solid fa-circle-info"></i>
+      <span>Filtrando por:</span>
+
+      {% if filtro_talla_id %}
+      <span class="filter-chip">Talla {{ tallas|selectattr('id','equalto',filtro_talla_id)|map(attribute='nombre')|first }}</span>
+      {% endif %}
+      {% if filtro_precio_min or filtro_precio_max %}
+      <span class="filter-chip">
+        {% if filtro_precio_min %}desde $ {{ "{:,.0f}".format(filtro_precio_min) }}{% endif %}
+        {% if filtro_precio_max %}hasta $ {{ "{:,.0f}".format(filtro_precio_max) }}{% endif %}
+      </span>
+      {% endif %}
+
+      <a href="{{ request.path }}{{ '?q=' ~ query if query else '' }}" class="products-filters-clear">
+        <i class="fa-solid fa-xmark"></i> Quitar filtros
+      </a>
+    </div>
+    {% endif %}
+  </div>
+
   <div class="products-grid">
 
     {% for producto in productos %}
@@ -160,9 +222,13 @@
 
   </div>
 
-  {% if query and not productos %}
+  {% if not productos %}
   <p class="no-results">
+    {% if query %}
     No encontramos productos que coincidan con "{{ query }}".
+    {% else %}
+    No encontramos productos que coincidan con esos filtros.
+    {% endif %}
   </p>
   {% endif %}
 

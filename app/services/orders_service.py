@@ -140,6 +140,52 @@ def resumen_ventas_periodo(fecha_inicio=None, fecha_fin=None):
     return resumen
 
 
+def ventas_por_dia(fecha_inicio=None, fecha_fin=None):
+    """Ventas (no anuladas) agrupadas por dia calendario, mas reciente primero."""
+    where, parametros = _condicion_periodo(fecha_inicio, fecha_fin, "facturas")
+
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute(
+        """
+        SELECT DATE(fecha) AS periodo,
+               COUNT(*) AS cantidad,
+               COALESCE(SUM(total), 0) AS total
+        FROM facturas
+        WHERE {}
+        GROUP BY DATE(fecha)
+        ORDER BY periodo DESC
+        """.format(where),
+        parametros,
+    )
+    filas = cursor.fetchall()
+    conexion.close()
+    return filas
+
+
+def ventas_por_mes(fecha_inicio=None, fecha_fin=None):
+    """Ventas (no anuladas) agrupadas por mes calendario, mas reciente primero."""
+    where, parametros = _condicion_periodo(fecha_inicio, fecha_fin, "facturas")
+
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute(
+        """
+        SELECT DATE_FORMAT(fecha, '%%Y-%%m') AS periodo,
+               COUNT(*) AS cantidad,
+               COALESCE(SUM(total), 0) AS total
+        FROM facturas
+        WHERE {}
+        GROUP BY DATE_FORMAT(fecha, '%%Y-%%m')
+        ORDER BY periodo DESC
+        """.format(where),
+        parametros,
+    )
+    filas = cursor.fetchall()
+    conexion.close()
+    return filas
+
+
 ESTADOS_PEDIDO = ("pendiente", "preparacion", "enviado", "entregado", "anulado")
 
 
@@ -174,15 +220,12 @@ def ticket_promedio_por_estado():
     }
 
 
-def producto_mas_vendido():
-    """Producto con mas unidades vendidas en facturas no anuladas.
-
-    No depende del filtro de periodo del panel: es el mas vendido
-    historico, para mostrarlo en el resumen general. Devuelve un dict con
-    id, nombre, referencia, marca, categoria, unidades (suma de
-    `cantidad`), ingresos (suma de `subtotal`), pedidos (facturas
-    distintas que lo incluyen) y tiene_imagen. Devuelve None si todavia
-    no se ha vendido nada.
+def top_productos_vendidos(limite=10):
+    """Productos con mas unidades vendidas en facturas no anuladas, de
+    mayor a menor. Cada fila trae id, nombre, referencia, marca,
+    categoria, unidades (suma de `cantidad`), ingresos (suma de
+    `subtotal`), pedidos (facturas distintas que lo incluyen) y
+    tiene_imagen.
     """
     conexion = conectar()
     cursor = conexion.cursor()
@@ -206,12 +249,82 @@ def producto_mas_vendido():
         WHERE f.estado != 'anulado'
         GROUP BY p.id, p.nombre, p.referencia, tiene_imagen, ma.nombre, ca.nombre
         ORDER BY unidades DESC, ingresos DESC
-        LIMIT 1
-        """
+        LIMIT %s
+        """,
+        (limite,),
     )
-    fila = cursor.fetchone()
+    filas = cursor.fetchall()
     conexion.close()
-    return fila
+    return filas
+
+
+def producto_mas_vendido():
+    """El producto individual mas vendido (para el resumen general).
+
+    No depende del filtro de periodo del panel: es el mas vendido
+    historico. Devuelve None si todavia no se ha vendido nada.
+    """
+    top = top_productos_vendidos(1)
+    return top[0] if top else None
+
+
+def ventas_por_categoria(fecha_inicio=None, fecha_fin=None):
+    """Ventas (no anuladas) agrupadas por categoria de producto (tipo de
+    prenda: camisetas, pantalones, sudaderas, chaquetas...), de mayor a
+    menor.
+    """
+    where, parametros = _condicion_periodo(fecha_inicio, fecha_fin, "f")
+
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute(
+        """
+        SELECT cat.nombre AS etiqueta,
+               COALESCE(SUM(df.cantidad), 0) AS unidades,
+               COALESCE(SUM(df.subtotal), 0) AS total
+        FROM detalle_factura df
+        JOIN existencias e ON e.id = df.existencia_id
+        JOIN productos p ON p.id = e.producto_id
+        JOIN categorias cat ON cat.id = p.categoria_id
+        JOIN facturas f ON f.id = df.factura_id
+        WHERE {}
+        GROUP BY cat.id, cat.nombre
+        ORDER BY total DESC
+        """.format(where),
+        parametros,
+    )
+    filas = cursor.fetchall()
+    conexion.close()
+    return filas
+
+
+def ventas_por_marca(fecha_inicio=None, fecha_fin=None):
+    """Ventas (no anuladas) agrupadas por marca del producto, de mayor a
+    menor.
+    """
+    where, parametros = _condicion_periodo(fecha_inicio, fecha_fin, "f")
+
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute(
+        """
+        SELECT ma.nombre AS etiqueta,
+               COALESCE(SUM(df.cantidad), 0) AS unidades,
+               COALESCE(SUM(df.subtotal), 0) AS total
+        FROM detalle_factura df
+        JOIN existencias e ON e.id = df.existencia_id
+        JOIN productos p ON p.id = e.producto_id
+        JOIN marcas ma ON ma.id = p.marca_id
+        JOIN facturas f ON f.id = df.factura_id
+        WHERE {}
+        GROUP BY ma.id, ma.nombre
+        ORDER BY total DESC
+        """.format(where),
+        parametros,
+    )
+    filas = cursor.fetchall()
+    conexion.close()
+    return filas
 
 
 def ventas_por_metodo_pago(fecha_inicio=None, fecha_fin=None):
@@ -394,6 +507,75 @@ def listar_facturas_anuladas(fecha_inicio=None, fecha_fin=None):
     return filas
 
 
+def top_compradores():
+    """Ranking de clientes por sus compras (facturas no anuladas).
+
+    Por cada usuario que ha comprado algo devuelve cuantos productos ha
+    comprado en total (suma de cantidades del detalle de sus facturas),
+    cuanto suman los precios de esos productos y en cuantos pedidos.
+
+    El orden es de "mejor" a "peor" comprador: primero el que mas
+    productos ha comprado y, a igualdad de cantidad, el que mas dinero ha
+    gastado; al final el que menos productos y menos dinero.
+    """
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute(
+        """
+        SELECT u.id, u.username, u.name, u.apellidos, u.email,
+               COUNT(DISTINCT f.id) AS num_pedidos,
+               COALESCE(SUM(df.cantidad), 0) AS cantidad_productos,
+               COALESCE(SUM(df.subtotal), 0) AS total_gastado
+        FROM users u
+        JOIN facturas f ON f.user_id = u.id AND f.estado != 'anulado'
+        JOIN detalle_factura df ON df.factura_id = f.id
+        GROUP BY u.id, u.username, u.name, u.apellidos, u.email
+        ORDER BY cantidad_productos DESC, total_gastado DESC
+        """
+    )
+    filas = cursor.fetchall()
+    conexion.close()
+    return filas
+
+
+# mapea el estado de la factura al estado de su envio: 'pendiente' y
+# 'preparacion' no mueven el envio (todavia no salio de bodega).
+_ENVIO_ESTADO_POR_PEDIDO = {
+    "enviado": "en_transito",
+    "entregado": "entregado",
+    "anulado": "cancelado",
+}
+
+
+def _sincronizar_envio(cursor, factura_id, nuevo_estado_pedido):
+    """Refleja el cambio de estado del pedido en su envio (tabla `envios`).
+
+    Si el pedido pasa a 'enviado'/'entregado' tambien registra la fecha
+    correspondiente. No hace nada si el pedido no tiene un envio asociado
+    (por ejemplo, ordenes antiguas de antes de que se empezara a crear el
+    envio junto con el pedido).
+    """
+    nuevo_estado_envio = _ENVIO_ESTADO_POR_PEDIDO.get(nuevo_estado_pedido)
+    if not nuevo_estado_envio:
+        return
+
+    if nuevo_estado_envio == "en_transito":
+        cursor.execute(
+            "UPDATE envios SET estado=%s, fecha_envio=CURDATE() WHERE factura_id=%s",
+            (nuevo_estado_envio, factura_id),
+        )
+    elif nuevo_estado_envio == "entregado":
+        cursor.execute(
+            "UPDATE envios SET estado=%s, fecha_entrega=CURDATE() WHERE factura_id=%s",
+            (nuevo_estado_envio, factura_id),
+        )
+    else:
+        cursor.execute(
+            "UPDATE envios SET estado=%s WHERE factura_id=%s",
+            (nuevo_estado_envio, factura_id),
+        )
+
+
 def _restaurar_stock(cursor, factura_id):
     """Devuelve a `existencias` lo que se habia descontado de un pedido.
 
@@ -451,6 +633,7 @@ def actualizar_estado_pedido(factura_id, nuevo_estado):
         cursor.execute(
             "UPDATE facturas SET estado=%s WHERE id=%s", (nuevo_estado, factura_id)
         )
+        _sincronizar_envio(cursor, factura_id, nuevo_estado)
         conexion.commit()
         return None
 
@@ -502,6 +685,7 @@ def cancelar_pedido_cliente(user_id, factura_id):
         cursor.execute(
             "UPDATE facturas SET estado='anulado' WHERE id=%s", (factura_id,)
         )
+        _sincronizar_envio(cursor, factura_id, "anulado")
         conexion.commit()
         return None
 
@@ -598,6 +782,134 @@ def obtener_direcciones(user_id):
     direcciones = cursor.fetchall()
     conexion.close()
     return direcciones
+
+
+def crear_direccion(user_id, datos):
+    """Registra una direccion de envio nueva para el usuario.
+
+    Siempre entra con principal=0: la tabla `direcciones` tiene un
+    trigger BEFORE INSERT que falla con error 1442 si se inserta con
+    principal=1 (bug del propio trigger, ver `_resolver_direccion`). Para
+    marcarla como principal hay que usar `marcar_direccion_principal`
+    despues de crearla.
+    """
+    direccion = datos.get("direccion", "").strip()
+    ciudad = datos.get("ciudad", "").strip()
+
+    if not direccion or not ciudad:
+        return "La dirección y la ciudad son obligatorias."
+
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute(
+        """
+        INSERT INTO direcciones (user_id, direccion, ciudad, departamento, codigo_postal, principal)
+        VALUES (%s, %s, %s, %s, %s, 0)
+        """,
+        (
+            user_id,
+            direccion,
+            ciudad,
+            datos.get("departamento", "").strip() or None,
+            datos.get("codigo_postal", "").strip() or None,
+        ),
+    )
+    conexion.commit()
+    conexion.close()
+    return None
+
+
+def actualizar_direccion(user_id, direccion_id, datos):
+    """Edita una direccion existente del usuario (sin tocar `principal`)."""
+    direccion = datos.get("direccion", "").strip()
+    ciudad = datos.get("ciudad", "").strip()
+
+    if not direccion or not ciudad:
+        return "La dirección y la ciudad son obligatorias."
+
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute(
+        """
+        UPDATE direcciones
+        SET direccion=%s, ciudad=%s, departamento=%s, codigo_postal=%s
+        WHERE id=%s AND user_id=%s
+        """,
+        (
+            direccion,
+            ciudad,
+            datos.get("departamento", "").strip() or None,
+            datos.get("codigo_postal", "").strip() or None,
+            direccion_id,
+            user_id,
+        ),
+    )
+    conexion.commit()
+    conexion.close()
+    return None
+
+
+def eliminar_direccion(user_id, direccion_id):
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute(
+        "DELETE FROM direcciones WHERE id=%s AND user_id=%s", (direccion_id, user_id)
+    )
+    conexion.commit()
+    conexion.close()
+
+
+def marcar_direccion_principal(user_id, direccion_id):
+    """Marca una direccion como la principal del usuario, quitando ese
+    honor a las demas. No usa el trigger de la tabla (que solo dispara en
+    INSERT): lo hace a mano con dos UPDATE en una transaccion.
+    """
+    conexion = conectar()
+    cursor = conexion.cursor()
+    try:
+        cursor.execute(
+            "UPDATE direcciones SET principal=0 WHERE user_id=%s", (user_id,)
+        )
+        cursor.execute(
+            "UPDATE direcciones SET principal=1 WHERE id=%s AND user_id=%s",
+            (direccion_id, user_id),
+        )
+        conexion.commit()
+    except Exception:
+        conexion.rollback()
+        raise
+    finally:
+        conexion.close()
+
+
+def historial_compras_cliente(user_id):
+    """Historial completo de compras de un cliente: cada linea es un
+    producto comprado en alguna de sus facturas, mas reciente primero.
+    Es la vista que usa el admin para ver el detalle de facturas de un
+    cliente puntual.
+    """
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute(
+        """
+        SELECT f.id AS factura_id, f.numero_factura, f.fecha, f.total AS factura_total,
+               f.estado AS factura_estado,
+               df.cantidad, df.precio_unitario, df.subtotal,
+               p.nombre AS producto_nombre, t.nombre AS talla, c.nombre AS color
+        FROM facturas f
+        JOIN detalle_factura df ON f.id = df.factura_id
+        JOIN existencias e ON df.existencia_id = e.id
+        JOIN productos p ON e.producto_id = p.id
+        JOIN tallas t ON t.id = e.talla_id
+        JOIN colores c ON c.id = e.color_id
+        WHERE f.user_id=%s
+        ORDER BY f.fecha DESC, f.id DESC, df.id
+        """,
+        (user_id,),
+    )
+    filas = cursor.fetchall()
+    conexion.close()
+    return filas
 
 
 def obtener_metodos_pago():
@@ -817,6 +1129,21 @@ def crear_pedido(user_id, form, metodo_pago_id):
             (factura_id, total),
         )
         pago_id = cursor.lastrowid
+
+        # se asigna la primera empresa de envio activa: la tienda no le
+        # ofrece al cliente elegir transportadora, solo el metodo de pago.
+        cursor.execute(
+            "SELECT id FROM empresas_envio WHERE estado='activo' ORDER BY id LIMIT 1"
+        )
+        empresa_envio = cursor.fetchone()
+        if empresa_envio:
+            cursor.execute(
+                """
+                INSERT INTO envios (factura_id, empresa_envio_id, direccion_id, costo_envio, estado)
+                VALUES (%s, %s, %s, %s, 'pendiente')
+                """,
+                (factura_id, empresa_envio["id"], direccion_id, envio),
+            )
 
         cursor.execute(
             """

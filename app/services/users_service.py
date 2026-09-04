@@ -17,6 +17,20 @@ def listar_usuarios():
     return usuarios
 
 
+def listar_clientes():
+    """Clientes de la tienda (rol 'usuario', sin cuentas de admin), para
+    la consulta de clientes del panel admin.
+    """
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute(
+        "SELECT id, name, apellidos, email, celular FROM users WHERE rol='usuario' ORDER BY name"
+    )
+    clientes = cursor.fetchall()
+    conexion.close()
+    return clientes
+
+
 def obtener_usuario(id):
     conexion = conectar()
     cursor = conexion.cursor()

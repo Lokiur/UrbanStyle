@@ -64,8 +64,47 @@ def perfil():
         guardado = True
 
     datos = users_service.obtener_usuario(session["user_id"])
+    direcciones = orders_service.obtener_direcciones(session["user_id"])
 
-    return render_template("perfil.html", usuario=datos, guardado=guardado)
+    return render_template(
+        "perfil.html",
+        usuario=datos,
+        guardado=guardado,
+        direcciones=direcciones,
+        error_direccion=session.pop("error_direccion", None),
+    )
+
+
+@usuario.route("/perfil/direcciones", methods=["POST"])
+@login_required
+def crear_direccion():
+    error = orders_service.crear_direccion(session["user_id"], request.form)
+    if error:
+        session["error_direccion"] = error
+    return redirect(url_for("usuario.perfil") + "#direcciones")
+
+
+@usuario.route("/perfil/direcciones/<int:id>", methods=["POST"])
+@login_required
+def editar_direccion(id):
+    error = orders_service.actualizar_direccion(session["user_id"], id, request.form)
+    if error:
+        session["error_direccion"] = error
+    return redirect(url_for("usuario.perfil") + "#direcciones")
+
+
+@usuario.route("/perfil/direcciones/<int:id>/eliminar", methods=["POST"])
+@login_required
+def eliminar_direccion(id):
+    orders_service.eliminar_direccion(session["user_id"], id)
+    return redirect(url_for("usuario.perfil") + "#direcciones")
+
+
+@usuario.route("/perfil/direcciones/<int:id>/principal", methods=["POST"])
+@login_required
+def marcar_direccion_principal(id):
+    orders_service.marcar_direccion_principal(session["user_id"], id)
+    return redirect(url_for("usuario.perfil") + "#direcciones")
 
 
 @usuario.route("/mis-pedidos")
