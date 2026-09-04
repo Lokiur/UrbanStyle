@@ -59,6 +59,8 @@ def admin_panel():
 
     comparativo_mensual = orders_service.comparativo_ventas_mes_actual()
 
+    top_compradores = orders_service.top_compradores()
+
     ingresos_envio = orders_service.ingresos_envio_por_empresa(
         filtro_desde or None, filtro_hasta or None
     )
@@ -103,6 +105,7 @@ def admin_panel():
         max_ventas_metodo=max_ventas_metodo,
         max_ventas_ciudad=max_ventas_ciudad,
         comparativo_mensual=comparativo_mensual,
+        top_compradores=top_compradores,
         ingresos_envio=ingresos_envio,
         max_ingresos_envio=max_ingresos_envio,
         facturas_anuladas=facturas_anuladas,

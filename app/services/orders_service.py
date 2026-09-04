@@ -320,6 +320,37 @@ def listar_facturas_anuladas(fecha_inicio=None, fecha_fin=None):
     return filas
 
 
+def top_compradores():
+    """Ranking de clientes por sus compras (facturas no anuladas).
+
+    Por cada usuario que ha comprado algo devuelve cuantos productos ha
+    comprado en total (suma de cantidades del detalle de sus facturas),
+    cuanto suman los precios de esos productos y en cuantos pedidos.
+
+    El orden es de "mejor" a "peor" comprador: primero el que mas
+    productos ha comprado y, a igualdad de cantidad, el que mas dinero ha
+    gastado; al final el que menos productos y menos dinero.
+    """
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute(
+        """
+        SELECT u.id, u.username, u.name, u.apellidos, u.email,
+               COUNT(DISTINCT f.id) AS num_pedidos,
+               COALESCE(SUM(df.cantidad), 0) AS cantidad_productos,
+               COALESCE(SUM(df.subtotal), 0) AS total_gastado
+        FROM users u
+        JOIN facturas f ON f.user_id = u.id AND f.estado != 'anulado'
+        JOIN detalle_factura df ON df.factura_id = f.id
+        GROUP BY u.id, u.username, u.name, u.apellidos, u.email
+        ORDER BY cantidad_productos DESC, total_gastado DESC
+        """
+    )
+    filas = cursor.fetchall()
+    conexion.close()
+    return filas
+
+
 def _restaurar_stock(cursor, factura_id):
     """Devuelve a `existencias` lo que se habia descontado de un pedido.
 
