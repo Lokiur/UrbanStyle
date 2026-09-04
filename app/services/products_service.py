@@ -194,21 +194,38 @@ def obtener_imagen_producto(id):
 def listar_categorias():
     conexion = conectar()
     cursor = conexion.cursor()
-    cursor.execute("SELECT * FROM categorias")
+    cursor.execute(
+        "SELECT id, nombre, (imagen IS NOT NULL) AS tiene_imagen FROM categorias"
+    )
     categorias = cursor.fetchall()
     conexion.close()
     return categorias
 
 
-def crear_categoria(datos):
+def obtener_imagen_categoria(id):
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute(
+        "SELECT imagen, imagen_mime FROM categorias WHERE id = %s", (id,)
+    )
+    fila = cursor.fetchone()
+    conexion.close()
+    return fila
+
+
+def crear_categoria(datos, archivo_imagen=None):
     nombre = datos.get("nombre", "").strip()
     if not nombre:
         raise ValueError("El nombre de la categoría es obligatorio")
+    imagen, imagen_mime = _leer_imagen(archivo_imagen)
 
     conexion = conectar()
     cursor = conexion.cursor()
     try:
-        cursor.execute("INSERT INTO categorias (nombre) VALUES (%s)", (nombre,))
+        cursor.execute(
+            "INSERT INTO categorias (nombre, imagen, imagen_mime) VALUES (%s, %s, %s)",
+            (nombre, imagen, imagen_mime),
+        )
         conexion.commit()
     except pymysql.err.IntegrityError:
         conexion.rollback()
@@ -217,15 +234,22 @@ def crear_categoria(datos):
         conexion.close()
 
 
-def actualizar_categoria(id, datos):
+def actualizar_categoria(id, datos, archivo_imagen=None):
     nombre = datos.get("nombre", "").strip()
     if not nombre:
         raise ValueError("El nombre de la categoría es obligatorio")
+    imagen, imagen_mime = _leer_imagen(archivo_imagen)
 
     conexion = conectar()
     cursor = conexion.cursor()
     try:
-        cursor.execute("UPDATE categorias SET nombre=%s WHERE id=%s", (nombre, id))
+        if imagen is not None:
+            cursor.execute(
+                "UPDATE categorias SET nombre=%s, imagen=%s, imagen_mime=%s WHERE id=%s",
+                (nombre, imagen, imagen_mime, id),
+            )
+        else:
+            cursor.execute("UPDATE categorias SET nombre=%s WHERE id=%s", (nombre, id))
         conexion.commit()
     except pymysql.err.IntegrityError:
         conexion.rollback()

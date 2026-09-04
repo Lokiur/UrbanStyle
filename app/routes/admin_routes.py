@@ -250,7 +250,7 @@ def actualizar_stock(id):
 @admin_required
 def crear_categoria():
     try:
-        products_service.crear_categoria(request.form)
+        products_service.crear_categoria(request.form, request.files.get("imagen"))
     except ValueError as error:
         session["error_categoria"] = str(error)
     return redirect(url_for("admin.admin_panel") + "#section-categorias")
@@ -260,7 +260,7 @@ def crear_categoria():
 @admin_required
 def editar_categoria(id):
     try:
-        products_service.actualizar_categoria(id, request.form)
+        products_service.actualizar_categoria(id, request.form, request.files.get("imagen"))
     except ValueError as error:
         session["error_categoria"] = str(error)
     return redirect(url_for("admin.admin_panel") + "#section-categorias")
