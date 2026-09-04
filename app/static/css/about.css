@@ -1,57 +1,409 @@
-/* ABOUT */
+/* =========================================================
+   SOBRE NOSOTROS  —  "bento + editorial"
+   ---------------------------------------------------------
+   Misma identidad que la tienda (fondo oscuro, glass,
+   acentos azul / violeta, degradados, esquinas redondeadas)
+   pero con una composición propia: una retícula tipo bento
+   arriba y listas numeradas debajo, en vez del hero partido
+   de la portada.
+   ========================================================= */
 
-.about{
-  padding:120px 80px;
-
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-
-  gap:80px;
+.story {
+  position: relative;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 100px 60px 120px;
 }
 
-.about-image{
-  width:50%;
+/* ---------------- BENTO ---------------- */
+
+.story-bento {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: minmax(150px, auto);
+  gap: 18px;
 }
 
-.about-image img{
-  width:100%;
-  border-radius:30px;
+.bento {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 26px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.05),
+    rgba(255, 255, 255, 0.02)
+  );
+  backdrop-filter: blur(10px);
+  padding: 30px;
+
+  transition:
+    transform 0.35s ease,
+    border-color 0.35s ease,
+    box-shadow 0.35s ease;
 }
 
-.about-content{
-  width:50%;
+.bento:hover {
+  transform: translateY(-6px);
+  border-color: color-mix(in srgb, var(--color-accent) 40%, transparent);
+  box-shadow: 0 24px 46px rgba(0, 0, 0, 0.4);
 }
 
-.about-content span{
-  color:var(--color-accent);
-  font-weight:bold;
-  letter-spacing:2px;
+/* tarjeta grande: el texto de presentación */
+.bento-lead {
+  grid-column: span 3;
+  grid-row: span 2;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 44px;
 }
 
-.about-content h2{
-  font-size:60px;
-  margin:25px 0;
+.bento-eyebrow {
+  color: color-mix(in srgb, var(--color-accent) 90%, #fff);
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
 }
 
-.about-content p{
-  font-size:20px;
-  line-height:1.8;
-
-  opacity:.7;
-
-  margin-bottom:25px;
+.bento-lead h1 {
+  font-size: clamp(30px, 3.6vw, 46px);
+  line-height: 1.12;
+  font-weight: 800;
+  letter-spacing: -1px;
+  margin-bottom: 18px;
 }
 
-.about-content button{
-  padding:18px 35px;
+.bento-lead h1 em {
+  font-style: normal;
+  background: linear-gradient(
+    120deg,
+    var(--color-accent),
+    var(--color-accent-2)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
 
-  border:none;
-  border-radius:50px;
+.bento-lead p {
+  max-width: 560px;
+  font-size: 16px;
+  line-height: 1.75;
+  opacity: 0.7;
+}
 
-  background:var(--color-accent);
+.bento-lead-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 28px;
+}
 
-  color:white;
+.bento-lead-actions .primary-btn,
+.bento-lead-actions .secondary-btn {
+  padding: 15px 28px;
+  font-size: 15px;
+}
 
-  cursor:pointer;
+/* tarjeta de marca */
+.bento-brand {
+  grid-column: span 1;
+  grid-row: span 2;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-color: color-mix(in srgb, var(--color-accent) 22%, transparent);
+  background:
+    radial-gradient(
+      130% 120% at 30% 15%,
+      color-mix(in srgb, var(--color-accent) 30%, transparent),
+      transparent 62%
+    ),
+    linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--color-accent-strong) 32%, transparent),
+      color-mix(in srgb, var(--color-accent-2) 24%, transparent)
+    );
+}
+
+.bento-brand img {
+  width: 82%;
+  max-width: 172px;
+
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow:
+    0 18px 38px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* tarjetas de cifras */
+.bento-stat {
+  grid-column: span 1;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+}
+
+.bento-stat b {
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1.05;
+}
+
+.bento-stat b i {
+  margin-left: 3px;
+  font-size: 17px;
+  color: var(--color-accent);
+}
+
+.bento-stat span {
+  font-size: 13px;
+  opacity: 0.58;
+}
+
+/* ---------------- ENCABEZADO DE BLOQUE ---------------- */
+
+.story-eyebrow {
+  color: color-mix(in srgb, var(--color-accent) 90%, #fff);
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.story-values > h2,
+.story-mv-title {
+  margin: 14px 0 0;
+
+  font-size: clamp(26px, 3vw, 38px);
+  font-weight: 800;
+  line-height: 1.15;
+
+  background: linear-gradient(180deg, #ffffff 40%, rgba(255, 255, 255, 0.55));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ---------------- VALORES: LISTA NUMERADA ---------------- */
+
+.story-values {
+  margin-top: 100px;
+}
+
+.values-list {
+  list-style: none;
+  margin: 40px 0 0;
+  padding: 0;
+}
+
+.values-list li {
+  display: grid;
+  grid-template-columns: 84px 1fr;
+  gap: 26px;
+  align-items: start;
+
+  padding: 30px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.values-list li:last-child {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.values-num {
+  font-size: 40px;
+  font-weight: 800;
+  line-height: 1;
+  color: color-mix(in srgb, var(--color-accent) 48%, transparent);
+}
+
+.values-list li:nth-child(2) .values-num {
+  color: color-mix(in srgb, var(--color-accent-2) 52%, transparent);
+}
+
+.values-list h3 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.values-list h3 i {
+  color: var(--color-accent);
+  font-size: 17px;
+}
+
+.values-list li:nth-child(2) h3 i {
+  color: var(--color-accent-2);
+}
+
+.values-list p {
+  max-width: 560px;
+  font-size: 14.5px;
+  line-height: 1.7;
+  opacity: 0.62;
+}
+
+/* ---------------- MISIÓN / VISIÓN ---------------- */
+
+.story-mv {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 44px;
+
+  margin-top: 72px;
+  padding-top: 52px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.mv-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 22px;
+  align-items: start;
+}
+
+.mv-index {
+  font-size: 46px;
+  font-weight: 800;
+  line-height: 0.9;
+  color: transparent;
+  -webkit-text-stroke: 1.5px color-mix(in srgb, var(--color-accent) 55%, transparent);
+}
+
+.mv-item:nth-child(2) .mv-index {
+  -webkit-text-stroke-color: color-mix(in srgb, var(--color-accent-2) 60%, transparent);
+}
+
+.mv-item h3 {
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.mv-item p {
+  font-size: 15px;
+  line-height: 1.75;
+  opacity: 0.7;
+}
+
+/* ---------------- LLAMADO FINAL ---------------- */
+
+.story-cta {
+  margin-top: 100px;
+  text-align: center;
+}
+
+.story-cta h3 {
+  font-size: clamp(22px, 2.6vw, 30px);
+  font-weight: 800;
+  margin-bottom: 20px;
+}
+
+.story-cta .primary-btn {
+  padding: 16px 34px;
+  font-size: 16px;
+}
+
+/* ---------------- RESPONSIVE ---------------- */
+
+@media (max-width: 1000px) {
+  .story {
+    padding: 80px 40px 100px;
+  }
+
+  .story-bento {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .bento-lead {
+    grid-column: span 2;
+    grid-row: auto;
+    padding: 36px;
+  }
+
+  .bento-brand {
+    grid-column: span 2;
+    grid-row: auto;
+    min-height: 200px;
+  }
+
+  .story-mv {
+    grid-template-columns: 1fr;
+    gap: 34px;
+  }
+}
+
+@media (max-width: 620px) {
+  .story {
+    padding: 64px 20px 84px;
+  }
+
+  .story-bento {
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  .bento {
+    padding: 24px;
+    border-radius: 22px;
+  }
+
+  .bento-lead {
+    grid-column: span 2;
+    padding: 28px 24px;
+  }
+
+  .bento-brand {
+    grid-column: span 2;
+    min-height: 170px;
+  }
+
+  .bento-lead-actions .primary-btn,
+  .bento-lead-actions .secondary-btn {
+    flex: 1 1 100%;
+  }
+
+  .story-values {
+    margin-top: 72px;
+  }
+
+  .values-list li {
+    grid-template-columns: 54px 1fr;
+    gap: 16px;
+    padding: 24px 0;
+  }
+
+  .values-num {
+    font-size: 30px;
+  }
+
+  .story-mv {
+    margin-top: 64px;
+  }
+}
+
+@media (max-width: 400px) {
+  .bento {
+    padding: 20px;
+  }
+
+  .bento-stat b {
+    font-size: 26px;
+  }
+
+  .values-list h3 {
+    font-size: 18px;
+  }
 }

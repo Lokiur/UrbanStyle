@@ -43,6 +43,7 @@
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
   />
 
+<link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}" />
 </head>
 
 <body>
@@ -134,6 +135,103 @@
       </div>
 
     </form>
+
+    <!-- ================= DIRECCIONES DE ENVÍO (RF16) ================= -->
+    <div class="section-card" id="direcciones">
+      <div class="section-card-header">
+        <h2>Direcciones de envío</h2>
+        <span>{{ direcciones|length }} registradas</span>
+      </div>
+
+      {% if error_direccion %}
+      <div class="admin-error">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <span>{{ error_direccion }}</span>
+      </div>
+      {% endif %}
+
+      {% if direcciones %}
+      <div class="table-container">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Dirección</th>
+              <th>Ciudad</th>
+              <th>Departamento</th>
+              <th>C. Postal</th>
+              <th>Principal</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for d in direcciones %}
+            <tr>
+              <td>{{ d.direccion }}</td>
+              <td>{{ d.ciudad }}</td>
+              <td>{{ d.departamento or '—' }}</td>
+              <td>{{ d.codigo_postal or '—' }}</td>
+              <td>
+                {% if d.principal %}
+                <span class="badge-estado activo">Principal</span>
+                {% else %}
+                <form action="{{ url_for('usuario.marcar_direccion_principal', id=d.id) }}" method="POST">
+                  <button type="submit" class="secondary-btn">Marcar principal</button>
+                </form>
+                {% endif %}
+              </td>
+              <td>
+                <div class="action-btns">
+                  <button class="secondary-btn" onclick="openModal('direccion-{{ d.id }}')">Editar</button>
+                  <form
+                    action="{{ url_for('usuario.eliminar_direccion', id=d.id) }}"
+                    method="POST"
+                    onsubmit="return confirm('¿Eliminar esta dirección?');"
+                  >
+                    <button type="submit" style="color:#ff4d4d;background:none;border:none;cursor:pointer;padding:0;font:inherit">
+                      Eliminar
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+
+            <div class="modal" id="modal-direccion-{{ d.id }}">
+              <div class="modal-content">
+                <h3>Editar dirección</h3>
+                <form action="{{ url_for('usuario.editar_direccion', id=d.id) }}" method="POST">
+                  <input name="direccion" value="{{ d.direccion }}" placeholder="Dirección" required>
+                  <input name="ciudad" value="{{ d.ciudad }}" placeholder="Ciudad" required>
+                  <input name="departamento" value="{{ d.departamento or '' }}" placeholder="Departamento">
+                  <input name="codigo_postal" value="{{ d.codigo_postal or '' }}" placeholder="Código postal">
+                  <button class="primary-btn">Guardar</button>
+                </form>
+                <button class="secondary-btn" onclick="closeModal('direccion-{{ d.id }}')">Cerrar</button>
+              </div>
+            </div>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <i class="fa-solid fa-location-dot"></i>
+        <p>Todavía no tienes direcciones guardadas.</p>
+      </div>
+      {% endif %}
+
+      <form
+        action="{{ url_for('usuario.crear_direccion') }}"
+        method="POST"
+        class="admin-form-grid cols-2"
+        style="margin-top: 20px"
+      >
+        <input name="direccion" placeholder="Dirección" required>
+        <input name="ciudad" placeholder="Ciudad" required>
+        <input name="departamento" placeholder="Departamento">
+        <input name="codigo_postal" placeholder="Código postal">
+        <button class="primary-btn full-width">Agregar dirección</button>
+      </form>
+    </div>
 
     <!-- ================= ACCESOS RÁPIDOS ================= -->
     <div class="quick-links-grid">

@@ -1,186 +1,181 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-
-<head>
-
-  <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
-
-  <title>Registro | UrbanStyle</title>
-
-  <link
-    rel="stylesheet"
-    href="{{ url_for('static', filename='css/variables.css') }}"
-  >
-
-  <link
-    rel="stylesheet"
-    href="{{ url_for('static', filename='css/login.css') }}"
-  >
-
-  <!-- Bootstrap Icons -->
-  <link
-    rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css"
-  />
-
-  <!-- Favicon -->
-  <link
-    rel="shortcut icon"
-    href="{{ url_for('static', filename='img/urbanstyle.png') }}"
-    type="image/x-icon"
-  />
-
-</head>
-
-<body>
-
-  <div class="form">
-
-    <!-- TITULO -->
-
-    <h2>Crear Cuenta</h2>
-
-    <!-- FORMULARIO -->
-
-    <form method="POST">
-
-      <div class="input">
-
-        <!-- USUARIO -->
-
-        <div class="inputBox">
-
-          <label><i class="bi bi-person-fill"></i> Usuario</label>
-
-          <input
-            type="text"
-            name="username"
-            placeholder="Ingrese un usuario"
-            required
-          >
-
-        </div>
-
-        <!-- NOMBRE -->
-
-        <div class="inputBox">
-
-          <label><i class="bi bi-card-text"></i> Nombre</label>
-
-          <input
-            type="text"
-            name="name"
-            placeholder="Ingrese su nombre"
-            required
-          >
-
-        </div>
-
-        <!-- DOCUMENTO DE IDENTIDAD -->
-
-        <div class="inputBox">
-
-          <label><i class="bi bi-credit-card-2-front-fill"></i> Documento de identidad</label>
-
-          <input
-            type="text"
-            name="documento_identidad"
-            placeholder="Ingrese su documento de identidad"
-            required
-          >
-
-        </div>
-
-        <!-- EMAIL -->
-
-        <div class="inputBox">
-
-          <label><i class="bi bi-envelope-fill"></i> Correo</label>
-
-          <input
-            type="email"
-            name="email"
-            placeholder="Ingrese su correo"
-            required
-          >
-
-        </div>
-
-        <!-- PASSWORD -->
-
-        <div class="inputBox">
-
-          <label><i class="bi bi-lock-fill"></i> Contraseña</label>
-
-          <input
-            type="password"
-            name="password"
-            placeholder="Ingrese una contraseña"
-            required
-          >
-
-        </div>
-
-        <!-- CAPTCHA -->
-
-        <div class="inputBox">
-
-          <label><i class="bi bi-calculator-fill"></i> ¿Cuánto es {{ captcha_a }} + {{ captcha_b }}?</label>
-
-          <input
-            type="text"
-            name="captcha"
-            placeholder="Resuelve la suma"
-            required
-          >
-
-        </div>
-
-        <!-- BOTON -->
-
-        <div class="inputBox">
-
-          <input
-            type="submit"
-            value="Registrarse"
-          >
-
-        </div>
-
-      </div>
-
-    </form>
-
-    <!-- MENSAJE -->
-
-    {% if message %}
-
-    <div class="error-message">
-
-      {{ message }}
-
-    </div>
-
-    {% endif %}
-
-    <!-- LOGIN -->
-
-    <p class="forgot">
-
-      ¿Ya tienes cuenta?
-
-      <a href="{{ url_for('auth.login') }}">
-        Iniciar sesión
-      </a>
-
-    </p>
-
-  </div>
-
-</body>
+    <head>
+        <meta charset="UTF-8" />
+
+        <title>Crear cuenta | UrbanStyle</title>
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+        <!-- CSS -->
+        <link
+            rel="stylesheet"
+            href="{{ url_for('static', filename='css/variables.css') }}"
+        >
+        <link
+            rel="stylesheet"
+            href="{{ url_for('static', filename='css/login.css') }}"
+        >
+
+        <!-- Bootstrap Icons -->
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css"
+        />
+
+        <!-- Favicon -->
+        <link
+            rel="shortcut icon"
+            href="{{ url_for('static', filename='img/urbanstyle.png') }}"
+            type="image/x-icon"
+        />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}" />
+    </head>
+
+    <body>
+
+        <main class="auth">
+
+            <!-- PANEL DE MARCA -->
+            <aside class="auth-brand">
+                <a class="auth-logo" href="{{ url_for('home.index') }}">
+                    <img src="{{ url_for('static', filename='img/urbanstyle.png') }}" alt="" />
+                    UrbanStyle
+                </a>
+
+                <div class="auth-brand-mid">
+                    <h2>Únete a la<br /><em>comunidad</em></h2>
+                    <p>
+                        Crea tu cuenta y disfruta de compras más rápidas,
+                        seguimiento de pedidos y ofertas para miembros.
+                    </p>
+
+                    <ul class="auth-points">
+                        <li><i class="bi bi-bag-heart"></i> Guarda tus prendas favoritas</li>
+                        <li><i class="bi bi-truck"></i> Envío gratis desde $150.000</li>
+                        <li><i class="bi bi-shield-check"></i> Tus datos siempre cifrados</li>
+                    </ul>
+                </div>
+
+                <p class="auth-brand-foot">© 2026 UrbanStyle</p>
+            </aside>
+
+            <!-- PANEL DE FORMULARIO -->
+            <section class="auth-form-side">
+
+                <header class="auth-head">
+                    <h1>Crear cuenta</h1>
+                    <p>Solo te tomará un momento.</p>
+                </header>
+
+                {% if message %}
+                <div class="auth-alert">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <span>{{ message }}</span>
+                </div>
+                {% endif %}
+
+                <form class="auth-form" method="POST" novalidate>
+
+                    <input
+                        type="text"
+                        name="website"
+                        class="auth-hp"
+                        tabindex="-1"
+                        autocomplete="off"
+                        aria-hidden="true"
+                    />
+
+                    <label class="field">
+                        <span class="field-label"><i class="bi bi-person"></i> Usuario</span>
+                        <input type="text" name="username" placeholder="Elige un usuario" autocomplete="username" required />
+                    </label>
+
+                    <label class="field">
+                        <span class="field-label"><i class="bi bi-card-text"></i> Nombre</span>
+                        <input type="text" name="name" placeholder="Tu nombre" autocomplete="name" required />
+                    </label>
+
+                    <label class="field">
+                        <span class="field-label"><i class="bi bi-credit-card-2-front"></i> Documento de identidad</span>
+                        <input type="text" name="documento_identidad" placeholder="Tu documento" inputmode="numeric" required />
+                    </label>
+
+                    <label class="field">
+                        <span class="field-label"><i class="bi bi-envelope"></i> Correo</span>
+                        <input type="email" name="email" placeholder="tucorreo@ejemplo.com" autocomplete="email" required />
+                    </label>
+
+                    <label class="field">
+                        <span class="field-label"><i class="bi bi-lock"></i> Contraseña</span>
+                        <span class="field-control">
+                            <input
+                                type="password"
+                                name="password"
+                                id="pw"
+                                placeholder="Mínimo 8 caracteres, con letras y números"
+                                autocomplete="new-password"
+                                required
+                            />
+                            <button type="button" class="field-toggle" data-target="pw" aria-label="Mostrar u ocultar contraseña">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </span>
+                    </label>
+
+                    <!-- CAPTCHA -->
+                    <div class="field captcha">
+                        <span class="field-label"><i class="bi bi-patch-check"></i> Verificación</span>
+
+                        {% if captcha_bloqueado %}
+                        <div class="captcha-locked">
+                            <i class="bi bi-hourglass-split"></i>
+                            Demasiados intentos. Espera {{ captcha_espera }} s y recarga la página.
+                        </div>
+                        {% else %}
+                        <div class="captcha-row">
+                            <span class="captcha-q">{{ captcha_question }}&nbsp;=</span>
+                            <input
+                                type="text"
+                                name="captcha"
+                                inputmode="numeric"
+                                placeholder="?"
+                                autocomplete="off"
+                                required
+                            />
+                        </div>
+                        <span class="field-hint">Resuelve la operación para confirmar que eres una persona.</span>
+                        {% endif %}
+                    </div>
+
+                    <button type="submit" class="auth-submit" {{ 'disabled' if captcha_bloqueado }}>
+                        Registrarse
+                    </button>
+
+                </form>
+
+                <div class="auth-links">
+                    <span>¿Ya tienes cuenta?</span>
+                    <a href="{{ url_for('auth.login') }}">Iniciar sesión</a>
+                </div>
+
+            </section>
+
+        </main>
+
+        <script>
+            document.querySelectorAll(".field-toggle").forEach(function (btn) {
+                btn.addEventListener("click", function () {
+                    var input = document.getElementById(btn.dataset.target);
+                    if (!input) return;
+                    var toText = input.type === "password";
+                    input.type = toText ? "text" : "password";
+                    btn.querySelector("i").className = toText
+                        ? "bi bi-eye-slash"
+                        : "bi bi-eye";
+                });
+            });
+        </script>
+
+    </body>
 </html>

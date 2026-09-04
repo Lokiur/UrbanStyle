@@ -1,170 +1,571 @@
-/* CATEGORIES */
+/* =========================================================
+   CATEGORÍAS  —  "capítulos cinematográficos"
+   ---------------------------------------------------------
+   Misma identidad de la tienda (fondo oscuro, acentos
+   azul/violeta, glass, esquinas redondeadas, glows) pero
+   con carácter propio: numerales gigantes de capítulo,
+   nombres en display que invaden la imagen, píldoras de
+   estilo, una tira en movimiento y aparición al hacer
+   scroll. Nada de rejilla de tarjetas.
+   ========================================================= */
 
-.categories{
-  padding:120px 10%;
+.cats {
+  position: relative;
+  overflow: hidden;
+
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 96px 60px 130px;
 }
 
-.section-title{
-  text-align:center;
-
-  margin-bottom:80px;
+/* glows de fondo, como en el resto del sitio */
+.cats::before,
+.cats::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  border-radius: 50%;
+  pointer-events: none;
 }
 
-.section-title span{
-  color:#4da3ff;
-
-  font-weight:bold;
-
-  letter-spacing:3px;
+.cats::before {
+  width: 620px;
+  height: 620px;
+  top: -180px;
+  right: -200px;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--color-accent) 15%, transparent),
+    transparent 70%
+  );
 }
 
-.section-title h2{
-  font-size:60px;
-
-  margin:20px 0;
+.cats::after {
+  width: 540px;
+  height: 540px;
+  bottom: 180px;
+  left: -220px;
+  background: radial-gradient(
+    circle,
+    var(--color-accent-2-soft, rgba(168, 85, 247, 0.14)),
+    transparent 70%
+  );
 }
 
-.section-title p{
-  opacity:.7;
+/* ---------------- INTRO ---------------- */
 
-  font-size:18px;
+.cats-intro {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 30px;
+
+  padding-bottom: 26px;
+  margin-bottom: 4px;
 }
 
-/* GRID */
+.cats-intro h1 {
+  position: relative;
 
-.categories-grid{
-  display:grid;
+  font-size: clamp(38px, 5.2vw, 66px);
+  font-weight: 800;
+  letter-spacing: -2px;
+  line-height: 1;
 
-  grid-template-columns:
-  repeat(auto-fit,minmax(280px,1fr));
-
-  gap:35px;
+  padding-bottom: 20px;
 }
 
-/* CARD */
-
-.category-card{
-  position:relative;
-
-  overflow:hidden;
-
-  border-radius:30px;
-
-  height:500px;
-
-  cursor:pointer;
-
-  border:1px solid rgba(255,255,255,.08);
-
-  transition:.4s;
-
-  background:#0f172a;
+.cats-intro h1 b {
+  background: linear-gradient(
+    120deg,
+    var(--color-accent),
+    var(--color-accent-2)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.category-card:hover{
-  transform:
-  translateY(-10px)
-  scale(1.02);
+/* barra de acento que crece */
+.cats-intro h1::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
 
-  box-shadow:
-  0 20px 40px rgba(0,0,0,.4);
+  width: 96px;
+  height: 4px;
+  border-radius: 4px;
+
+  background: linear-gradient(
+    90deg,
+    var(--color-accent),
+    var(--color-accent-2)
+  );
+
+  animation: catsBar 1s ease-out both;
 }
 
-/* IMAGE */
-
-.category-card img{
-  width:100%;
-  height:100%;
-
-  object-fit:cover;
-
-  transition:.5s;
+@keyframes catsBar {
+  from { width: 0; opacity: 0; }
+  to { width: 96px; opacity: 1; }
 }
 
-.category-card:hover img{
-  transform:scale(1.08);
+.cats-intro-meta {
+  flex-shrink: 0;
+  text-align: right;
+  line-height: 1.5;
 }
 
-/* OVERLAY */
+.cats-intro-meta b {
+  display: block;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--color-accent);
+}
 
-.category-overlay{
-  position:absolute;
+.cats-intro-meta span {
+  font-size: 12.5px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
 
-  inset:0;
+/* ---------------- TIRA EN MOVIMIENTO ---------------- */
 
-  background:linear-gradient(
-    to top,
-    rgba(0,0,0,.95),
-    rgba(0,0,0,.2),
+.cats-marquee {
+  overflow: hidden;
+  margin: 22px 0 8px;
+  padding: 14px 0;
+
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+  -webkit-mask: linear-gradient(
+    90deg,
+    transparent,
+    #000 7%,
+    #000 93%,
     transparent
   );
-
-  display:flex;
-
-  flex-direction:column;
-
-  justify-content:flex-end;
-
-  padding:35px;
+  mask: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
 }
 
-/* TEXT */
+.cats-marquee-track {
+  display: inline-flex;
+  align-items: center;
+  gap: 26px;
+  white-space: nowrap;
+  will-change: transform;
 
-.category-overlay h3{
-  font-size:34px;
-
-  margin-bottom:20px;
-
-  color:white;
+  animation: catsMarquee 24s linear infinite;
 }
 
-/* BUTTON */
-
-.category-overlay button{
-  width:180px;
-
-  padding:15px;
-
-  border:none;
-
-  border-radius:50px;
-
-  background:linear-gradient(
-    135deg,
-    #2113e9,
-    #4da3ff
-  );
-
-  color:white;
-
-  font-size:15px;
-
-  cursor:pointer;
-
-  transition:.3s;
+.cats-marquee:hover .cats-marquee-track {
+  animation-play-state: paused;
 }
 
-.category-overlay button:hover{
-  transform:translateY(-3px);
+.cats-marquee-track span {
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 4px;
+  text-transform: uppercase;
 
+  color: color-mix(in srgb, var(--color-accent) 14%, transparent);
+  -webkit-text-stroke: 1px color-mix(in srgb, var(--color-accent) 55%, transparent);
+}
+
+.cats-marquee-track span.dot {
+  -webkit-text-stroke: 0;
+  color: var(--color-accent);
+}
+
+@keyframes catsMarquee {
+  to { transform: translateX(-50%); }
+}
+
+/* ---------------- CAPÍTULOS ---------------- */
+
+.cats-list {
+  display: flex;
+  flex-direction: column;
+  margin-top: 52px;
+}
+
+.chapter {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  gap: 56px;
+
+  padding: 96px 0 76px;
+
+  color: inherit;
+  text-decoration: none;
+
+  opacity: 0;
+  transform: translateY(44px);
+  transition:
+    opacity 0.7s ease,
+    transform 0.75s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.chapter + .chapter {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.chapter.in {
+  opacity: 1;
+  transform: none;
+}
+
+.chapter:nth-child(even) {
+  flex-direction: row-reverse;
+}
+
+/* numeral gigante de capítulo: vive dentro de .chapter-body y se
+   alinea SIEMPRE arriba-izquierda del texto, en las dos orientaciones */
+.chapter-num {
+  position: absolute;
+  top: -0.95em;
+  left: -0.04em;
+  z-index: 0;
+
+  font-size: clamp(120px, 14vw, 210px);
+  font-weight: 900;
+  line-height: 0.8;
+  letter-spacing: -0.06em;
+
+  color: color-mix(in srgb, var(--color-accent) 11%, transparent);
+  -webkit-text-stroke: 2px color-mix(in srgb, var(--color-accent) 32%, transparent);
+
+  pointer-events: none;
+  user-select: none;
+
+  transition: transform 0.75s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.chapter:not(.in) .chapter-num {
+  transform: translateY(24px) scale(0.96);
+}
+
+/* --- imagen --- */
+
+.chapter-media {
+  position: relative;
+  flex: 1.05;
+
+  aspect-ratio: 5 / 4;
+  border-radius: 28px;
+  overflow: hidden;
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.02);
+
+  transition: box-shadow 0.5s ease, border-color 0.5s ease;
+}
+
+.chapter:hover .chapter-media {
+  border-color: color-mix(in srgb, var(--color-accent) 50%, transparent);
   box-shadow:
-  0 10px 30px rgba(77,163,255,.4);
+    0 40px 80px rgba(0, 0, 0, 0.5),
+    0 0 0 1px color-mix(in srgb, var(--color-accent) 25%, transparent),
+    0 0 90px color-mix(in srgb, var(--color-accent) 18%, transparent);
 }
 
-/* RESPONSIVE */
+.chapter-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 
-@media(max-width:900px){
+  filter: saturate(0.82) brightness(0.78) contrast(1.02);
+  transform: scale(1.12);
+  transition: transform 1.1s cubic-bezier(0.2, 0.7, 0.2, 1), filter 0.6s ease;
+}
 
-  .categories{
-    padding:100px 30px;
+.chapter.in .chapter-media img {
+  transform: scale(1);
+}
+
+.chapter:hover .chapter-media img {
+  transform: scale(1.06);
+  filter: saturate(1.08) brightness(1) contrast(1.03);
+}
+
+/* baño de acento diagonal */
+.chapter-media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background: linear-gradient(
+    118deg,
+    color-mix(in srgb, var(--color-accent) 40%, transparent),
+    transparent 46%,
+    color-mix(in srgb, var(--color-accent-2) 26%, transparent)
+  );
+  mix-blend-mode: screen;
+  opacity: 0.42;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+
+.chapter:hover .chapter-media::after {
+  opacity: 0.8;
+}
+
+/* viñeta inferior para legibilidad cuando el nombre invade */
+.chapter-media::before {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 45%;
+  z-index: 1;
+
+  background: linear-gradient(
+    180deg,
+    transparent,
+    rgba(2, 6, 23, 0.55)
+  );
+  pointer-events: none;
+}
+
+/* insignia flotante con el número */
+.chapter-media-tag {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 3;
+
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+
+  border-radius: 50%;
+  border: 1px solid var(--color-surface-border);
+  background: color-mix(in srgb, var(--color-bg-dark) 62%, transparent);
+  backdrop-filter: blur(10px);
+
+  color: var(--color-accent);
+  font-size: 15px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- texto --- */
+
+.chapter-body {
+  position: relative;
+  flex: 1;
+}
+
+/* todo el texto por encima del numeral y compartiendo el mismo borde
+   izquierdo (kicker, título, tags, descripción y CTA alineados) */
+.chapter-kicker,
+.chapter-title,
+.chapter-tags,
+.chapter-body p,
+.chapter-cta {
+  position: relative;
+  z-index: 1;
+}
+
+.chapter-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+.chapter-kicker::before {
+  content: "";
+  width: 28px;
+  height: 2px;
+  background: currentColor;
+}
+
+.chapter-title {
+  font-size: clamp(40px, 5.6vw, 76px);
+  font-weight: 800;
+  letter-spacing: -2px;
+  line-height: 0.98;
+
+  margin: 12px 0 16px;
+
+  text-shadow: 0 2px 34px rgba(0, 0, 0, 0.55);
+  transition: color 0.35s ease;
+}
+
+.chapter:hover .chapter-title {
+  color: var(--color-accent);
+}
+
+.chapter-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  list-style: none;
+  margin: 0 0 18px;
+  padding: 0;
+}
+
+.chapter-tags li {
+  padding: 6px 13px;
+
+  border: 1px solid var(--color-surface-border);
+  border-radius: 50px;
+  background: var(--color-surface);
+  backdrop-filter: blur(8px);
+
+  font-size: 12px;
+  font-weight: 600;
+  opacity: 0.78;
+
+  transition: border-color 0.3s ease, opacity 0.3s ease;
+}
+
+.chapter:hover .chapter-tags li {
+  border-color: color-mix(in srgb, var(--color-accent) 40%, transparent);
+  opacity: 1;
+}
+
+.chapter-body p {
+  max-width: 400px;
+
+  font-size: 15px;
+  line-height: 1.7;
+  opacity: 0.64;
+
+  margin-bottom: 24px;
+}
+
+.chapter-cta {
+  position: relative;
+  overflow: hidden;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 13px 24px;
+
+  border: 1px solid color-mix(in srgb, var(--color-accent) 45%, transparent);
+  border-radius: 50px;
+
+  color: var(--color-accent);
+  font-size: 14px;
+  font-weight: 700;
+
+  transition:
+    background 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease,
+    transform 0.3s ease;
+}
+
+.chapter:hover .chapter-cta {
+  transform: translateY(-2px);
+  border-color: transparent;
+  color: #fff;
+  background: linear-gradient(
+    135deg,
+    var(--color-accent-strong),
+    var(--color-accent)
+  );
+  box-shadow: 0 16px 34px color-mix(in srgb, var(--color-accent) 40%, transparent);
+}
+
+.chapter-cta i {
+  transition: transform 0.25s ease;
+}
+
+.chapter:hover .chapter-cta i {
+  transform: translateX(6px);
+}
+
+/* ---------------- MOVIMIENTO REDUCIDO ---------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .chapter,
+  .chapter-num,
+  .chapter-media img {
+    opacity: 1;
+    transform: none;
+    transition: none;
   }
 
-  .section-title h2{
-    font-size:45px;
+  .cats-marquee-track,
+  .cats-intro h1::after {
+    animation: none;
+  }
+}
+
+/* ---------------- RESPONSIVE ---------------- */
+
+@media (max-width: 1080px) {
+  .chapter-num {
+    font-size: clamp(104px, 17vw, 170px);
+  }
+}
+
+@media (max-width: 860px) {
+  .cats {
+    padding: 70px 24px 96px;
   }
 
-  .category-card{
-    height:420px;
+  .cats-intro {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
   }
 
+  .cats-intro-meta {
+    text-align: left;
+  }
+
+  .chapter,
+  .chapter:nth-child(even) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 24px;
+
+    padding: 64px 0 44px;
+  }
+
+  .chapter-media {
+    aspect-ratio: 16 / 11;
+  }
+
+  .chapter-num {
+    top: -0.8em;
+    left: -0.02em;
+    font-size: clamp(88px, 23vw, 140px);
+  }
+
+  .chapter-body p {
+    max-width: none;
+  }
+}
+
+@media (max-width: 460px) {
+  .cats {
+    padding: 56px 18px 78px;
+  }
+
+  .chapter {
+    padding: 52px 0 38px;
+  }
+
+  .chapter-title {
+    letter-spacing: -1px;
+  }
 }

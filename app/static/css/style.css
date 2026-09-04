@@ -10,12 +10,28 @@ html{
 }
 
 body{
+  min-height:100vh;
+
+  /* fondo en capas: brillo azul arriba-derecha, halo violeta a la
+     izquierda y degradado base. Da profundidad y evita que todas las
+     pantallas se vean planas e iguales */
   background:
+  radial-gradient(
+    55% 45% at 88% 0%,
+    color-mix(in srgb, var(--color-accent) 12%, transparent),
+    transparent 70%
+  ),
+  radial-gradient(
+    45% 40% at 0% 25%,
+    var(--color-accent-2-soft),
+    transparent 70%
+  ),
   radial-gradient(
     circle at top,
     var(--color-bg-dark),
     var(--color-bg-darker) 70%
   );
+  background-attachment:fixed;
 
   color:white;
   overflow-x:hidden;
@@ -28,13 +44,17 @@ body{
   justify-content:space-between;
   align-items:center;
 
-  padding:25px 80px;
+  padding:22px 80px;
 
   border-bottom:1px solid rgba(255,255,255,.08);
 
-  background:rgba(255,255,255,.02);
+  background:linear-gradient(
+    180deg,
+    rgba(255,255,255,.06),
+    rgba(255,255,255,.02)
+  );
 
-  backdrop-filter:blur(10px);
+  backdrop-filter:blur(14px);
 
   /* El navbar debe quedar SIEMPRE por encima de las secciones que le
      siguen (p. ej. .hero, que usa position:relative). Sin un z-index
@@ -72,17 +92,45 @@ nav{
 }
 
 nav a{
+  position:relative;
+
   color:white;
   text-decoration:none;
 
   opacity:.75;
+  padding-bottom:4px;
 
   transition:.3s;
+}
+
+nav a::after{
+  content:"";
+  position:absolute;
+  left:0;
+  bottom:0;
+
+  width:100%;
+  height:2px;
+
+  transform:scaleX(0);
+  transform-origin:left;
+
+  background:linear-gradient(
+    90deg,
+    var(--color-accent),
+    var(--color-accent-2)
+  );
+
+  transition:transform .3s ease;
 }
 
 nav a:hover{
   opacity:1;
   color:var(--color-accent);
+}
+
+nav a:hover::after{
+  transform:scaleX(1);
 }
 
 /* ICONS */
@@ -354,21 +402,79 @@ nav a:hover{
 }
 
 .badge{
-  display:inline-block;
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  overflow:hidden;
+  isolation:isolate;
 
-  padding:12px 20px;
+  padding:9px 22px;
 
   border-radius:50px;
+  border:1px solid transparent;
 
-  background:rgba(255,255,255,.05);
+  /* fondo glass con borde en degradado azul -> violeta */
+  background:
+    linear-gradient(
+      color-mix(in srgb, var(--color-bg-dark) 72%, transparent),
+      color-mix(in srgb, var(--color-bg-dark) 72%, transparent)
+    ) padding-box,
+    linear-gradient(
+      120deg,
+      var(--color-accent),
+      var(--color-accent-2) 50%,
+      var(--color-accent)
+    ) border-box;
 
-  border:1px solid rgba(255,255,255,.08);
-
-  color:var(--color-accent);
+  color:#fff;
+  font-size:14px;
+  font-weight:600;
+  letter-spacing:.3px;
 
   margin-bottom:30px;
 
-  backdrop-filter:blur(10px);
+  backdrop-filter:blur(12px);
+  box-shadow:
+    0 10px 34px color-mix(in srgb, var(--color-accent) 22%, transparent),
+    inset 0 1px 0 rgba(255,255,255,.14);
+
+  transition:transform .3s ease, box-shadow .3s ease;
+}
+
+.badge:hover{
+  transform:translateY(-2px);
+  box-shadow:
+    0 16px 40px color-mix(in srgb, var(--color-accent) 32%, transparent),
+    inset 0 1px 0 rgba(255,255,255,.2);
+}
+
+/* brillo diagonal que barre el óvalo */
+.badge::after{
+  content:"";
+  position:absolute;
+  top:0;
+  left:-60%;
+  z-index:2;
+
+  width:40%;
+  height:100%;
+
+  background:linear-gradient(
+    100deg,
+    transparent,
+    rgba(255,255,255,.4),
+    transparent
+  );
+  transform:skewX(-20deg);
+  pointer-events:none;
+
+  animation:badgeSheen 4s ease-in-out infinite;
+}
+
+@keyframes badgeSheen{
+  0%{ left:-60%; }
+  60%,100%{ left:140%; }
 }
 
 .hero-text h1{
@@ -407,12 +513,21 @@ nav a:hover{
 
 .primary-btn,
 .secondary-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+
   padding:20px 35px;
 
   border:none;
   border-radius:50px;
 
   font-size:18px;
+  font-family:inherit;
+  text-align:center;
+  text-decoration:none;
+  white-space:nowrap;
 
   cursor:pointer;
 
@@ -783,5 +898,276 @@ nav a:hover{
   to{
     opacity:1;
     transform:translateY(0);
+  }
+}
+
+/* =========================================================
+   HOME  (vista principal / tienda)
+   ========================================================= */
+
+.hero{
+  gap:40px;
+}
+
+/* segundo halo, esta vez violeta, abajo-izquierda: rompe la simetría
+   del glow azul y da más cuerpo al fondo del hero */
+.hero::after{
+  content:"";
+  position:absolute;
+  left:-160px;
+  bottom:-220px;
+
+  width:560px;
+  height:560px;
+
+  background:radial-gradient(
+    circle,
+    var(--color-accent-2-soft),
+    transparent 70%
+  );
+
+  z-index:-1;
+}
+
+.hero-text h1{
+  letter-spacing:-1px;
+}
+
+/* --- barra de datos bajo los botones --- */
+
+.hero-stats{
+  display:flex;
+  gap:14px;
+  flex-wrap:wrap;
+
+  margin-top:46px;
+}
+
+.hero-stat{
+  flex:1;
+  min-width:120px;
+
+  padding:16px 18px;
+
+  border:1px solid var(--color-surface-border);
+  border-radius:16px;
+  background:var(--color-surface);
+  backdrop-filter:blur(10px);
+}
+
+.hero-stat strong{
+  display:block;
+
+  font-size:24px;
+  font-weight:800;
+}
+
+.hero-stat strong i{
+  margin-left:4px;
+  font-size:16px;
+  color:var(--color-accent);
+}
+
+.hero-stat span{
+  font-size:13px;
+  opacity:.6;
+}
+
+/* --- tarjetas flotantes sobre la imagen --- */
+
+.spec-card{
+  position:absolute;
+  z-index:3;
+
+  display:flex;
+  align-items:center;
+  gap:12px;
+
+  padding:14px 18px;
+
+  border:1px solid var(--color-surface-border);
+  border-radius:16px;
+  background:color-mix(in srgb, var(--color-bg-dark) 82%, transparent);
+  backdrop-filter:blur(14px);
+  box-shadow:var(--shadow-soft);
+
+  animation:floaty 5s ease-in-out infinite;
+}
+
+.spec-card i{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:38px;
+  height:38px;
+
+  border-radius:12px;
+  background:color-mix(in srgb, var(--color-accent) 16%, transparent);
+  color:var(--color-accent);
+  font-size:16px;
+}
+
+.spec-card strong{
+  display:block;
+  font-size:14px;
+}
+
+.spec-card span{
+  font-size:12px;
+  opacity:.6;
+}
+
+.spec-card-top{
+  top:40px;
+  left:-10px;
+}
+
+.spec-card-bottom{
+  bottom:56px;
+  right:-10px;
+  animation-delay:-2.5s;
+}
+
+@keyframes floaty{
+  0%,100%{ transform:translateY(0); }
+  50%{ transform:translateY(-12px); }
+}
+
+/* --- realce de la imagen del hero (sin tocar la estructura) --- */
+
+/* resplandor grande que late detrás del producto */
+.hero-image::before{
+  content:"";
+  position:absolute;
+  z-index:-1;
+
+  width:620px;
+  height:620px;
+  left:50%;
+  top:50%;
+  translate:-50% -50%;
+
+  background:radial-gradient(
+    circle at 50% 45%,
+    color-mix(in srgb, var(--color-accent) 45%, transparent),
+    color-mix(in srgb, var(--color-accent-2) 22%, transparent) 45%,
+    transparent 72%
+  );
+
+  filter:blur(30px);
+
+  animation:heroGlow 6s ease-in-out infinite;
+}
+
+/* anillo de acento girando lentamente alrededor del producto */
+.hero-image::after{
+  content:"";
+  position:absolute;
+  z-index:0;
+
+  width:560px;
+  height:560px;
+  left:50%;
+  top:50%;
+  translate:-50% -50%;
+
+  border-radius:50%;
+  border:1px dashed color-mix(in srgb, var(--color-accent) 30%, transparent);
+  -webkit-mask:radial-gradient(circle, transparent 62%, #000 63%);
+  mask:radial-gradient(circle, transparent 62%, #000 63%);
+
+  animation:heroRing 26s linear infinite;
+}
+
+.background-card{
+  background:linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--color-accent-strong) 55%, transparent),
+    color-mix(in srgb, var(--color-accent) 40%, transparent) 55%,
+    color-mix(in srgb, var(--color-accent-2) 35%, transparent)
+  );
+
+  box-shadow:
+    0 0 100px color-mix(in srgb, var(--color-accent) 30%, transparent),
+    inset 0 1px 0 rgba(255,255,255,.25);
+
+  animation:heroCard 9s ease-in-out infinite;
+}
+
+.hero-product-img{
+  filter:
+    drop-shadow(0 30px 45px rgba(0,0,0,.55))
+    drop-shadow(0 12px 40px color-mix(in srgb, var(--color-accent) 45%, transparent))
+    saturate(1.1)
+    contrast(1.05);
+
+  animation:heroFloat 7s ease-in-out infinite;
+  will-change:transform;
+}
+
+/* al pasar el cursor: se ilumina y se acerca un poco más */
+.hero-image:hover .hero-product-img{
+  filter:
+    drop-shadow(0 34px 55px rgba(0,0,0,.6))
+    drop-shadow(0 14px 55px color-mix(in srgb, var(--color-accent) 65%, transparent))
+    saturate(1.18)
+    contrast(1.08)
+    brightness(1.04);
+}
+
+@keyframes heroGlow{
+  0%,100%{ opacity:.75; transform:scale(1); }
+  50%{ opacity:1; transform:scale(1.08); }
+}
+
+@keyframes heroRing{
+  to{ transform:rotate(360deg); }
+}
+
+@keyframes heroCard{
+  0%,100%{ transform:rotate(-8deg) translateY(0); }
+  50%{ transform:rotate(-6deg) translateY(-14px); }
+}
+
+@keyframes heroFloat{
+  0%,100%{ transform:translateY(0) rotate(0); }
+  50%{ transform:translateY(-16px) rotate(-1.5deg); }
+}
+
+@media(prefers-reduced-motion:reduce){
+  .hero-image::before,
+  .hero-image::after,
+  .background-card,
+  .hero-product-img,
+  .spec-card,
+  .badge::after{
+    animation:none;
+  }
+}
+
+/* --- responsive home --- */
+
+@media(max-width:1100px){
+  .hero-stats{
+    justify-content:center;
+  }
+
+  .spec-card{
+    display:none;
+  }
+
+  .hero-image::after{
+    display:none;
+  }
+
+  .hero-image::before{
+    width:420px;
+    height:420px;
+  }
+}
+
+@media(max-width:600px){
+  .hero-stat strong{
+    font-size:20px;
   }
 }

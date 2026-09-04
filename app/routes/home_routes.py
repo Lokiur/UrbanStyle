@@ -1,13 +1,14 @@
 from flask import Blueprint, render_template, request
 
-from app.services import contact_service
+from app.services import contact_service, products_service
 
 home = Blueprint("home", __name__)
 
 
 @home.route("/")
 def index():
-    return render_template("index.html")
+    total_productos = len(products_service.obtener_productos())
+    return render_template("index.html", total_productos=total_productos)
 
 
 @home.route("/offers")
@@ -17,7 +18,8 @@ def offers():
 
 @home.route("/about")
 def about():
-    return render_template("about.html")
+    total_productos = len(products_service.obtener_productos())
+    return render_template("about.html", total_productos=total_productos)
 
 
 @home.route("/contacto", methods=["GET", "POST"])

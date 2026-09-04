@@ -47,6 +47,7 @@
     type="image/x-icon"
   />
 
+<link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}" />
 </head>
 
 <body>
@@ -55,36 +56,64 @@
 
   {% include 'header.html' %}
 
-  <!-- OFFERS -->
+  <!-- OFERTAS -->
 
-  <section class="offers">
+  <section class="promo">
 
-    <div class="offers-content">
+    <div class="promo-ghost" aria-hidden="true">-30%</div>
 
-      <span>OFERTA LIMITADA</span>
+    <div class="promo-main">
 
-      <h2>
-        30% OFF En La Nueva Colección
-      </h2>
-
-      <p>
-        Aprovecha descuentos exclusivos por tiempo limitado
-        y renueva tu estilo con nuestras prendas premium.
+      <p class="promo-eyebrow">
+        <span class="promo-dot"></span>
+        Oferta por tiempo limitado
       </p>
 
-      <a href="{{ url_for('productos.products') }}" class="cta-btn">
-        Comprar ahora
-      </a>
+      <h1 class="promo-title">
+        La Nueva Colección<br>
+        <em>con 30&nbsp;% de descuento</em>
+      </h1>
+
+      <p class="promo-sub">
+        Streetwear premium de la nueva temporada. Envío gratis en
+        compras superiores a $150.000.
+      </p>
+
+      <div class="promo-actions">
+        <a href="{{ url_for('productos.products') }}" class="primary-btn">
+          <i class="fa-solid fa-bag-shopping"></i>
+          Comprar ahora
+        </a>
+        <a href="{{ url_for('productos.categories') }}" class="secondary-btn">
+          Ver categorías
+        </a>
+      </div>
+
+      <div class="promo-countdown" id="ofertaTimer" aria-label="Tiempo restante de la oferta">
+        <span class="promo-countdown-label">Termina en</span>
+        <span class="promo-countdown-time">
+          <b data-cd="d">00</b>d <i>:</i>
+          <b data-cd="h">00</b>h <i>:</i>
+          <b data-cd="m">00</b>m <i>:</i>
+          <b data-cd="s">00</b>s
+        </span>
+      </div>
 
     </div>
 
-    <div class="offers-image">
-
-      <img
-        src="{{ url_for('static', filename='img/oferta.png') }}"
-        alt="Oferta UrbanStyle"
-      >
-
+    <div class="promo-perks">
+      <div class="promo-perk">
+        <i class="fa-solid fa-truck-fast"></i>
+        <span><b>Envío gratis</b> desde $150.000</span>
+      </div>
+      <div class="promo-perk">
+        <i class="fa-solid fa-rotate-left"></i>
+        <span><b>60 días</b> para devolver</span>
+      </div>
+      <div class="promo-perk">
+        <i class="fa-solid fa-shield-halved"></i>
+        <span><b>Pago seguro</b> y cifrado</span>
+      </div>
     </div>
 
   </section>
@@ -94,6 +123,42 @@
   {% include 'footer.html' %}
 
   <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+  <script>
+    (function () {
+      var timer = document.getElementById("ofertaTimer");
+      if (!timer) return;
+
+      // Fin del mes actual. Si quedan menos de 2 días, pasa al mes siguiente
+      // para que la cuenta regresiva nunca se vea "vacía".
+      var ahora = new Date();
+      var objetivo = new Date(ahora.getFullYear(), ahora.getMonth() + 1, 1);
+      if (objetivo - ahora < 2 * 864e5) {
+        objetivo = new Date(ahora.getFullYear(), ahora.getMonth() + 2, 1);
+      }
+
+      var d = timer.querySelector('[data-cd="d"]');
+      var h = timer.querySelector('[data-cd="h"]');
+      var m = timer.querySelector('[data-cd="m"]');
+      var s = timer.querySelector('[data-cd="s"]');
+
+      function pad(n) {
+        return (n < 10 ? "0" : "") + n;
+      }
+
+      function tick() {
+        var falta = Math.max(0, objetivo - new Date());
+        var seg = Math.floor(falta / 1000);
+        d.textContent = pad(Math.floor(seg / 86400));
+        h.textContent = pad(Math.floor((seg % 86400) / 3600));
+        m.textContent = pad(Math.floor((seg % 3600) / 60));
+        s.textContent = pad(seg % 60);
+      }
+
+      tick();
+      setInterval(tick, 1000);
+    })();
+  </script>
 
 </body>
 

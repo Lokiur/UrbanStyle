@@ -43,6 +43,7 @@
     type="image/x-icon"
   />
 
+<link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}" />
 </head>
 
 <body>
@@ -57,10 +58,78 @@
 
     {% if query %}
     <h2>Resultados para "{{ query }}"</h2>
+    <p>
+      {{ productos|length }}
+      {{ 'artículo encontrado' if productos|length == 1 else 'artículos encontrados' }}
+      en el catálogo.
+    </p>
     {% else %}
     <h2>Nuestra Colección</h2>
+    <p>Prendas seleccionadas para llevar tu estilo urbano al siguiente nivel.</p>
     {% endif %}
 
+  </div>
+
+  {% set hay_filtros = filtro_talla_id or filtro_precio_min or filtro_precio_max %}
+
+  <!-- RF13: filtrar por talla y rango de precio -->
+  <div class="products-filters-card">
+    <form method="GET" action="{{ request.path }}" class="products-filters">
+      {% if query %}
+      <input type="hidden" name="q" value="{{ query }}">
+      {% endif %}
+
+      <div class="products-filters-title">
+        <i class="fa-solid fa-sliders"></i> Filtrar catálogo
+      </div>
+
+      <div class="products-filters-fields">
+        <label>
+          <span>Talla</span>
+          <select name="talla_id">
+            <option value="">Todas</option>
+            {% for t in tallas %}
+            <option value="{{ t.id }}" {% if filtro_talla_id == t.id %}selected{% endif %}>{{ t.nombre }}</option>
+            {% endfor %}
+          </select>
+        </label>
+
+        <label>
+          <span>Precio mín.</span>
+          <input type="number" name="precio_min" min="0" step="1000" value="{{ filtro_precio_min or '' }}" placeholder="$ 0">
+        </label>
+
+        <label>
+          <span>Precio máx.</span>
+          <input type="number" name="precio_max" min="0" step="1000" value="{{ filtro_precio_max or '' }}" placeholder="Sin límite">
+        </label>
+
+        <button type="submit">
+          <i class="fa-solid fa-filter"></i> Filtrar
+        </button>
+      </div>
+    </form>
+
+    {% if hay_filtros %}
+    <div class="products-filters-active">
+      <i class="fa-solid fa-circle-info"></i>
+      <span>Filtrando por:</span>
+
+      {% if filtro_talla_id %}
+      <span class="filter-chip">Talla {{ tallas|selectattr('id','equalto',filtro_talla_id)|map(attribute='nombre')|first }}</span>
+      {% endif %}
+      {% if filtro_precio_min or filtro_precio_max %}
+      <span class="filter-chip">
+        {% if filtro_precio_min %}desde $ {{ "{:,.0f}".format(filtro_precio_min) }}{% endif %}
+        {% if filtro_precio_max %}hasta $ {{ "{:,.0f}".format(filtro_precio_max) }}{% endif %}
+      </span>
+      {% endif %}
+
+      <a href="{{ request.path }}{{ '?q=' ~ query if query else '' }}" class="products-filters-clear">
+        <i class="fa-solid fa-xmark"></i> Quitar filtros
+      </a>
+    </div>
+    {% endif %}
   </div>
 
   <div class="products-grid">
@@ -70,6 +139,16 @@
     <div class="product-card">
 
       <div class="product-image">
+        {% if producto.stock_total and producto.stock_total <= 5 %}
+        <span class="product-badge low">
+          <i class="fa-solid fa-fire"></i> Últimas unidades
+        </span>
+        {% else %}
+        <span class="product-badge">
+          <i class="fa-solid fa-bolt"></i> Nuevo
+        </span>
+        {% endif %}
+
         <img
           src="{{ url_for('productos.imagen_producto', id=producto.id) if producto.tiene_imagen else url_for('static', filename='img/urbanstyle.png') }}"
           alt="{{ producto.nombre }}"
@@ -86,11 +165,12 @@
           {{ producto.descripcion }}
         </p>
 
-        <div class="price">
+        <div class="price-row">
           {% if producto.precio_desde %}
-          $ {{ "{:,.0f}".format(producto.precio_desde) }}
+          <span class="price-hint">desde</span>
+          <div class="price">$ {{ "{:,.0f}".format(producto.precio_desde) }}</div>
           {% else %}
-          Precio no disponible
+          <div class="price">Precio no disponible</div>
           {% endif %}
         </div>
 
@@ -123,11 +203,13 @@
           </div>
 
           <button type="submit">
+            <i class="fa-solid fa-bag-shopping"></i>
             Agregar al carrito
           </button>
         </form>
         {% else %}
         <button type="button" disabled>
+          <i class="fa-solid fa-ban"></i>
           Agotado
         </button>
         {% endif %}
@@ -140,9 +222,13 @@
 
   </div>
 
-  {% if query and not productos %}
+  {% if not productos %}
   <p class="no-results">
+    {% if query %}
     No encontramos productos que coincidan con "{{ query }}".
+    {% else %}
+    No encontramos productos que coincidan con esos filtros.
+    {% endif %}
   </p>
   {% endif %}
 

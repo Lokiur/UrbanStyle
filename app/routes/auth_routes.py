@@ -1,9 +1,13 @@
 from flask import Blueprint, redirect, render_template, request, session, url_for
 
 from app.services import auth_service
-from app.utils.security import captcha_valido, generar_captcha, password_service
+from app.utils.security import captcha_context, captcha_valido, password_service
 
 auth = Blueprint("auth", __name__)
+
+
+def _honeypot():
+    return request.form.get("website", "")
 
 
 # =========================
@@ -20,38 +24,31 @@ def register():
         password = request.form["password"]
 
         if not password_service.validate(password):
-            a, b = generar_captcha()
             return render_template(
                 "register.html",
                 message="La contraseña debe tener al menos 8 caracteres e incluir letras y números.",
-                captcha_a=a,
-                captcha_b=b,
+                **captcha_context(),
             )
 
-        if not captcha_valido(request.form.get("captcha", "")):
-            a, b = generar_captcha()
+        if not captcha_valido(request.form.get("captcha", ""), _honeypot()):
             return render_template(
                 "register.html",
                 message="Captcha incorrecto, intenta de nuevo.",
-                captcha_a=a,
-                captcha_b=b,
+                **captcha_context(),
             )
 
         if auth_service.existe_usuario(username, email):
-            a, b = generar_captcha()
             return render_template(
                 "register.html",
                 message="Ese usuario o correo ya está registrado.",
-                captcha_a=a,
-                captcha_b=b,
+                **captcha_context(),
             )
 
         auth_service.registrar(request.form)
 
         return redirect(url_for("auth.login"))
 
-    a, b = generar_captcha()
-    return render_template("register.html", captcha_a=a, captcha_b=b)
+    return render_template("register.html", **captcha_context())
 
 
 # =========================
@@ -66,13 +63,11 @@ def login():
         username = request.form["username"]
         password = request.form["password"]
 
-        if not captcha_valido(request.form.get("captcha", "")):
-            a, b = generar_captcha()
+        if not captcha_valido(request.form.get("captcha", ""), _honeypot()):
             return render_template(
                 "login.html",
                 message="Captcha incorrecto, intenta de nuevo.",
-                captcha_a=a,
-                captcha_b=b,
+                **captcha_context(),
             )
 
         usuario = auth_service.login(username, password)
@@ -85,16 +80,13 @@ def login():
             session["avatar"] = usuario.get("avatar")
             return redirect(url_for("home.index"))
 
-        a, b = generar_captcha()
         return render_template(
             "login.html",
             message="Usuario o contraseña incorrectos",
-            captcha_a=a,
-            captcha_b=b,
+            **captcha_context(),
         )
 
-    a, b = generar_captcha()
-    return render_template("login.html", captcha_a=a, captcha_b=b)
+    return render_template("login.html", **captcha_context())
 
 
 # =========================
@@ -111,40 +103,33 @@ def recuperar():
         nueva_password = request.form["nueva_password"]
 
         if not password_service.validate(nueva_password):
-            a, b = generar_captcha()
             return render_template(
                 "recuperar.html",
                 message="La contraseña debe tener al menos 8 caracteres e incluir letras y números.",
-                captcha_a=a,
-                captcha_b=b,
+                **captcha_context(),
             )
 
-        if not captcha_valido(request.form.get("captcha", "")):
-            a, b = generar_captcha()
+        if not captcha_valido(request.form.get("captcha", ""), _honeypot()):
             return render_template(
                 "recuperar.html",
                 message="Captcha incorrecto, intenta de nuevo.",
-                captcha_a=a,
-                captcha_b=b,
+                **captcha_context(),
             )
 
         usuario = auth_service.buscar_por_documento(username, documento_identidad)
 
         if not usuario:
-            a, b = generar_captcha()
             return render_template(
                 "recuperar.html",
                 message="El usuario o el documento de identidad no coinciden.",
-                captcha_a=a,
-                captcha_b=b,
+                **captcha_context(),
             )
 
         auth_service.cambiar_password(usuario["id"], nueva_password)
 
         return redirect(url_for("auth.login"))
 
-    a, b = generar_captcha()
-    return render_template("recuperar.html", captcha_a=a, captcha_b=b)
+    return render_template("recuperar.html", **captcha_context())
 
 
 # =========================
