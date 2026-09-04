@@ -69,6 +69,7 @@ def admin_panel():
 
     comparativo_mensual = orders_service.comparativo_ventas_mes_actual()
 
+    top_compradores = orders_service.top_compradores()
     producto_mas_vendido = orders_service.producto_mas_vendido()
     top_productos = orders_service.top_productos_vendidos(10)
     ticket_promedio = orders_service.ticket_promedio_por_estado()
@@ -126,6 +127,7 @@ def admin_panel():
         max_ventas_categoria=max_ventas_categoria,
         max_ventas_marca=max_ventas_marca,
         comparativo_mensual=comparativo_mensual,
+        top_compradores=top_compradores,
         producto_mas_vendido=producto_mas_vendido,
         top_productos=top_productos,
         ticket_promedio=ticket_promedio,

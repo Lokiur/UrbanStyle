@@ -166,6 +166,15 @@
 
                 <button
                     class="admin-nav-btn"
+                    data-section="section-top-compradores"
+                    onclick="showAdminSection('section-top-compradores', this)"
+                >
+                    <i class="fa-solid fa-trophy"></i>
+                    Top compradores
+                </button>
+
+                <button
+                    class="admin-nav-btn"
                     data-section="section-mensajes"
                     onclick="showAdminSection('section-mensajes', this)"
                 >
@@ -457,7 +466,8 @@
                                             <div class="action-btns">
                                                 <button
                                                     class="secondary-btn"
-                                                    onclick="openModal({{ u.id }})"
+                                                    data-id="{{ u.id }}"
+                                                    onclick="openModal(this.dataset.id)"
                                                 >
                                                     Editar
                                                 </button>
@@ -1687,6 +1697,69 @@
                         <div class="empty-state">
                             <i class="fa-solid fa-ban"></i>
                             <p>No hay facturas anuladas en este periodo.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </section>
+
+                <!-- ================= TOP DE MEJORES COMPRADORES ================= -->
+                <section class="admin-section" id="section-top-compradores">
+                    <div>
+                        <h1 class="admin-page-title">Top de mejores compradores</h1>
+                        <p class="admin-page-subtitle">
+                            Historial de todos los usuarios con compras, ordenados del que
+                            más productos ha comprado y más dinero ha gastado al que menos.
+                            No se cuentan las facturas anuladas.
+                        </p>
+                    </div>
+
+                    <div class="section-card">
+                        <div class="section-card-header">
+                            <h2>Ranking de compradores</h2>
+                            <span>{{ top_compradores | length }} con compras</span>
+                        </div>
+
+                        {% if top_compradores %}
+                        <div class="table-container">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Cliente</th>
+                                        <th>Pedidos</th>
+                                        <th>Productos comprados</th>
+                                        <th>Total en productos</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    {% for c in top_compradores %}
+                                    {% set pos_clase = loop.index if loop.index in [1, 2, 3] else 'n' %}
+                                    <tr>
+                                        <td>
+                                            <span class="ranking-pos ranking-pos-{{ pos_clase }}">
+                                                {{ loop.index }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {{ c.name }} {{ c.apellidos }}
+                                            <br />
+                                            <span style="opacity: 0.6; font-size: 12px">
+                                                @{{ c.username }} · {{ c.email }}
+                                            </span>
+                                        </td>
+                                        <td>{{ c.num_pedidos }}</td>
+                                        <td>{{ c.cantidad_productos }}</td>
+                                        <td>$ {{ "{:,.0f}".format(c.total_gastado) }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="empty-state">
+                            <i class="fa-solid fa-trophy"></i>
+                            <p>Todavía no hay usuarios con compras registradas.</p>
                         </div>
                         {% endif %}
                     </div>
