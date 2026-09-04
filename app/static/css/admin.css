@@ -1132,6 +1132,38 @@ select {
     font-size: 13px;
 }
 
+.stock-form {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.stock-form input[type="number"] {
+    width: 70px;
+}
+
+.ventas-detalle {
+    margin-top: 14px;
+    border-top: 1px solid var(--border-color, #e5e5e5);
+    padding-top: 14px;
+}
+
+.ventas-detalle + .ventas-detalle {
+    margin-top: 10px;
+    border-top: none;
+    padding-top: 0;
+}
+
+.ventas-detalle summary {
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.ventas-detalle .table-container {
+    margin-top: 12px;
+}
+
 /* lista de barras horizontales de una sola serie: la longitud codifica
    la magnitud, sin necesidad de leyenda (ver skill de dataviz) */
 .bar-list {

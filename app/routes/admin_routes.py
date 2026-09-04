@@ -48,18 +48,29 @@ def admin_panel():
     resumen_ventas = orders_service.resumen_ventas_periodo(
         filtro_desde or None, filtro_hasta or None
     )
+    ventas_dia = orders_service.ventas_por_dia(filtro_desde or None, filtro_hasta or None)
+    ventas_mes = orders_service.ventas_por_mes(filtro_desde or None, filtro_hasta or None)
     ventas_metodo = orders_service.ventas_por_metodo_pago(
         filtro_desde or None, filtro_hasta or None
     )
     ventas_ciudad = orders_service.ventas_por_ciudad(
         filtro_desde or None, filtro_hasta or None
     )
+    ventas_categoria = orders_service.ventas_por_categoria(
+        filtro_desde or None, filtro_hasta or None
+    )
+    ventas_marca = orders_service.ventas_por_marca(
+        filtro_desde or None, filtro_hasta or None
+    )
     max_ventas_metodo = max((v["total"] for v in ventas_metodo), default=0)
     max_ventas_ciudad = max((v["total"] for v in ventas_ciudad), default=0)
+    max_ventas_categoria = max((v["total"] for v in ventas_categoria), default=0)
+    max_ventas_marca = max((v["total"] for v in ventas_marca), default=0)
 
     comparativo_mensual = orders_service.comparativo_ventas_mes_actual()
 
     producto_mas_vendido = orders_service.producto_mas_vendido()
+    top_productos = orders_service.top_productos_vendidos(10)
     ticket_promedio = orders_service.ticket_promedio_por_estado()
 
     ingresos_envio = orders_service.ingresos_envio_por_empresa(
@@ -71,6 +82,9 @@ def admin_panel():
         filtro_desde or None, filtro_hasta or None
     )
     total_facturas_anuladas = sum(float(f["total"]) for f in facturas_anuladas)
+
+    clientes = users_service.listar_clientes()
+    inventario = products_service.listar_inventario()
 
     hoy = date.today()
     preset_hoy = hoy.isoformat()
@@ -101,17 +115,26 @@ def admin_panel():
         filtro_desde=filtro_desde,
         filtro_hasta=filtro_hasta,
         resumen_ventas=resumen_ventas,
+        ventas_dia=ventas_dia,
+        ventas_mes=ventas_mes,
         ventas_metodo=ventas_metodo,
         ventas_ciudad=ventas_ciudad,
+        ventas_categoria=ventas_categoria,
+        ventas_marca=ventas_marca,
         max_ventas_metodo=max_ventas_metodo,
         max_ventas_ciudad=max_ventas_ciudad,
+        max_ventas_categoria=max_ventas_categoria,
+        max_ventas_marca=max_ventas_marca,
         comparativo_mensual=comparativo_mensual,
         producto_mas_vendido=producto_mas_vendido,
+        top_productos=top_productos,
         ticket_promedio=ticket_promedio,
         ingresos_envio=ingresos_envio,
         max_ingresos_envio=max_ingresos_envio,
         facturas_anuladas=facturas_anuladas,
         total_facturas_anuladas=total_facturas_anuladas,
+        clientes=clientes,
+        inventario=inventario,
         preset_hoy=preset_hoy,
         preset_7dias=preset_7dias,
         preset_30dias=preset_30dias,
@@ -146,6 +169,32 @@ def edit(id):
 
 
 # =========================
+# ADMIN - CLIENTES
+# =========================
+
+
+@admin.route("/cliente/<int:id>/historial")
+@admin_required
+def historial_cliente(id):
+    cliente = users_service.obtener_usuario(id)
+
+    if not cliente:
+        abort(404)
+
+    historial = orders_service.historial_compras_cliente(id)
+    total_gastado = sum(
+        float(item["subtotal"]) for item in historial if item["factura_estado"] != "anulado"
+    )
+
+    return render_template(
+        "cliente_historial.html",
+        cliente=cliente,
+        historial=historial,
+        total_gastado=total_gastado,
+    )
+
+
+# =========================
 # CRUD ADMIN - PRODUCTOS
 # =========================
 
@@ -175,6 +224,19 @@ def editar_producto(id):
 def eliminar_producto(id):
     products_service.eliminar_producto(id)
     return redirect(url_for("admin.admin_panel"))
+
+
+# =========================
+# ADMIN - INVENTARIO
+# =========================
+
+
+@admin.route("/existencia/<int:id>/stock", methods=["POST"])
+@admin_required
+def actualizar_stock(id):
+    stock = request.form.get("stock", "0")
+    products_service.actualizar_stock_existencia(id, stock)
+    return redirect(url_for("admin.admin_panel") + "#section-inventario")
 
 
 # =========================
