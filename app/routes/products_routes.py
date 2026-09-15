@@ -2,8 +2,10 @@ from flask import Blueprint, Response, abort, render_template, request
 
 from app.services.products_service import (
     buscar_productos,
+    listar_categorias,
     listar_tallas,
     obtener_categoria,
+    obtener_imagen_categoria,
     obtener_imagen_producto,
     obtener_productos,
 )
@@ -31,12 +33,20 @@ def _contexto_filtros():
 
 @productos.route("/categories")
 def categories():
-    return render_template("categories.html")
+    return render_template("categories.html", categorias=listar_categorias())
 
 
 @productos.route("/producto/<int:id>/imagen")
 def imagen_producto(id):
     fila = obtener_imagen_producto(id)
+    if not fila or not fila["imagen"]:
+        abort(404)
+    return Response(fila["imagen"], mimetype=fila["imagen_mime"] or "image/jpeg")
+
+
+@productos.route("/categoria/<int:id>/imagen")
+def imagen_categoria(id):
+    fila = obtener_imagen_categoria(id)
     if not fila or not fila["imagen"]:
         abort(404)
     return Response(fila["imagen"], mimetype=fila["imagen_mime"] or "image/jpeg")

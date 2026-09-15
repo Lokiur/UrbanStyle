@@ -777,9 +777,15 @@
                         <form
                             action="{{ url_for('admin.crear_categoria') }}"
                             method="POST"
+                            enctype="multipart/form-data"
                             class="admin-form-grid"
                         >
                             <input name="nombre" placeholder="Nombre de la categoría" required />
+
+                            <label style="grid-column: 1/4">
+                                Imagen de la categoría
+                                <input type="file" name="imagen" accept="image/*" />
+                            </label>
 
                             <button class="primary-btn">Crear Categoría</button>
                         </form>
@@ -796,6 +802,7 @@
                                 <thead>
                                     <tr>
                                         <th>ID</th>
+                                        <th>Imagen</th>
                                         <th>Nombre</th>
                                         <th>Acciones</th>
                                     </tr>
@@ -805,6 +812,17 @@
                                     {% for c in categorias %}
                                     <tr>
                                         <td>{{ c.id }}</td>
+                                        <td>
+                                            {% if c.tiene_imagen %}
+                                            <img
+                                                src="{{ url_for('productos.imagen_categoria', id=c.id) }}"
+                                                alt="{{ c.nombre }}"
+                                                style="width: 48px; height: 48px; object-fit: cover; border-radius: 6px"
+                                            >
+                                            {% else %}
+                                            <span style="opacity: .5">Sin imagen</span>
+                                            {% endif %}
+                                        </td>
                                         <td>{{ c.nombre }}</td>
 
                                         <td>
@@ -834,8 +852,21 @@
                                             <form
                                                 action="{{ url_for('admin.editar_categoria', id=c.id) }}"
                                                 method="POST"
+                                                enctype="multipart/form-data"
                                             >
                                                 <input name="nombre" value="{{ c.nombre }}" />
+
+                                                {% if c.tiene_imagen %}
+                                                <img
+                                                    src="{{ url_for('productos.imagen_categoria', id=c.id) }}"
+                                                    alt="{{ c.nombre }}"
+                                                    style="width: 64px; height: 64px; object-fit: cover; border-radius: 6px; display: block"
+                                                >
+                                                {% endif %}
+                                                <label>
+                                                    Cambiar imagen
+                                                    <input type="file" name="imagen" accept="image/*" />
+                                                </label>
 
                                                 <button class="primary-btn">Guardar</button>
                                             </form>

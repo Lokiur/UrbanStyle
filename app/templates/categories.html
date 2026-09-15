@@ -63,7 +63,7 @@
     <div class="cats-intro">
       <h1>Explora por <b>categoría</b></h1>
       <div class="cats-intro-meta">
-        <b>04</b>
+        <b>{{ "%02d"|format(categorias|length) }}</b>
         <span>Colecciones · Temporada 2026</span>
       </div>
     </div>
@@ -85,81 +85,25 @@
 
     <div class="cats-list">
 
-      <a href="{{ url_for('productos.categoria_productos', id=1) }}" class="chapter">
+      {% for c in categorias %}
+      {% set numero = "%02d"|format(loop.index) %}
+      <a href="{{ url_for('productos.categoria_productos', id=c.id) }}" class="chapter">
         <div class="chapter-media">
-          <span class="chapter-media-tag">01</span>
-          <img src="{{ url_for('static', filename='img/camiseta.png') }}" alt="Camisetas" />
+          <span class="chapter-media-tag">{{ numero }}</span>
+          {% if c.tiene_imagen %}
+          <img src="{{ url_for('productos.imagen_categoria', id=c.id) }}" alt="{{ c.nombre }}" />
+          {% else %}
+          <img src="{{ url_for('static', filename='img/ropa.png') }}" alt="{{ c.nombre }}" />
+          {% endif %}
         </div>
         <div class="chapter-body">
-          <span class="chapter-num" aria-hidden="true">01</span>
-          <span class="chapter-kicker">Colección 01</span>
-          <h2 class="chapter-title">Camisetas</h2>
-          <ul class="chapter-tags">
-            <li>Algodón premium</li>
-            <li>Estampados</li>
-            <li>Fit regular</li>
-          </ul>
-          <p>Básicos y gráficos que aguantan el día completo sin perder la forma.</p>
+          <span class="chapter-num" aria-hidden="true">{{ numero }}</span>
+          <span class="chapter-kicker">Colección {{ numero }}</span>
+          <h2 class="chapter-title">{{ c.nombre }}</h2>
           <span class="chapter-cta">Ver colección <i class="fa-solid fa-arrow-right"></i></span>
         </div>
       </a>
-
-      <a href="{{ url_for('productos.categoria_productos', id=2) }}" class="chapter">
-        <div class="chapter-media">
-          <span class="chapter-media-tag">02</span>
-          <img src="{{ url_for('static', filename='img/sudaderas.jpg') }}" alt="Sudaderas" />
-        </div>
-        <div class="chapter-body">
-          <span class="chapter-num" aria-hidden="true">02</span>
-          <span class="chapter-kicker">Colección 02</span>
-          <h2 class="chapter-title">Sudaderas</h2>
-          <ul class="chapter-tags">
-            <li>Felpa interior</li>
-            <li>Oversize</li>
-            <li>Capucha forrada</li>
-          </ul>
-          <p>Felpa suave, capuchas amplias y siluetas holgadas para el frío urbano.</p>
-          <span class="chapter-cta">Ver colección <i class="fa-solid fa-arrow-right"></i></span>
-        </div>
-      </a>
-
-      <a href="{{ url_for('productos.categoria_productos', id=3) }}" class="chapter">
-        <div class="chapter-media">
-          <span class="chapter-media-tag">03</span>
-          <img src="{{ url_for('static', filename='img/chaqueta.png') }}" alt="Chaquetas" />
-        </div>
-        <div class="chapter-body">
-          <span class="chapter-num" aria-hidden="true">03</span>
-          <span class="chapter-kicker">Colección 03</span>
-          <h2 class="chapter-title">Chaquetas</h2>
-          <ul class="chapter-tags">
-            <li>Cortavientos</li>
-            <li>Bomber</li>
-            <li>Impermeable</li>
-          </ul>
-          <p>Cortavientos, bombers y abrigo con acabados técnicos para cualquier clima.</p>
-          <span class="chapter-cta">Ver colección <i class="fa-solid fa-arrow-right"></i></span>
-        </div>
-      </a>
-
-      <a href="{{ url_for('productos.categoria_productos', id=4) }}" class="chapter">
-        <div class="chapter-media">
-          <span class="chapter-media-tag">04</span>
-          <img src="{{ url_for('static', filename='img/gorras.png') }}" alt="Accesorios" />
-        </div>
-        <div class="chapter-body">
-          <span class="chapter-num" aria-hidden="true">04</span>
-          <span class="chapter-kicker">Colección 04</span>
-          <h2 class="chapter-title">Accesorios</h2>
-          <ul class="chapter-tags">
-            <li>Gorras</li>
-            <li>Beanies</li>
-            <li>Edición limitada</li>
-          </ul>
-          <p>Gorras, gorros y complementos para rematar cualquier outfit con carácter.</p>
-          <span class="chapter-cta">Ver colección <i class="fa-solid fa-arrow-right"></i></span>
-        </div>
-      </a>
+      {% endfor %}
 
     </div>
 

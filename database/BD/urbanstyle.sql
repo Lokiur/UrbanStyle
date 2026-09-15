@@ -50,7 +50,9 @@ INSERT INTO `carrito` (`id`, `user_id`, `fecha`) VALUES
 
 CREATE TABLE `categorias` (
   `id` int(11) NOT NULL,
-  `nombre` varchar(100) NOT NULL
+  `nombre` varchar(100) NOT NULL,
+  `imagen` longblob DEFAULT NULL,
+  `imagen_mime` varchar(100) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
