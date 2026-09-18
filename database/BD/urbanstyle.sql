@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 03-09-2026 a las 17:56:36
+-- Tiempo de generación: 08-09-2026 a las 13:53:20
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -876,6 +876,524 @@ INSERT INTO `users` (`id`, `username`, `name`, `apellidos`, `documento_identidad
 (8, 'juan01', 'Juan', 'Pérez', NULL, 'juan@gmail.com', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', '3001234567', NULL, NULL, 'usuario', 'activo', '2026-07-24 17:38:33', '2026-07-24 17:38:33'),
 (11, 'juan10', 'Juan', 'Pérez', NULL, 'juan_@gmail.com', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', '3001234567', NULL, NULL, 'usuario', 'activo', '2026-07-24 18:37:40', '2026-07-24 18:37:40'),
 (12, 'Tuki', 'Tuk', 'Usuario', '1231312', 'test@tes.com', 'scrypt:32768:8:1$aEckb5raKo8aGhO7$07b0d708122015113afa014b4f9043ad91564957ab607565bb6f8b3a65ada43e70309332afa544d5e3b97b00e68fcf83f1d8eb930bc1617e957c2e3bacad638e', NULL, NULL, NULL, 'admin', 'activo', '2026-08-24 02:08:12', '2026-08-24 02:09:44');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura Stand-in para la vista `vista_carrito_detalle`
+-- (Véase abajo para la vista actual)
+--
+CREATE TABLE `vista_carrito_detalle` (
+`carrito_id` int(11)
+,`user_id` int(11)
+,`cliente` varchar(201)
+,`producto` varchar(150)
+,`talla` varchar(10)
+,`color` varchar(50)
+,`cantidad` int(11)
+,`precio` decimal(10,2)
+,`subtotal` decimal(20,2)
+,`fecha_carrito` datetime
+);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura Stand-in para la vista `vista_catalogo_productos`
+-- (Véase abajo para la vista actual)
+--
+CREATE TABLE `vista_catalogo_productos` (
+`producto_id` int(11)
+,`referencia` varchar(30)
+,`producto` varchar(150)
+,`descripcion` text
+,`categoria` varchar(100)
+,`marca` varchar(100)
+,`estado_producto` enum('activo','inactivo')
+,`precio_minimo` decimal(10,2)
+,`precio_maximo` decimal(10,2)
+,`stock_total` decimal(32,0)
+,`imagen_principal` varchar(255)
+);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura Stand-in para la vista `vista_clientes_resumen`
+-- (Véase abajo para la vista actual)
+--
+CREATE TABLE `vista_clientes_resumen` (
+`user_id` int(11)
+,`username` varchar(50)
+,`nombre_completo` varchar(201)
+,`email` varchar(120)
+,`celular` varchar(20)
+,`estado_usuario` enum('activo','inactivo')
+,`numero_pedidos` bigint(21)
+,`total_comprado` decimal(32,2)
+,`ultima_compra` datetime
+);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura Stand-in para la vista `vista_detalle_factura_completo`
+-- (Véase abajo para la vista actual)
+--
+CREATE TABLE `vista_detalle_factura_completo` (
+`detalle_id` int(11)
+,`factura_id` int(11)
+,`numero_factura` varchar(20)
+,`producto` varchar(150)
+,`talla` varchar(10)
+,`color` varchar(50)
+,`sku` varchar(40)
+,`cantidad` int(11)
+,`precio_unitario` decimal(10,2)
+,`subtotal` decimal(10,2)
+);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura Stand-in para la vista `vista_direcciones_principales`
+-- (Véase abajo para la vista actual)
+--
+CREATE TABLE `vista_direcciones_principales` (
+`direccion_id` int(11)
+,`user_id` int(11)
+,`cliente` varchar(201)
+,`direccion` varchar(255)
+,`ciudad` varchar(100)
+,`departamento` varchar(100)
+,`codigo_postal` varchar(20)
+);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura Stand-in para la vista `vista_empresas_envio_desempeno`
+-- (Véase abajo para la vista actual)
+--
+CREATE TABLE `vista_empresas_envio_desempeno` (
+`empresa_envio_id` int(11)
+,`empresa_envio` varchar(100)
+,`total_envios` bigint(21)
+,`entregados` decimal(22,0)
+,`cancelados` decimal(22,0)
+,`promedio_dias_entrega` decimal(8,1)
+,`costo_promedio` decimal(11,2)
+);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura Stand-in para la vista `vista_envios_detalle`
+-- (Véase abajo para la vista actual)
+--
+CREATE TABLE `vista_envios_detalle` (
+`envio_id` int(11)
+,`numero_factura` varchar(20)
+,`cliente` varchar(201)
+,`empresa_envio` varchar(100)
+,`direccion` varchar(255)
+,`ciudad` varchar(100)
+,`numero_guia` varchar(50)
+,`costo_envio` decimal(10,2)
+,`fecha_envio` date
+,`fecha_entrega` date
+,`estado_envio` enum('pendiente','en_transito','entregado','cancelado')
+);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura Stand-in para la vista `vista_envios_pendientes`
+-- (Véase abajo para la vista actual)
+--
+CREATE TABLE `vista_envios_pendientes` (
+`envio_id` int(11)
+,`numero_factura` varchar(20)
+,`cliente` varchar(201)
+,`empresa_envio` varchar(100)
+,`direccion` varchar(255)
+,`ciudad` varchar(100)
+,`numero_guia` varchar(50)
+,`costo_envio` decimal(10,2)
+,`fecha_envio` date
+,`fecha_entrega` date
+,`estado_envio` enum('pendiente','en_transito','entregado','cancelado')
+);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura Stand-in para la vista `vista_existencias_detalle`
+-- (Véase abajo para la vista actual)
+--
+CREATE TABLE `vista_existencias_detalle` (
+`existencia_id` int(11)
+,`producto_id` int(11)
+,`producto` varchar(150)
+,`referencia` varchar(30)
+,`talla` varchar(10)
+,`color` varchar(50)
+,`sku` varchar(40)
+,`precio` decimal(10,2)
+,`stock` int(11)
+,`estado_existencia` enum('activo','agotado')
+,`categoria` varchar(100)
+,`marca` varchar(100)
+,`fecha_actualizacion` timestamp
+);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura Stand-in para la vista `vista_facturas_anuladas`
+-- (Véase abajo para la vista actual)
+--
+CREATE TABLE `vista_facturas_anuladas` (
+`factura_id` int(11)
+,`numero_factura` varchar(20)
+,`user_id` int(11)
+,`cliente` varchar(201)
+,`email` varchar(120)
+,`ciudad` varchar(100)
+,`departamento` varchar(100)
+,`metodo_pago` varchar(60)
+,`fecha` datetime
+,`subtotal` decimal(10,2)
+,`iva` decimal(10,2)
+,`envio` decimal(10,2)
+,`total` decimal(10,2)
+,`estado_factura` enum('pendiente','preparacion','enviado','entregado','anulado')
+);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura Stand-in para la vista `vista_facturas_resumen`
+-- (Véase abajo para la vista actual)
+--
+CREATE TABLE `vista_facturas_resumen` (
+`factura_id` int(11)
+,`numero_factura` varchar(20)
+,`user_id` int(11)
+,`cliente` varchar(201)
+,`email` varchar(120)
+,`ciudad` varchar(100)
+,`departamento` varchar(100)
+,`metodo_pago` varchar(60)
+,`fecha` datetime
+,`subtotal` decimal(10,2)
+,`iva` decimal(10,2)
+,`envio` decimal(10,2)
+,`total` decimal(10,2)
+,`estado_factura` enum('pendiente','preparacion','enviado','entregado','anulado')
+);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura Stand-in para la vista `vista_ingresos_mensuales`
+-- (Véase abajo para la vista actual)
+--
+CREATE TABLE `vista_ingresos_mensuales` (
+`mes` varchar(7)
+,`numero_facturas` bigint(21)
+,`subtotal_total` decimal(32,2)
+,`iva_total` decimal(32,2)
+,`envio_total` decimal(32,2)
+,`ingresos_totales` decimal(32,2)
+);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura Stand-in para la vista `vista_mensajes_pendientes`
+-- (Véase abajo para la vista actual)
+--
+CREATE TABLE `vista_mensajes_pendientes` (
+`id` int(11)
+,`nombre` varchar(150)
+,`email` varchar(120)
+,`mensaje` text
+,`fecha` datetime
+);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura Stand-in para la vista `vista_pagos_resumen`
+-- (Véase abajo para la vista actual)
+--
+CREATE TABLE `vista_pagos_resumen` (
+`pago_id` int(11)
+,`numero_factura` varchar(20)
+,`cliente` varchar(201)
+,`total_factura` decimal(10,2)
+,`monto` decimal(10,2)
+,`fecha_pago` datetime
+,`estado_pago` enum('pendiente','pagado')
+);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura Stand-in para la vista `vista_productos_agotados`
+-- (Véase abajo para la vista actual)
+--
+CREATE TABLE `vista_productos_agotados` (
+`existencia_id` int(11)
+,`producto_id` int(11)
+,`producto` varchar(150)
+,`referencia` varchar(30)
+,`talla` varchar(10)
+,`color` varchar(50)
+,`sku` varchar(40)
+,`precio` decimal(10,2)
+,`stock` int(11)
+,`estado_existencia` enum('activo','agotado')
+,`categoria` varchar(100)
+,`marca` varchar(100)
+,`fecha_actualizacion` timestamp
+);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura Stand-in para la vista `vista_stock_bajo`
+-- (Véase abajo para la vista actual)
+--
+CREATE TABLE `vista_stock_bajo` (
+`existencia_id` int(11)
+,`producto_id` int(11)
+,`producto` varchar(150)
+,`referencia` varchar(30)
+,`talla` varchar(10)
+,`color` varchar(50)
+,`sku` varchar(40)
+,`precio` decimal(10,2)
+,`stock` int(11)
+,`estado_existencia` enum('activo','agotado')
+,`categoria` varchar(100)
+,`marca` varchar(100)
+,`fecha_actualizacion` timestamp
+);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura Stand-in para la vista `vista_ventas_por_categoria`
+-- (Véase abajo para la vista actual)
+--
+CREATE TABLE `vista_ventas_por_categoria` (
+`categoria_id` int(11)
+,`categoria` varchar(100)
+,`unidades_vendidas` decimal(32,0)
+,`total_vendido` decimal(32,2)
+);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura Stand-in para la vista `vista_ventas_por_marca`
+-- (Véase abajo para la vista actual)
+--
+CREATE TABLE `vista_ventas_por_marca` (
+`marca_id` int(11)
+,`marca` varchar(100)
+,`unidades_vendidas` decimal(32,0)
+,`total_vendido` decimal(32,2)
+);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura Stand-in para la vista `vista_ventas_por_producto`
+-- (Véase abajo para la vista actual)
+--
+CREATE TABLE `vista_ventas_por_producto` (
+`producto_id` int(11)
+,`producto` varchar(150)
+,`categoria` varchar(100)
+,`marca` varchar(100)
+,`unidades_vendidas` decimal(32,0)
+,`total_vendido` decimal(32,2)
+,`numero_facturas` bigint(21)
+);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura para la vista `vista_carrito_detalle`
+--
+DROP TABLE IF EXISTS `vista_carrito_detalle`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_carrito_detalle`  AS SELECT `car`.`id` AS `carrito_id`, `u`.`id` AS `user_id`, concat(`u`.`name`,' ',`u`.`apellidos`) AS `cliente`, `p`.`nombre` AS `producto`, `t`.`nombre` AS `talla`, `col`.`nombre` AS `color`, `dc`.`cantidad` AS `cantidad`, `e`.`precio` AS `precio`, `dc`.`cantidad`* `e`.`precio` AS `subtotal`, `car`.`fecha` AS `fecha_carrito` FROM ((((((`carrito` `car` join `users` `u` on(`u`.`id` = `car`.`user_id`)) join `detalle_carrito` `dc` on(`dc`.`carrito_id` = `car`.`id`)) join `existencias` `e` on(`e`.`id` = `dc`.`existencia_id`)) join `productos` `p` on(`p`.`id` = `e`.`producto_id`)) join `tallas` `t` on(`t`.`id` = `e`.`talla_id`)) join `colores` `col` on(`col`.`id` = `e`.`color_id`)) ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura para la vista `vista_catalogo_productos`
+--
+DROP TABLE IF EXISTS `vista_catalogo_productos`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_catalogo_productos`  AS SELECT `p`.`id` AS `producto_id`, `p`.`referencia` AS `referencia`, `p`.`nombre` AS `producto`, `p`.`descripcion` AS `descripcion`, `c`.`nombre` AS `categoria`, `m`.`nombre` AS `marca`, `p`.`estado` AS `estado_producto`, min(`e`.`precio`) AS `precio_minimo`, max(`e`.`precio`) AS `precio_maximo`, coalesce(sum(`e`.`stock`),0) AS `stock_total`, `ip`.`imagen` AS `imagen_principal` FROM ((((`productos` `p` join `categorias` `c` on(`c`.`id` = `p`.`categoria_id`)) join `marcas` `m` on(`m`.`id` = `p`.`marca_id`)) left join `existencias` `e` on(`e`.`producto_id` = `p`.`id`)) left join `imagenes_producto` `ip` on(`ip`.`producto_id` = `p`.`id` and `ip`.`principal` = 1)) GROUP BY `p`.`id`, `p`.`referencia`, `p`.`nombre`, `p`.`descripcion`, `c`.`nombre`, `m`.`nombre`, `p`.`estado`, `ip`.`imagen` ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura para la vista `vista_clientes_resumen`
+--
+DROP TABLE IF EXISTS `vista_clientes_resumen`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_clientes_resumen`  AS SELECT `u`.`id` AS `user_id`, `u`.`username` AS `username`, concat(`u`.`name`,' ',`u`.`apellidos`) AS `nombre_completo`, `u`.`email` AS `email`, `u`.`celular` AS `celular`, `u`.`estado` AS `estado_usuario`, count(`f`.`id`) AS `numero_pedidos`, coalesce(sum(case when `f`.`estado` <> 'anulado' then `f`.`total` else 0 end),0) AS `total_comprado`, max(`f`.`fecha`) AS `ultima_compra` FROM (`users` `u` left join `facturas` `f` on(`f`.`user_id` = `u`.`id`)) WHERE `u`.`rol` = 'usuario' GROUP BY `u`.`id`, `u`.`username`, `u`.`name`, `u`.`apellidos`, `u`.`email`, `u`.`celular`, `u`.`estado` ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura para la vista `vista_detalle_factura_completo`
+--
+DROP TABLE IF EXISTS `vista_detalle_factura_completo`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_detalle_factura_completo`  AS SELECT `df`.`id` AS `detalle_id`, `f`.`id` AS `factura_id`, `f`.`numero_factura` AS `numero_factura`, `p`.`nombre` AS `producto`, `t`.`nombre` AS `talla`, `col`.`nombre` AS `color`, `e`.`sku` AS `sku`, `df`.`cantidad` AS `cantidad`, `df`.`precio_unitario` AS `precio_unitario`, `df`.`subtotal` AS `subtotal` FROM (((((`detalle_factura` `df` join `facturas` `f` on(`f`.`id` = `df`.`factura_id`)) join `existencias` `e` on(`e`.`id` = `df`.`existencia_id`)) join `productos` `p` on(`p`.`id` = `e`.`producto_id`)) join `tallas` `t` on(`t`.`id` = `e`.`talla_id`)) join `colores` `col` on(`col`.`id` = `e`.`color_id`)) ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura para la vista `vista_direcciones_principales`
+--
+DROP TABLE IF EXISTS `vista_direcciones_principales`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_direcciones_principales`  AS SELECT `d`.`id` AS `direccion_id`, `u`.`id` AS `user_id`, concat(`u`.`name`,' ',`u`.`apellidos`) AS `cliente`, `d`.`direccion` AS `direccion`, `d`.`ciudad` AS `ciudad`, `d`.`departamento` AS `departamento`, `d`.`codigo_postal` AS `codigo_postal` FROM (`direcciones` `d` join `users` `u` on(`u`.`id` = `d`.`user_id`)) WHERE `d`.`principal` = 1 ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura para la vista `vista_empresas_envio_desempeno`
+--
+DROP TABLE IF EXISTS `vista_empresas_envio_desempeno`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_empresas_envio_desempeno`  AS SELECT `ee`.`id` AS `empresa_envio_id`, `ee`.`nombre` AS `empresa_envio`, count(`en`.`id`) AS `total_envios`, sum(case when `en`.`estado` = 'entregado' then 1 else 0 end) AS `entregados`, sum(case when `en`.`estado` = 'cancelado' then 1 else 0 end) AS `cancelados`, round(avg(case when `en`.`fecha_entrega` is not null and `en`.`fecha_envio` is not null then to_days(`en`.`fecha_entrega`) - to_days(`en`.`fecha_envio`) end),1) AS `promedio_dias_entrega`, round(avg(`en`.`costo_envio`),2) AS `costo_promedio` FROM (`empresas_envio` `ee` left join `envios` `en` on(`en`.`empresa_envio_id` = `ee`.`id`)) GROUP BY `ee`.`id`, `ee`.`nombre` ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura para la vista `vista_envios_detalle`
+--
+DROP TABLE IF EXISTS `vista_envios_detalle`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_envios_detalle`  AS SELECT `en`.`id` AS `envio_id`, `f`.`numero_factura` AS `numero_factura`, concat(`u`.`name`,' ',`u`.`apellidos`) AS `cliente`, `ee`.`nombre` AS `empresa_envio`, `d`.`direccion` AS `direccion`, `d`.`ciudad` AS `ciudad`, `en`.`numero_guia` AS `numero_guia`, `en`.`costo_envio` AS `costo_envio`, `en`.`fecha_envio` AS `fecha_envio`, `en`.`fecha_entrega` AS `fecha_entrega`, `en`.`estado` AS `estado_envio` FROM ((((`envios` `en` join `facturas` `f` on(`f`.`id` = `en`.`factura_id`)) join `users` `u` on(`u`.`id` = `f`.`user_id`)) join `empresas_envio` `ee` on(`ee`.`id` = `en`.`empresa_envio_id`)) join `direcciones` `d` on(`d`.`id` = `en`.`direccion_id`)) ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura para la vista `vista_envios_pendientes`
+--
+DROP TABLE IF EXISTS `vista_envios_pendientes`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_envios_pendientes`  AS SELECT `vista_envios_detalle`.`envio_id` AS `envio_id`, `vista_envios_detalle`.`numero_factura` AS `numero_factura`, `vista_envios_detalle`.`cliente` AS `cliente`, `vista_envios_detalle`.`empresa_envio` AS `empresa_envio`, `vista_envios_detalle`.`direccion` AS `direccion`, `vista_envios_detalle`.`ciudad` AS `ciudad`, `vista_envios_detalle`.`numero_guia` AS `numero_guia`, `vista_envios_detalle`.`costo_envio` AS `costo_envio`, `vista_envios_detalle`.`fecha_envio` AS `fecha_envio`, `vista_envios_detalle`.`fecha_entrega` AS `fecha_entrega`, `vista_envios_detalle`.`estado_envio` AS `estado_envio` FROM `vista_envios_detalle` WHERE `vista_envios_detalle`.`estado_envio` in ('pendiente','en_transito') ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura para la vista `vista_existencias_detalle`
+--
+DROP TABLE IF EXISTS `vista_existencias_detalle`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_existencias_detalle`  AS SELECT `e`.`id` AS `existencia_id`, `p`.`id` AS `producto_id`, `p`.`nombre` AS `producto`, `p`.`referencia` AS `referencia`, `t`.`nombre` AS `talla`, `col`.`nombre` AS `color`, `e`.`sku` AS `sku`, `e`.`precio` AS `precio`, `e`.`stock` AS `stock`, `e`.`estado` AS `estado_existencia`, `c`.`nombre` AS `categoria`, `m`.`nombre` AS `marca`, `e`.`fecha_actualizacion` AS `fecha_actualizacion` FROM (((((`existencias` `e` join `productos` `p` on(`p`.`id` = `e`.`producto_id`)) join `tallas` `t` on(`t`.`id` = `e`.`talla_id`)) join `colores` `col` on(`col`.`id` = `e`.`color_id`)) join `categorias` `c` on(`c`.`id` = `p`.`categoria_id`)) join `marcas` `m` on(`m`.`id` = `p`.`marca_id`)) ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura para la vista `vista_facturas_anuladas`
+--
+DROP TABLE IF EXISTS `vista_facturas_anuladas`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_facturas_anuladas`  AS SELECT `vista_facturas_resumen`.`factura_id` AS `factura_id`, `vista_facturas_resumen`.`numero_factura` AS `numero_factura`, `vista_facturas_resumen`.`user_id` AS `user_id`, `vista_facturas_resumen`.`cliente` AS `cliente`, `vista_facturas_resumen`.`email` AS `email`, `vista_facturas_resumen`.`ciudad` AS `ciudad`, `vista_facturas_resumen`.`departamento` AS `departamento`, `vista_facturas_resumen`.`metodo_pago` AS `metodo_pago`, `vista_facturas_resumen`.`fecha` AS `fecha`, `vista_facturas_resumen`.`subtotal` AS `subtotal`, `vista_facturas_resumen`.`iva` AS `iva`, `vista_facturas_resumen`.`envio` AS `envio`, `vista_facturas_resumen`.`total` AS `total`, `vista_facturas_resumen`.`estado_factura` AS `estado_factura` FROM `vista_facturas_resumen` WHERE `vista_facturas_resumen`.`estado_factura` = 'anulado' ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura para la vista `vista_facturas_resumen`
+--
+DROP TABLE IF EXISTS `vista_facturas_resumen`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_facturas_resumen`  AS SELECT `f`.`id` AS `factura_id`, `f`.`numero_factura` AS `numero_factura`, `u`.`id` AS `user_id`, concat(`u`.`name`,' ',`u`.`apellidos`) AS `cliente`, `u`.`email` AS `email`, `d`.`ciudad` AS `ciudad`, `d`.`departamento` AS `departamento`, `mp`.`nombre` AS `metodo_pago`, `f`.`fecha` AS `fecha`, `f`.`subtotal` AS `subtotal`, `f`.`iva` AS `iva`, `f`.`envio` AS `envio`, `f`.`total` AS `total`, `f`.`estado` AS `estado_factura` FROM (((`facturas` `f` join `users` `u` on(`u`.`id` = `f`.`user_id`)) join `direcciones` `d` on(`d`.`id` = `f`.`direccion_id`)) join `metodos_pago` `mp` on(`mp`.`id` = `f`.`metodo_pago_id`)) ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura para la vista `vista_ingresos_mensuales`
+--
+DROP TABLE IF EXISTS `vista_ingresos_mensuales`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_ingresos_mensuales`  AS SELECT date_format(`f`.`fecha`,'%Y-%m') AS `mes`, count(`f`.`id`) AS `numero_facturas`, sum(`f`.`subtotal`) AS `subtotal_total`, sum(`f`.`iva`) AS `iva_total`, sum(`f`.`envio`) AS `envio_total`, sum(`f`.`total`) AS `ingresos_totales` FROM `facturas` AS `f` WHERE `f`.`estado` <> 'anulado' GROUP BY date_format(`f`.`fecha`,'%Y-%m') ORDER BY date_format(`f`.`fecha`,'%Y-%m') ASC ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura para la vista `vista_mensajes_pendientes`
+--
+DROP TABLE IF EXISTS `vista_mensajes_pendientes`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_mensajes_pendientes`  AS SELECT `mensajes`.`id` AS `id`, `mensajes`.`nombre` AS `nombre`, `mensajes`.`email` AS `email`, `mensajes`.`mensaje` AS `mensaje`, `mensajes`.`fecha` AS `fecha` FROM `mensajes` WHERE `mensajes`.`estado` = 'nuevo' ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura para la vista `vista_pagos_resumen`
+--
+DROP TABLE IF EXISTS `vista_pagos_resumen`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_pagos_resumen`  AS SELECT `pa`.`id` AS `pago_id`, `f`.`numero_factura` AS `numero_factura`, concat(`u`.`name`,' ',`u`.`apellidos`) AS `cliente`, `f`.`total` AS `total_factura`, `pa`.`monto` AS `monto`, `pa`.`fecha_pago` AS `fecha_pago`, `pa`.`estado` AS `estado_pago` FROM ((`pagos` `pa` join `facturas` `f` on(`f`.`id` = `pa`.`factura_id`)) join `users` `u` on(`u`.`id` = `f`.`user_id`)) ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura para la vista `vista_productos_agotados`
+--
+DROP TABLE IF EXISTS `vista_productos_agotados`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_productos_agotados`  AS SELECT `vista_existencias_detalle`.`existencia_id` AS `existencia_id`, `vista_existencias_detalle`.`producto_id` AS `producto_id`, `vista_existencias_detalle`.`producto` AS `producto`, `vista_existencias_detalle`.`referencia` AS `referencia`, `vista_existencias_detalle`.`talla` AS `talla`, `vista_existencias_detalle`.`color` AS `color`, `vista_existencias_detalle`.`sku` AS `sku`, `vista_existencias_detalle`.`precio` AS `precio`, `vista_existencias_detalle`.`stock` AS `stock`, `vista_existencias_detalle`.`estado_existencia` AS `estado_existencia`, `vista_existencias_detalle`.`categoria` AS `categoria`, `vista_existencias_detalle`.`marca` AS `marca`, `vista_existencias_detalle`.`fecha_actualizacion` AS `fecha_actualizacion` FROM `vista_existencias_detalle` WHERE `vista_existencias_detalle`.`estado_existencia` = 'agotado' OR `vista_existencias_detalle`.`stock` = 0 ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura para la vista `vista_stock_bajo`
+--
+DROP TABLE IF EXISTS `vista_stock_bajo`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_stock_bajo`  AS SELECT `vista_existencias_detalle`.`existencia_id` AS `existencia_id`, `vista_existencias_detalle`.`producto_id` AS `producto_id`, `vista_existencias_detalle`.`producto` AS `producto`, `vista_existencias_detalle`.`referencia` AS `referencia`, `vista_existencias_detalle`.`talla` AS `talla`, `vista_existencias_detalle`.`color` AS `color`, `vista_existencias_detalle`.`sku` AS `sku`, `vista_existencias_detalle`.`precio` AS `precio`, `vista_existencias_detalle`.`stock` AS `stock`, `vista_existencias_detalle`.`estado_existencia` AS `estado_existencia`, `vista_existencias_detalle`.`categoria` AS `categoria`, `vista_existencias_detalle`.`marca` AS `marca`, `vista_existencias_detalle`.`fecha_actualizacion` AS `fecha_actualizacion` FROM `vista_existencias_detalle` WHERE `vista_existencias_detalle`.`stock` <= 5 AND `vista_existencias_detalle`.`estado_existencia` = 'activo' ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura para la vista `vista_ventas_por_categoria`
+--
+DROP TABLE IF EXISTS `vista_ventas_por_categoria`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_ventas_por_categoria`  AS SELECT `c`.`id` AS `categoria_id`, `c`.`nombre` AS `categoria`, sum(`df`.`cantidad`) AS `unidades_vendidas`, sum(`df`.`subtotal`) AS `total_vendido` FROM ((((`detalle_factura` `df` join `existencias` `e` on(`e`.`id` = `df`.`existencia_id`)) join `productos` `p` on(`p`.`id` = `e`.`producto_id`)) join `categorias` `c` on(`c`.`id` = `p`.`categoria_id`)) join `facturas` `f` on(`f`.`id` = `df`.`factura_id`)) WHERE `f`.`estado` <> 'anulado' GROUP BY `c`.`id`, `c`.`nombre` ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura para la vista `vista_ventas_por_marca`
+--
+DROP TABLE IF EXISTS `vista_ventas_por_marca`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_ventas_por_marca`  AS SELECT `m`.`id` AS `marca_id`, `m`.`nombre` AS `marca`, sum(`df`.`cantidad`) AS `unidades_vendidas`, sum(`df`.`subtotal`) AS `total_vendido` FROM ((((`detalle_factura` `df` join `existencias` `e` on(`e`.`id` = `df`.`existencia_id`)) join `productos` `p` on(`p`.`id` = `e`.`producto_id`)) join `marcas` `m` on(`m`.`id` = `p`.`marca_id`)) join `facturas` `f` on(`f`.`id` = `df`.`factura_id`)) WHERE `f`.`estado` <> 'anulado' GROUP BY `m`.`id`, `m`.`nombre` ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura para la vista `vista_ventas_por_producto`
+--
+DROP TABLE IF EXISTS `vista_ventas_por_producto`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vista_ventas_por_producto`  AS SELECT `p`.`id` AS `producto_id`, `p`.`nombre` AS `producto`, `c`.`nombre` AS `categoria`, `m`.`nombre` AS `marca`, sum(`df`.`cantidad`) AS `unidades_vendidas`, sum(`df`.`subtotal`) AS `total_vendido`, count(distinct `df`.`factura_id`) AS `numero_facturas` FROM (((((`detalle_factura` `df` join `existencias` `e` on(`e`.`id` = `df`.`existencia_id`)) join `productos` `p` on(`p`.`id` = `e`.`producto_id`)) join `categorias` `c` on(`c`.`id` = `p`.`categoria_id`)) join `marcas` `m` on(`m`.`id` = `p`.`marca_id`)) join `facturas` `f` on(`f`.`id` = `df`.`factura_id`)) WHERE `f`.`estado` <> 'anulado' GROUP BY `p`.`id`, `p`.`nombre`, `c`.`nombre`, `m`.`nombre` ;
 
 --
 -- Índices para tablas volcadas
