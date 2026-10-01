@@ -5,9 +5,11 @@ from app.services.products_service import (
     listar_categorias,
     listar_tallas,
     obtener_categoria,
+    obtener_detalle_producto,
     obtener_imagen_categoria,
     obtener_imagen_producto,
     obtener_productos,
+    obtener_relacionados,
 )
 
 productos = Blueprint("productos", __name__)
@@ -25,6 +27,7 @@ def _contexto_filtros():
     talla_id, precio_min, precio_max = _filtros_desde_request()
     return {
         "tallas": listar_tallas(),
+        "categorias": listar_categorias(),
         "filtro_talla_id": talla_id,
         "filtro_precio_min": precio_min,
         "filtro_precio_max": precio_max,
@@ -62,12 +65,25 @@ def products():
     )
 
 
+@productos.route("/producto/<int:id>")
+def detalle_producto(id):
+    producto = obtener_detalle_producto(id)
+    if not producto:
+        abort(404)
+    return render_template(
+        "producto_detalle.html",
+        producto=producto,
+        relacionados=obtener_relacionados(id, producto["categoria_id"]),
+    )
+
+
 @productos.route("/categoria/<int:id>")
 def categoria_productos(id):
     talla_id, precio_min, precio_max = _filtros_desde_request()
     return render_template(
         "products.html",
         productos=obtener_categoria(id, talla_id, precio_min, precio_max),
+        categoria_actual=id,
         **_contexto_filtros(),
     )
 

@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>{{ producto.nombre }} | UrbanStyle</title>
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/variables.css') }}"
+  >
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/style.css') }}"
+  >
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/product-card.css') }}"
+  >
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/producto_detalle.css') }}"
+  >
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/footer.css') }}"
+  >
+
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+  />
+
+  <link
+    rel="shortcut icon"
+    href="{{ url_for('static', filename='img/urbanstyle.png') }}"
+    type="image/x-icon"
+  />
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}" />
+</head>
+
+<body>
+
+{% from '_product_card.html' import product_card %}
+
+{% include 'header.html' %}
+
+{# colores de la BD -> muestra visual; los que no esten aqui usan un degradado neutro #}
+{% set colores_hex = {
+  'negro': '#111827', 'blanco': '#f8fafc', 'azul': '#2563eb', 'rojo': '#dc2626',
+  'gris': '#9ca3af', 'verde': '#16a34a', 'beige': '#d6c7a1', 'amarillo': '#facc15',
+  'rosado': '#f472b6', 'rosa': '#f472b6', 'morado': '#9333ea', 'naranja': '#f97316',
+  'cafe': '#7c4a2d', 'café': '#7c4a2d', 'marron': '#7c4a2d', 'marrón': '#7c4a2d'
+} %}
+
+{% set disponibles = producto.existencias|selectattr('stock', 'gt', 0)|list %}
+{% set inicial = disponibles|first if disponibles else none %}
+{% set precios = producto.existencias|map(attribute='precio')|unique|list %}
+
+<main class="pd">
+
+  <!-- MIGA DE PAN -->
+  <div class="pd-breadcrumb" role="navigation" aria-label="Ruta de navegación">
+    <a href="{{ url_for('home.index') }}">Inicio</a>
+    <i class="fa-solid fa-chevron-right"></i>
+    <a href="{{ url_for('productos.products') }}">Colección</a>
+    <i class="fa-solid fa-chevron-right"></i>
+    <a href="{{ url_for('productos.categoria_productos', id=producto.categoria_id) }}">{{ producto.categoria_nombre }}</a>
+    <i class="fa-solid fa-chevron-right"></i>
+    <span>{{ producto.nombre }}</span>
+  </div>
+
+  <section class="pd-main">
+
+    <!-- ============ IMAGEN ============ -->
+    <div class="pd-gallery">
+      <div class="pd-media" id="pdMedia">
+        {% if not disponibles %}
+        <span class="product-badge out">Agotado</span>
+        {% elif producto.stock_total <= 5 %}
+        <span class="product-badge low"><i class="fa-solid fa-fire"></i> Últimas unidades</span>
+        {% else %}
+        <span class="product-badge"><i class="fa-solid fa-bolt"></i> Nuevo</span>
+        {% endif %}
+
+        <img
+          id="pdImage"
+          src="{{ url_for('productos.imagen_producto', id=producto.id) if producto.tiene_imagen else url_for('static', filename='img/urbanstyle.png') }}"
+          alt="{{ producto.nombre }}"
+        >
+
+        <span class="pd-zoom-hint"><i class="fa-solid fa-magnifying-glass-plus"></i> Pasa el cursor para ampliar</span>
+      </div>
+    </div>
+
+    <!-- ============ PANEL DE COMPRA ============ -->
+    <div class="pd-panel">
+
+      <div class="pd-tags">
+        <span class="pd-tag brand"><i class="fa-solid fa-tag"></i> {{ producto.marca_nombre }}</span>
+        <a class="pd-tag" href="{{ url_for('productos.categoria_productos', id=producto.categoria_id) }}">{{ producto.categoria_nombre }}</a>
+      </div>
+
+      <h1>{{ producto.nombre }}</h1>
+
+      {% if producto.referencia %}
+      <p class="pd-ref">Ref. {{ producto.referencia }}</p>
+      {% endif %}
+
+      <div class="pd-price-box">
+        {% if inicial %}
+        <div class="pd-price">
+          <small>$</small><span id="pdPrice">{{ "{:,.0f}".format(inicial.precio) }}</span>
+        </div>
+        {% elif producto.precio_desde %}
+        <div class="pd-price">
+          <small>$</small><span id="pdPrice">{{ "{:,.0f}".format(producto.precio_desde) }}</span>
+        </div>
+        {% else %}
+        <div class="pd-price muted">Precio no disponible</div>
+        {% endif %}
+
+        {% if precios|length > 1 %}
+        <span class="pd-price-note">El precio varía según la talla</span>
+        {% endif %}
+      </div>
+
+      {% if producto.existencias %}
+      <form method="POST" action="{{ url_for('carrito.agregar', producto_id=producto.id) }}" class="pd-form" id="pdForm">
+
+        <input type="hidden" name="existencia_id" id="pdExistencia" value="{{ inicial.existencia_id if inicial else '' }}">
+
+        <!-- COLOR -->
+        <div class="pd-option">
+          <div class="pd-option-head">
+            <span>Color</span>
+            <strong id="pdColorName">{{ inicial.color if inicial else '' }}</strong>
+          </div>
+
+          <div class="pd-swatches">
+            {% for c in producto.colores %}
+            {% set hex = colores_hex.get(c.nombre|lower) %}
+            <button
+              type="button"
+              class="pd-swatch {{ 'active' if inicial and inicial.color_id == c.id }}"
+              data-color="{{ c.id }}"
+              data-nombre="{{ c.nombre }}"
+              title="{{ c.nombre }}"
+              aria-label="Color {{ c.nombre }}"
+              style="--swatch: {{ hex or 'linear-gradient(135deg, #64748b, #cbd5e1)' }}"
+            ></button>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- TALLA -->
+        <div class="pd-option">
+          <div class="pd-option-head">
+            <span>Talla</span>
+            <button type="button" class="pd-link" data-open="pdGuia">
+              <i class="fa-solid fa-ruler"></i> Guía de tallas
+            </button>
+          </div>
+
+          <div class="pd-sizes">
+            {% for t in producto.tallas %}
+            <button
+              type="button"
+              class="pd-size {{ 'active' if inicial and inicial.talla_id == t.id }}"
+              data-talla="{{ t.id }}"
+            >{{ t.nombre }}</button>
+            {% endfor %}
+          </div>
+        </div>
+
+        <p class="pd-stock" id="pdStock">
+          {% if inicial %}
+            {% if inicial.stock <= 5 %}
+            <i class="fa-solid fa-fire"></i> ¡Solo quedan {{ inicial.stock }} unidades!
+            {% else %}
+            <i class="fa-solid fa-circle-check"></i> Disponible para envío inmediato
+            {% endif %}
+          {% else %}
+          <i class="fa-solid fa-ban"></i> Producto agotado por ahora
+          {% endif %}
+        </p>
+
+        <button type="submit" class="primary-btn pd-buy" id="pdBuy" {{ 'disabled' if not inicial }}>
+          <i class="fa-solid fa-bag-shopping"></i>
+          <span>{{ 'Añadir a la bolsa' if inicial else 'Agotado' }}</span>
+        </button>
+
+      </form>
+      {% else %}
+      <p class="pd-stock"><i class="fa-solid fa-ban"></i> Este producto aún no tiene tallas disponibles.</p>
+      {% endif %}
+
+      <!-- BENEFICIOS -->
+      <div class="pd-perks">
+        <div class="pd-perk">
+          <i class="fa-solid fa-truck-fast"></i>
+          <div><strong>Envío gratis</strong><span>En pedidos desde $150.000</span></div>
+        </div>
+        <div class="pd-perk">
+          <i class="fa-solid fa-rotate-left"></i>
+          <div><strong>60 días</strong><span>Devolución fácil</span></div>
+        </div>
+        <div class="pd-perk">
+          <i class="fa-solid fa-shield-halved"></i>
+          <div><strong>Pago seguro</strong><span>Datos cifrados</span></div>
+        </div>
+      </div>
+
+      <!-- INFORMACIÓN -->
+      <div class="pd-accordion">
+
+        <details open>
+          <summary>Descripción <i class="fa-solid fa-chevron-down"></i></summary>
+          <div class="pd-acc-body">
+            <p>{{ producto.descripcion or 'Este producto aún no tiene descripción.' }}</p>
+            <ul class="pd-specs">
+              <li><span>Marca</span><strong>{{ producto.marca_nombre }}</strong></li>
+              <li><span>Categoría</span><strong>{{ producto.categoria_nombre }}</strong></li>
+              {% if producto.referencia %}
+              <li><span>Referencia</span><strong>{{ producto.referencia }}</strong></li>
+              {% endif %}
+              <li><span>Tallas</span><strong>{{ producto.tallas|map(attribute='nombre')|join(', ') or '—' }}</strong></li>
+              <li><span>Colores</span><strong>{{ producto.colores|map(attribute='nombre')|join(', ') or '—' }}</strong></li>
+            </ul>
+          </div>
+        </details>
+
+        <details id="pdGuia">
+          <summary>Guía de tallas <i class="fa-solid fa-chevron-down"></i></summary>
+          <div class="pd-acc-body">
+            <p>Medidas aproximadas de la prenda en centímetros.</p>
+            <table class="pd-size-table">
+              <thead>
+                <tr><th>Talla</th><th>Pecho</th><th>Cintura</th><th>Largo</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>XS</td><td>84-88</td><td>70-74</td><td>66</td></tr>
+                <tr><td>S</td><td>88-94</td><td>74-80</td><td>68</td></tr>
+                <tr><td>M</td><td>94-100</td><td>80-86</td><td>70</td></tr>
+                <tr><td>L</td><td>100-106</td><td>86-92</td><td>72</td></tr>
+                <tr><td>XL</td><td>106-112</td><td>92-98</td><td>74</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </details>
+
+        <details>
+          <summary>Envíos y devoluciones <i class="fa-solid fa-chevron-down"></i></summary>
+          <div class="pd-acc-body">
+            <p>Despachamos a todo el país en 24-48 horas hábiles. El envío es gratis en compras desde $150.000.</p>
+            <p>Si la prenda no te queda, tienes 60 días para devolverla sin costo, siempre que esté sin usar y con sus etiquetas.</p>
+          </div>
+        </details>
+
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- RELACIONADOS -->
+  {% if relacionados %}
+  <section class="pd-related">
+    <div class="pd-related-head">
+      <h2>También te puede <span>gustar</span></h2>
+      <a href="{{ url_for('productos.categoria_productos', id=producto.categoria_id) }}" class="pd-link">
+        Ver más de {{ producto.categoria_nombre }} <i class="fa-solid fa-arrow-right"></i>
+      </a>
+    </div>
+
+    <div class="pd-related-grid">
+      {% for p in relacionados %}
+      {{ product_card(p) }}
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+</main>
+
+{% include 'footer.html' %}
+
+<script id="pdData" type="application/json">{{ producto.existencias|tojson }}</script>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script src="{{ url_for('static', filename='js/producto_detalle.js') }}"></script>
+
+</body>
+
+</html>

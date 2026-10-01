@@ -58,54 +58,82 @@
 
   <!-- CATEGORÍAS -->
 
-  <section class="cats">
+  <section class="vitrina" id="vitrina">
 
-    <div class="cats-intro">
-      <h1>Explora por <b>categoría</b></h1>
-      <div class="cats-intro-meta">
-        <b>{{ "%02d"|format(categorias|length) }}</b>
-        <span>Colecciones · Temporada 2026</span>
-      </div>
-    </div>
+    <!-- ENCABEZADO -->
+    <header class="vitrina-head">
 
-    <div class="cats-marquee" aria-hidden="true">
-      <div class="cats-marquee-track">
-        <span>Streetwear</span><span class="dot">·</span>
-        <span>Oversize</span><span class="dot">·</span>
-        <span>Algodón premium</span><span class="dot">·</span>
-        <span>Nueva temporada</span><span class="dot">·</span>
-        <span>Edición 2026</span><span class="dot">·</span>
-        <span>Streetwear</span><span class="dot">·</span>
-        <span>Oversize</span><span class="dot">·</span>
-        <span>Algodón premium</span><span class="dot">·</span>
-        <span>Nueva temporada</span><span class="dot">·</span>
-        <span>Edición 2026</span><span class="dot">·</span>
-      </div>
-    </div>
+      <p class="vitrina-index">
+        <span class="vitrina-index-line"></span>
+        Índice · Temporada 2026
+      </p>
 
-    <div class="cats-list">
+      <h1 class="vitrina-title">
+        <span class="vitrina-reveal"><span>Encuentra</span></span>
+        <span class="vitrina-reveal"><span><em>tu estilo</em>.</span></span>
+      </h1>
 
-      {% for c in categorias %}
-      {% set numero = "%02d"|format(loop.index) %}
-      <a href="{{ url_for('productos.categoria_productos', id=c.id) }}" class="chapter">
-        <div class="chapter-media">
-          <span class="chapter-media-tag">{{ numero }}</span>
-          {% if c.tiene_imagen %}
-          <img src="{{ url_for('productos.imagen_categoria', id=c.id) }}" alt="{{ c.nombre }}" />
-          {% else %}
-          <img src="{{ url_for('static', filename='img/ropa.png') }}" alt="{{ c.nombre }}" />
-          {% endif %}
+      <div class="vitrina-aside">
+        <p>
+          Cada colección tiene su propio carácter. Recorre los paneles
+          y entra a la que vaya contigo.
+        </p>
+        <div class="vitrina-count">
+          <strong>{{ "%02d"|format(categorias|length) }}</strong>
+          <span>{{ 'colección' if categorias|length == 1 else 'colecciones' }}</span>
         </div>
-        <div class="chapter-body">
-          <span class="chapter-num" aria-hidden="true">{{ numero }}</span>
-          <span class="chapter-kicker">Colección {{ numero }}</span>
-          <h2 class="chapter-title">{{ c.nombre }}</h2>
-          <span class="chapter-cta">Ver colección <i class="fa-solid fa-arrow-right"></i></span>
-        </div>
-      </a>
+      </div>
+
+    </header>
+
+    {% if categorias %}
+    <!-- GALERÍA DE PANELES: el activo se expande y recupera el color -->
+    <div class="vitrina-stage" id="vitrinaStage">
+      <span class="vitrina-light" aria-hidden="true"></span>
+
+      {% for fila in categorias|batch(5) %}
+      {% set fila_index = loop.index0 %}
+      <div class="vitrina-row">
+        {% for c in fila %}
+        {% set numero = "%02d"|format(fila_index * 5 + loop.index) %}
+        <a
+          href="{{ url_for('productos.categoria_productos', id=c.id) }}"
+          class="panel {{ 'is-active' if loop.first }}"
+          style="--i: {{ loop.index0 }}"
+        >
+          <img
+            src="{{ url_for('productos.imagen_categoria', id=c.id) if c.tiene_imagen else url_for('static', filename='img/ropa.png') }}"
+            alt="{{ c.nombre }}"
+          >
+
+          <span class="panel-num">{{ numero }}</span>
+
+          <span class="panel-vertical" aria-hidden="true">{{ c.nombre }}</span>
+
+          <span class="panel-content">
+            <span class="panel-name">{{ c.nombre }}</span>
+            <span class="panel-go">
+              Explorar
+              <span class="panel-go-line"></span>
+              <i class="fa-solid fa-arrow-right-long"></i>
+            </span>
+          </span>
+        </a>
+        {% endfor %}
+      </div>
       {% endfor %}
-
     </div>
+
+    <p class="vitrina-hint" aria-hidden="true">
+      <i class="fa-solid fa-arrows-left-right"></i>
+      Desliza el cursor sobre los paneles
+    </p>
+    {% else %}
+    <div class="vitrina-empty">
+      <p>Aún no hay colecciones publicadas.</p>
+      <a href="{{ url_for('productos.products') }}">Ver todo el catálogo <i class="fa-solid fa-arrow-right-long"></i></a>
+    </div>
+    {% endif %}
 
   </section>
 
@@ -115,51 +143,7 @@
 
   <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 
-  <script>
-    (function () {
-      var chapters = Array.prototype.slice.call(
-        document.querySelectorAll(".chapter")
-      );
-      if (!chapters.length) return;
-
-      var reveal = function (el) {
-        el.classList.add("in");
-      };
-
-      var reduce =
-        window.matchMedia &&
-        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-      if (reduce || !("IntersectionObserver" in window)) {
-        chapters.forEach(reveal);
-        return;
-      }
-
-      try {
-        var io = new IntersectionObserver(
-          function (entries) {
-            entries.forEach(function (e) {
-              if (e.isIntersecting) {
-                reveal(e.target);
-                io.unobserve(e.target);
-              }
-            });
-          },
-          { threshold: 0.18, rootMargin: "0px 0px -8% 0px" }
-        );
-        chapters.forEach(function (el) {
-          io.observe(el);
-        });
-      } catch (err) {
-        chapters.forEach(reveal);
-      }
-
-      // Salvavidas: si algo falla, muestra todo pasado un momento.
-      setTimeout(function () {
-        chapters.forEach(reveal);
-      }, 1800);
-    })();
-  </script>
+  <script src="{{ url_for('static', filename='js/categories.js') }}"></script>
 
 </body>
 

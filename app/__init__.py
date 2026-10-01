@@ -1,4 +1,4 @@
-from flask import Flask, session, url_for
+from flask import Flask, redirect, request, session, url_for
 
 from app.services import cart_service
 
@@ -7,7 +7,9 @@ def create_app():
     app = Flask(__name__)
 
     app.secret_key = "urbanstyle"
-    app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024  # 5 MB por subida
+    # 16 MB por subida: las imagenes de productos/categorias se comprimen
+    # antes de guardarlas (ver products_service._leer_imagen)
+    app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024
 
     from app.routes.admin_routes import admin
     from app.routes.auth_routes import auth
@@ -22,6 +24,18 @@ def create_app():
     app.register_blueprint(auth)
     app.register_blueprint(usuario)
     app.register_blueprint(admin)
+
+    @app.errorhandler(413)
+    def archivo_muy_grande(error):
+        # en el panel admin muestra el aviso en el formulario en vez de una pagina de error
+        mensaje = "La imagen pesa más de 16 MB, usa una más liviana"
+        if request.path.startswith("/categoria"):
+            session["error_categoria"] = mensaje
+            return redirect(url_for("admin.admin_panel") + "#section-categorias")
+        if request.path.startswith("/producto"):
+            session["error_producto"] = mensaje
+            return redirect(url_for("admin.admin_panel") + "#section-productos")
+        return error
 
     @app.context_processor
     def inject_carrito_count():

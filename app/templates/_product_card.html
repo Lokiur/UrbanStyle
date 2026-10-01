@@ -1,0 +1,70 @@
+{# Tarjeta compacta de producto: toda la tarjeta lleva a la ficha de detalle #}
+{% macro product_card(producto, destacado=false) %}
+{% set agotado = not producto.stock_total or producto.stock_total <= 0 %}
+{% set tallas_ok = producto.tallas|selectattr('stock', 'gt', 0)|list %}
+
+<a href="{{ url_for('productos.detalle_producto', id=producto.id) }}" class="product-card {{ 'is-featured' if destacado }}">
+
+  <div class="product-image">
+    {% if agotado %}
+    <span class="product-badge out">Agotado</span>
+    {% elif destacado %}
+    <span class="product-badge featured">
+      <i class="fa-solid fa-star"></i> Destacado
+    </span>
+    {% elif producto.stock_total <= 5 %}
+    <span class="product-badge low">
+      <i class="fa-solid fa-fire"></i> Últimas unidades
+    </span>
+    {% else %}
+    <span class="product-badge">
+      <i class="fa-solid fa-bolt"></i> Nuevo
+    </span>
+    {% endif %}
+
+    <img
+      src="{{ url_for('productos.imagen_producto', id=producto.id) if producto.tiene_imagen else url_for('static', filename='img/urbanstyle.png') }}"
+      alt="{{ producto.nombre }}"
+      loading="lazy"
+    >
+
+    <span class="product-quickview">
+      <i class="fa-regular fa-eye"></i> Ver detalles
+    </span>
+  </div>
+
+  <div class="product-info">
+
+    <h3 title="{{ producto.nombre }}">{{ producto.nombre }}</h3>
+
+    {% if destacado and producto.descripcion %}
+    <p class="product-desc">{{ producto.descripcion }}</p>
+    {% endif %}
+
+    <div class="price-row">
+      {% if producto.precio_desde %}
+      <div class="price">
+        <small>$</small>{{ "{:,.0f}".format(producto.precio_desde) }}
+      </div>
+      {% else %}
+      <div class="price muted">Sin precio</div>
+      {% endif %}
+
+      <span class="product-cart" aria-hidden="true">
+        <i class="fa-solid fa-cart-plus"></i>
+      </span>
+    </div>
+
+    <div class="product-meta">
+      {% if agotado %}
+      <i class="fa-solid fa-ban"></i> Sin stock por ahora
+      {% else %}
+      <i class="fa-solid fa-ruler-horizontal"></i>
+      {% for t in tallas_ok %}{{ t.nombre }}{{ ' · ' if not loop.last }}{% endfor %}
+      {% endif %}
+    </div>
+
+  </div>
+
+</a>
+{% endmacro %}
