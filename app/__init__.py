@@ -1,12 +1,29 @@
+import os
+
 from flask import Flask, session, url_for
 
 from app.services import cart_service
+
+try:
+    from dotenv import load_dotenv
+
+    load_dotenv()
+except ImportError:
+    pass
 
 
 def create_app():
     app = Flask(__name__)
 
-    app.secret_key = "urbanstyle"
+    # Firma la sesion y los enlaces de recuperacion: en produccion
+    # debe venir de SECRET_KEY (.env) con un valor largo y aleatorio.
+    app.secret_key = os.environ.get("SECRET_KEY")
+    if not app.secret_key:
+        app.secret_key = "urbanstyle-dev"
+        app.logger.warning(
+            "SECRET_KEY no definida: usando clave de desarrollo. "
+            "Configúrala en .env antes de desplegar."
+        )
     app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024  # 5 MB por subida
 
     from app.routes.admin_routes import admin
