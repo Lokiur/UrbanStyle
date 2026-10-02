@@ -1,4 +1,7 @@
+from io import BytesIO
+
 import pymysql
+from PIL import Image, ImageOps, UnidentifiedImageError
 
 from database.init_db import conectar
 
@@ -147,6 +150,73 @@ def buscar_productos(query, talla_id=None, precio_min=None, precio_max=None):
     return productos
 
 
+def obtener_detalle_producto(id):
+    """Ficha completa de un producto activo: categoria, marca y todas sus
+    existencias (talla + color) para la pagina de detalle. Devuelve None
+    si no existe o esta inactivo.
+    """
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute(
+        """
+        SELECT p.id, p.referencia, p.nombre, p.descripcion, p.categoria_id,
+               (p.imagen IS NOT NULL) AS tiene_imagen,
+               c.nombre AS categoria_nombre, m.nombre AS marca_nombre
+        FROM productos p
+        JOIN categorias c ON c.id = p.categoria_id
+        JOIN marcas m ON m.id = p.marca_id
+        WHERE p.id = %s AND p.estado = 'activo'
+        """,
+        (id,),
+    )
+    producto = cursor.fetchone()
+
+    if producto:
+        cursor.execute(
+            """
+            SELECT e.id AS existencia_id, e.precio, e.stock,
+                   t.id AS talla_id, t.nombre AS talla,
+                   co.id AS color_id, co.nombre AS color
+            FROM existencias e
+            JOIN tallas t ON t.id = e.talla_id
+            JOIN colores co ON co.id = e.color_id
+            WHERE e.producto_id = %s AND e.estado = 'activo'
+            ORDER BY t.id, co.nombre
+            """,
+            (id,),
+        )
+        existencias = cursor.fetchall()
+        for e in existencias:
+            e["precio"] = float(e["precio"])
+        producto["existencias"] = existencias
+
+        precios = [e["precio"] for e in existencias]
+        producto["precio_desde"] = min(precios) if precios else None
+        producto["stock_total"] = sum(e["stock"] for e in existencias)
+
+        # tallas y colores unicos, en el orden de la consulta
+        producto["tallas"] = list(
+            {e["talla_id"]: {"id": e["talla_id"], "nombre": e["talla"]} for e in existencias}.values()
+        )
+        producto["colores"] = list(
+            {e["color_id"]: {"id": e["color_id"], "nombre": e["color"]} for e in existencias}.values()
+        )
+
+    conexion.close()
+    return producto
+
+
+def obtener_relacionados(producto_id, categoria_id, limite=4):
+    """Otros productos de la misma categoria para "Tambien te puede gustar"."""
+    conexion = conectar()
+    cursor = conexion.cursor()
+    productos = _consultar_productos(
+        cursor, "p.categoria_id = %s AND p.id <> %s", (categoria_id, producto_id)
+    )
+    conexion.close()
+    return productos[:limite]
+
+
 def listar_tallas():
     conexion = conectar()
     cursor = conexion.cursor()
@@ -230,8 +300,10 @@ def crear_categoria(datos, archivo_imagen=None):
     except pymysql.err.IntegrityError:
         conexion.rollback()
         raise ValueError("Ya existe una categoría con ese nombre")
+    except pymysql.err.OperationalError:
+        raise ValueError(ERROR_GUARDAR_IMAGEN)
     finally:
-        conexion.close()
+        _cerrar(conexion)
 
 
 def actualizar_categoria(id, datos, archivo_imagen=None):
@@ -254,8 +326,10 @@ def actualizar_categoria(id, datos, archivo_imagen=None):
     except pymysql.err.IntegrityError:
         conexion.rollback()
         raise ValueError("Ya existe una categoría con ese nombre")
+    except pymysql.err.OperationalError:
+        raise ValueError(ERROR_GUARDAR_IMAGEN)
     finally:
-        conexion.close()
+        _cerrar(conexion)
 
 
 def eliminar_categoria(id):
@@ -284,6 +358,38 @@ def listar_marcas():
 
 TIPOS_IMAGEN_PERMITIDOS = {"image/jpeg", "image/png", "image/webp", "image/gif"}
 
+# MySQL (XAMPP) trae max_allowed_packet = 1 MB por defecto: una consulta con
+# una imagen mas grande se corta ("Lost connection to MySQL server"). Por eso
+# las imagenes se guardan redimensionadas y comprimidas por debajo de este tope.
+TAMANO_MAX_IMAGEN = 900 * 1024
+LADO_MAX_IMAGEN = 1600
+
+
+def _optimizar_imagen(datos):
+    """Redimensiona y recomprime a WEBP hasta quedar bajo TAMANO_MAX_IMAGEN."""
+    try:
+        imagen = Image.open(BytesIO(datos))
+        imagen.load()
+    except (UnidentifiedImageError, OSError):
+        raise ValueError("El archivo no es una imagen válida")
+
+    imagen = ImageOps.exif_transpose(imagen)  # respeta la rotacion de fotos de celular
+    if imagen.mode not in ("RGB", "RGBA"):
+        imagen = imagen.convert("RGBA" if "transparency" in imagen.info else "RGB")
+
+    lado = LADO_MAX_IMAGEN
+    for _ in range(6):
+        copia = imagen.copy()
+        copia.thumbnail((lado, lado))
+        for calidad in (85, 75, 65):
+            salida = BytesIO()
+            copia.save(salida, format="WEBP", quality=calidad, method=4)
+            if salida.tell() <= TAMANO_MAX_IMAGEN:
+                return salida.getvalue(), "image/webp"
+        lado = int(lado * 0.75)
+
+    raise ValueError("No se pudo reducir la imagen lo suficiente, prueba con otra")
+
 
 def _leer_imagen(archivo):
     """Valida y lee un archivo subido (werkzeug FileStorage). Devuelve (bytes, mime) o (None, None)."""
@@ -291,7 +397,34 @@ def _leer_imagen(archivo):
         return None, None
     if archivo.mimetype not in TIPOS_IMAGEN_PERMITIDOS:
         raise ValueError("Formato de imagen no soportado (usa JPG, PNG, WEBP o GIF)")
-    return archivo.read(), archivo.mimetype
+
+    datos = archivo.read()
+    if not datos:
+        raise ValueError("El archivo de imagen está vacío")
+
+    # las imagenes pequenas se guardan tal cual (asi un GIF animado sigue animado)
+    if len(datos) <= TAMANO_MAX_IMAGEN:
+        try:
+            Image.open(BytesIO(datos)).verify()
+        except (UnidentifiedImageError, OSError):
+            raise ValueError("El archivo no es una imagen válida")
+        return datos, archivo.mimetype
+
+    return _optimizar_imagen(datos)
+
+
+def _cerrar(conexion):
+    """Cierra la conexion aunque MySQL ya la haya cortado."""
+    try:
+        conexion.close()
+    except pymysql.err.Error:
+        pass
+
+
+ERROR_GUARDAR_IMAGEN = (
+    "No se pudo guardar en la base de datos. Si subiste una imagen, "
+    "prueba con una más liviana"
+)
 
 
 def crear_producto(datos, archivo_imagen=None):
@@ -299,23 +432,27 @@ def crear_producto(datos, archivo_imagen=None):
 
     conexion = conectar()
     cursor = conexion.cursor()
-    cursor.execute(
-        """
-        INSERT INTO productos (referencia, nombre, descripcion, categoria_id, marca_id, estado, imagen, imagen_mime)
-        VALUES (%s, %s, %s, %s, %s, 'activo', %s, %s)
-        """,
-        (
-            datos["referencia"],
-            datos["nombre"],
-            datos.get("descripcion", ""),
-            datos["categoria_id"],
-            datos["marca_id"],
-            imagen,
-            imagen_mime,
-        ),
-    )
-    conexion.commit()
-    conexion.close()
+    try:
+        cursor.execute(
+            """
+            INSERT INTO productos (referencia, nombre, descripcion, categoria_id, marca_id, estado, imagen, imagen_mime)
+            VALUES (%s, %s, %s, %s, %s, 'activo', %s, %s)
+            """,
+            (
+                datos["referencia"],
+                datos["nombre"],
+                datos.get("descripcion", ""),
+                datos["categoria_id"],
+                datos["marca_id"],
+                imagen,
+                imagen_mime,
+            ),
+        )
+        conexion.commit()
+    except pymysql.err.OperationalError:
+        raise ValueError(ERROR_GUARDAR_IMAGEN)
+    finally:
+        _cerrar(conexion)
 
 
 def actualizar_producto(id, datos, archivo_imagen=None):
@@ -323,45 +460,49 @@ def actualizar_producto(id, datos, archivo_imagen=None):
 
     conexion = conectar()
     cursor = conexion.cursor()
-    if imagen is not None:
-        cursor.execute(
-            """
-            UPDATE productos
-            SET referencia=%s, nombre=%s, descripcion=%s, categoria_id=%s, marca_id=%s,
-                estado=%s, imagen=%s, imagen_mime=%s
-            WHERE id=%s
-            """,
-            (
-                datos["referencia"],
-                datos["nombre"],
-                datos.get("descripcion", ""),
-                datos["categoria_id"],
-                datos["marca_id"],
-                datos.get("estado", "activo"),
-                imagen,
-                imagen_mime,
-                id,
-            ),
-        )
-    else:
-        cursor.execute(
-            """
-            UPDATE productos
-            SET referencia=%s, nombre=%s, descripcion=%s, categoria_id=%s, marca_id=%s, estado=%s
-            WHERE id=%s
-            """,
-            (
-                datos["referencia"],
-                datos["nombre"],
-                datos.get("descripcion", ""),
-                datos["categoria_id"],
-                datos["marca_id"],
-                datos.get("estado", "activo"),
-                id,
-            ),
-        )
-    conexion.commit()
-    conexion.close()
+    try:
+        if imagen is not None:
+            cursor.execute(
+                """
+                UPDATE productos
+                SET referencia=%s, nombre=%s, descripcion=%s, categoria_id=%s, marca_id=%s,
+                    estado=%s, imagen=%s, imagen_mime=%s
+                WHERE id=%s
+                """,
+                (
+                    datos["referencia"],
+                    datos["nombre"],
+                    datos.get("descripcion", ""),
+                    datos["categoria_id"],
+                    datos["marca_id"],
+                    datos.get("estado", "activo"),
+                    imagen,
+                    imagen_mime,
+                    id,
+                ),
+            )
+        else:
+            cursor.execute(
+                """
+                UPDATE productos
+                SET referencia=%s, nombre=%s, descripcion=%s, categoria_id=%s, marca_id=%s, estado=%s
+                WHERE id=%s
+                """,
+                (
+                    datos["referencia"],
+                    datos["nombre"],
+                    datos.get("descripcion", ""),
+                    datos["categoria_id"],
+                    datos["marca_id"],
+                    datos.get("estado", "activo"),
+                    id,
+                ),
+            )
+        conexion.commit()
+    except pymysql.err.OperationalError:
+        raise ValueError(ERROR_GUARDAR_IMAGEN)
+    finally:
+        _cerrar(conexion)
 
 
 def eliminar_producto(id):
