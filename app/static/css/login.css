@@ -253,6 +253,18 @@ body {
   font-size: 15px;
 }
 
+.auth-alert.is-ok {
+  border-color: rgba(74, 222, 128, 0.4);
+  background: rgba(34, 197, 94, 0.12);
+  color: #b6f5cb;
+}
+
+a.auth-submit {
+  display: block;
+  text-align: center;
+  text-decoration: none;
+}
+
 /* ---------------- CAMPOS ---------------- */
 
 .auth-form {

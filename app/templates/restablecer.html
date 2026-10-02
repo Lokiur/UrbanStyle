@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+
+        <title>Nueva contraseña | UrbanStyle</title>
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+        <!-- CSS -->
+        <link
+            rel="stylesheet"
+            href="{{ url_for('static', filename='css/variables.css') }}"
+        >
+        <link
+            rel="stylesheet"
+            href="{{ url_for('static', filename='css/login.css') }}"
+        >
+
+        <!-- Bootstrap Icons -->
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css"
+        />
+
+        <!-- Favicon -->
+        <link
+            rel="shortcut icon"
+            href="{{ url_for('static', filename='img/urbanstyle.png') }}"
+            type="image/x-icon"
+        />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}" />
+    </head>
+
+    <body>
+
+        <main class="auth">
+
+            <!-- PANEL DE MARCA -->
+            <aside class="auth-brand">
+                <a class="auth-logo" href="{{ url_for('home.index') }}">
+                    <img src="{{ url_for('static', filename='img/urbanstyle.png') }}" alt="" />
+                    UrbanStyle
+                </a>
+
+                <div class="auth-brand-mid">
+                    <h2>Nueva<br /><em>contraseña</em></h2>
+                    <p>
+                        Elige una contraseña segura que no uses en otros sitios.
+                    </p>
+
+                    <ul class="auth-points">
+                        <li><i class="bi bi-envelope-check"></i> Correo verificado</li>
+                        <li><i class="bi bi-key"></i> Mínimo 8 caracteres</li>
+                        <li><i class="bi bi-shield-check"></i> Letras y números</li>
+                    </ul>
+                </div>
+
+                <p class="auth-brand-foot">© 2026 UrbanStyle</p>
+            </aside>
+
+            <!-- PANEL DE FORMULARIO -->
+            <section class="auth-form-side">
+
+                {% if invalido %}
+
+                <header class="auth-head">
+                    <h1>Enlace no válido</h1>
+                    <p>Este enlace ha caducado o ya se utilizó.</p>
+                </header>
+
+                <div class="auth-alert">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <span>Los enlaces de recuperación duran 30 minutos y solo sirven una vez. Solicita uno nuevo.</span>
+                </div>
+
+                <a class="auth-submit" href="{{ url_for('auth.recuperar') }}">Solicitar otro enlace</a>
+
+                {% else %}
+
+                <header class="auth-head">
+                    <h1>Restablecer contraseña</h1>
+                    <p>Escribe tu nueva contraseña dos veces.</p>
+                </header>
+
+                {% if message %}
+                <div class="auth-alert">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <span>{{ message }}</span>
+                </div>
+                {% endif %}
+
+                <form class="auth-form" method="POST" novalidate>
+
+                    <label class="field">
+                        <span class="field-label"><i class="bi bi-lock"></i> Nueva contraseña</span>
+                        <span class="field-control">
+                            <input
+                                type="password"
+                                name="nueva_password"
+                                id="pw"
+                                placeholder="Mínimo 8 caracteres, con letras y números"
+                                autocomplete="new-password"
+                                required
+                            />
+                            <button type="button" class="field-toggle" data-target="pw" aria-label="Mostrar u ocultar contraseña">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </span>
+                    </label>
+
+                    <label class="field">
+                        <span class="field-label"><i class="bi bi-lock-fill"></i> Confirmar contraseña</span>
+                        <span class="field-control">
+                            <input
+                                type="password"
+                                name="confirmar_password"
+                                id="pw2"
+                                placeholder="Repite la contraseña"
+                                autocomplete="new-password"
+                                required
+                            />
+                            <button type="button" class="field-toggle" data-target="pw2" aria-label="Mostrar u ocultar contraseña">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </span>
+                    </label>
+
+                    <button type="submit" class="auth-submit">
+                        Guardar contraseña
+                    </button>
+
+                </form>
+
+                {% endif %}
+
+                <div class="auth-links">
+                    <span>¿Ya la recordaste?</span>
+                    <a href="{{ url_for('auth.login') }}">Iniciar sesión</a>
+                </div>
+
+            </section>
+
+        </main>
+
+        <script>
+            document.querySelectorAll(".field-toggle").forEach(function (btn) {
+                btn.addEventListener("click", function () {
+                    var input = document.getElementById(btn.dataset.target);
+                    if (!input) return;
+                    var toText = input.type === "password";
+                    input.type = toText ? "text" : "password";
+                    btn.querySelector("i").className = toText
+                        ? "bi bi-eye-slash"
+                        : "bi bi-eye";
+                });
+            });
+        </script>
+
+    </body>
+</html>
