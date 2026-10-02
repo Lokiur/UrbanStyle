@@ -29,6 +29,11 @@
 
   <link
     rel="stylesheet"
+    href="{{ url_for('static', filename='css/product-card.css') }}"
+  >
+
+  <link
+    rel="stylesheet"
     href="{{ url_for('static', filename='css/footer.css') }}"
   >
 
@@ -48,188 +53,170 @@
 
 <body>
 
+{% from '_product_card.html' import product_card %}
+
 {% include 'header.html' %}
 
 <section class="products">
 
-  <div class="section-title">
-
-    <span>PRODUCTOS</span>
-
-    {% if query %}
-    <h2>Resultados para "{{ query }}"</h2>
-    <p>
-      {{ productos|length }}
-      {{ 'artículo encontrado' if productos|length == 1 else 'artículos encontrados' }}
-      en el catálogo.
-    </p>
-    {% else %}
-    <h2>Nuestra Colección</h2>
-    <p>Prendas seleccionadas para llevar tu estilo urbano al siguiente nivel.</p>
-    {% endif %}
-
-  </div>
-
+  {% set categoria = categorias|selectattr('id', 'equalto', categoria_actual)|first if categoria_actual else none %}
   {% set hay_filtros = filtro_talla_id or filtro_precio_min or filtro_precio_max %}
+  {% set num_filtros = [filtro_talla_id, filtro_precio_min or filtro_precio_max]|select|list|length %}
 
-  <!-- RF13: filtrar por talla y rango de precio -->
-  <div class="products-filters-card">
-    <form method="GET" action="{{ request.path }}" class="products-filters">
-      {% if query %}
-      <input type="hidden" name="q" value="{{ query }}">
-      {% endif %}
-
-      <div class="products-filters-title">
-        <i class="fa-solid fa-sliders"></i> Filtrar catálogo
-      </div>
-
-      <div class="products-filters-fields">
-        <label>
-          <span>Talla</span>
-          <select name="talla_id">
-            <option value="">Todas</option>
-            {% for t in tallas %}
-            <option value="{{ t.id }}" {% if filtro_talla_id == t.id %}selected{% endif %}>{{ t.nombre }}</option>
-            {% endfor %}
-          </select>
-        </label>
-
-        <label>
-          <span>Precio mín.</span>
-          <input type="number" name="precio_min" min="0" step="1000" value="{{ filtro_precio_min or '' }}" placeholder="$ 0">
-        </label>
-
-        <label>
-          <span>Precio máx.</span>
-          <input type="number" name="precio_max" min="0" step="1000" value="{{ filtro_precio_max or '' }}" placeholder="Sin límite">
-        </label>
-
-        <button type="submit">
-          <i class="fa-solid fa-filter"></i> Filtrar
-        </button>
-      </div>
-    </form>
-
-    {% if hay_filtros %}
-    <div class="products-filters-active">
-      <i class="fa-solid fa-circle-info"></i>
-      <span>Filtrando por:</span>
-
-      {% if filtro_talla_id %}
-      <span class="filter-chip">Talla {{ tallas|selectattr('id','equalto',filtro_talla_id)|map(attribute='nombre')|first }}</span>
-      {% endif %}
-      {% if filtro_precio_min or filtro_precio_max %}
-      <span class="filter-chip">
-        {% if filtro_precio_min %}desde $ {{ "{:,.0f}".format(filtro_precio_min) }}{% endif %}
-        {% if filtro_precio_max %}hasta $ {{ "{:,.0f}".format(filtro_precio_max) }}{% endif %}
-      </span>
-      {% endif %}
-
-      <a href="{{ request.path }}{{ '?q=' ~ query if query else '' }}" class="products-filters-clear">
-        <i class="fa-solid fa-xmark"></i> Quitar filtros
-      </a>
-    </div>
-    {% endif %}
+  <!-- luces de fondo que se desplazan lentamente -->
+  <div class="products-aurora" aria-hidden="true">
+    <span></span><span></span><span></span>
   </div>
 
-  <div class="products-grid">
+  <!-- ENCABEZADO -->
+  <header class="products-hero">
 
-    {% for producto in productos %}
+    <div class="products-hero-text">
+      {% if query %}
+      <div class="badge"><i class="fa-solid fa-magnifying-glass"></i> Búsqueda</div>
+      <h1>Resultados para <span>"{{ query }}"</span></h1>
+      <p>Esto es lo que encontramos en el catálogo para tu búsqueda.</p>
+      {% elif categoria %}
+      <div class="badge"><i class="fa-solid fa-layer-group"></i> Colección</div>
+      <h1>Lo nuevo en <span>{{ categoria.nombre }}</span></h1>
+      <p>Las últimas prendas de {{ categoria.nombre|lower }}, listas para tu próximo outfit.</p>
+      {% else %}
+      <div class="badge"><i class="fa-solid fa-bolt"></i> Recién llegado</div>
+      <h1>Lo más <span>nuevo</span></h1>
+      <p>Prendas seleccionadas para llevar tu estilo urbano al siguiente nivel.</p>
+      {% endif %}
+    </div>
 
-    <div class="product-card">
-
-      <div class="product-image">
-        {% if producto.stock_total and producto.stock_total <= 5 %}
-        <span class="product-badge low">
-          <i class="fa-solid fa-fire"></i> Últimas unidades
-        </span>
-        {% else %}
-        <span class="product-badge">
-          <i class="fa-solid fa-bolt"></i> Nuevo
-        </span>
-        {% endif %}
-
-        <img
-          src="{{ url_for('productos.imagen_producto', id=producto.id) if producto.tiene_imagen else url_for('static', filename='img/urbanstyle.png') }}"
-          alt="{{ producto.nombre }}"
-        >
+    <div class="products-hero-stats">
+      <div class="hero-stat">
+        <strong>{{ productos|length }}</strong>
+        <span>{{ 'Prenda' if productos|length == 1 else 'Prendas' }}</span>
       </div>
+      <div class="hero-stat">
+        <strong>24-48h</strong>
+        <span>Envío nacional</span>
+      </div>
+    </div>
 
-      <div class="product-info">
+  </header>
 
-        <h3>
-          {{ producto.nombre }}
-        </h3>
+  <!-- BARRA FIJA: categorías + botón de filtros -->
+  <span class="products-toolbar-sentinel" id="toolbarSentinel" aria-hidden="true"></span>
+  <div class="products-toolbar" id="productsToolbar">
 
-        <p>
-          {{ producto.descripcion }}
-        </p>
+    <div class="cat-pills" role="navigation" aria-label="Categorías">
+      <a href="{{ url_for('productos.products') }}" class="cat-pill {{ 'active' if not categoria_actual and not query }}">
+        <i class="fa-solid fa-border-all"></i> Todo
+      </a>
+      {% for c in categorias %}
+      <a href="{{ url_for('productos.categoria_productos', id=c.id) }}" class="cat-pill {{ 'active' if categoria_actual == c.id }}">
+        {{ c.nombre }}
+      </a>
+      {% endfor %}
+    </div>
 
-        <div class="price-row">
-          {% if producto.precio_desde %}
-          <span class="price-hint">desde</span>
-          <div class="price">$ {{ "{:,.0f}".format(producto.precio_desde) }}</div>
-          {% else %}
-          <div class="price">Precio no disponible</div>
+    <button
+      type="button"
+      class="filters-toggle {{ 'is-open' if hay_filtros }}"
+      id="filtersToggle"
+      aria-expanded="{{ 'true' if hay_filtros else 'false' }}"
+      aria-controls="filtersPanel"
+    >
+      <i class="fa-solid fa-sliders"></i>
+      Filtros
+      {% if num_filtros %}<span class="filters-count">{{ num_filtros }}</span>{% endif %}
+    </button>
+
+  </div>
+
+  <!-- RF13: filtrar por talla y rango de precio (plegable) -->
+  <div class="products-filters-wrap {{ 'is-open' if hay_filtros }}" id="filtersPanel">
+    <div class="products-filters-inner">
+      <div class="products-filters-card">
+        <form method="GET" action="{{ request.path }}" class="products-filters">
+          {% if query %}
+          <input type="hidden" name="q" value="{{ query }}">
           {% endif %}
-        </div>
 
-        {% if producto.stock_total and producto.stock_total > 0 %}
-        <form method="POST" action="{{ url_for('carrito.agregar', producto_id=producto.id) }}">
-
-          <div class="size-selector">
-            {% set ns = namespace(marcada=false) %}
-            {% for t in producto.tallas %}
-            <input
-              type="radio"
-              name="existencia_id"
-              id="talla-{{ producto.id }}-{{ t.talla_id }}"
-              value="{{ t.existencia_id }}"
-              data-precio="{{ t.precio }}"
-              {% if t.stock <= 0 %}
-              disabled
-              {% elif not ns.marcada %}
-              checked
-              {% set ns.marcada = true %}
-              {% endif %}
-            >
-            <label
-              for="talla-{{ producto.id }}-{{ t.talla_id }}"
-              class="{{ 'out-of-stock' if t.stock <= 0 }}"
-            >
-              {{ t.nombre }}
-            </label>
-            {% endfor %}
+          <div class="products-filters-title">
+            <i class="fa-solid fa-sliders"></i> Filtrar catálogo
           </div>
 
-          <button type="submit">
-            <i class="fa-solid fa-bag-shopping"></i>
-            Agregar al carrito
-          </button>
+          <div class="products-filters-fields">
+            <label>
+              <span>Talla</span>
+              <select name="talla_id">
+                <option value="">Todas</option>
+                {% for t in tallas %}
+                <option value="{{ t.id }}" {% if filtro_talla_id == t.id %}selected{% endif %}>{{ t.nombre }}</option>
+                {% endfor %}
+              </select>
+            </label>
+
+            <label>
+              <span>Precio mín.</span>
+              <input type="number" name="precio_min" min="0" step="1000" value="{{ filtro_precio_min or '' }}" placeholder="$ 0">
+            </label>
+
+            <label>
+              <span>Precio máx.</span>
+              <input type="number" name="precio_max" min="0" step="1000" value="{{ filtro_precio_max or '' }}" placeholder="Sin límite">
+            </label>
+
+            <button type="submit">
+              <i class="fa-solid fa-filter"></i> Filtrar
+            </button>
+          </div>
         </form>
-        {% else %}
-        <button type="button" disabled>
-          <i class="fa-solid fa-ban"></i>
-          Agotado
-        </button>
+
+        {% if hay_filtros %}
+        <div class="products-filters-active">
+          <i class="fa-solid fa-circle-info"></i>
+          <span>Filtrando por:</span>
+
+          {% if filtro_talla_id %}
+          <span class="filter-chip">Talla {{ tallas|selectattr('id','equalto',filtro_talla_id)|map(attribute='nombre')|first }}</span>
+          {% endif %}
+          {% if filtro_precio_min or filtro_precio_max %}
+          <span class="filter-chip">
+            {% if filtro_precio_min %}desde $ {{ "{:,.0f}".format(filtro_precio_min) }}{% endif %}
+            {% if filtro_precio_max %}hasta $ {{ "{:,.0f}".format(filtro_precio_max) }}{% endif %}
+          </span>
+          {% endif %}
+
+          <a href="{{ request.path }}{{ '?q=' ~ query if query else '' }}" class="products-filters-clear">
+            <i class="fa-solid fa-xmark"></i> Quitar filtros
+          </a>
+        </div>
         {% endif %}
-
       </div>
-
     </div>
+  </div>
 
+  {# el primer producto se muestra en grande cuando hay suficientes para lucirlo #}
+  {% set con_destacado = not query and not hay_filtros and productos|length >= 4 %}
+
+  <div class="products-grid">
+    {% for producto in productos %}
+    {{ product_card(producto, destacado=(con_destacado and loop.first)) }}
     {% endfor %}
-
   </div>
 
   {% if not productos %}
-  <p class="no-results">
-    {% if query %}
-    No encontramos productos que coincidan con "{{ query }}".
-    {% else %}
-    No encontramos productos que coincidan con esos filtros.
-    {% endif %}
-  </p>
+  <div class="no-results">
+    <i class="fa-solid fa-shirt"></i>
+    <h3>Sin resultados</h3>
+    <p>
+      {% if query %}
+      No encontramos productos que coincidan con "{{ query }}".
+      {% else %}
+      No encontramos productos que coincidan con esos filtros.
+      {% endif %}
+    </p>
+    <a href="{{ url_for('productos.products') }}" class="secondary-btn">
+      Ver toda la colección
+    </a>
+  </div>
   {% endif %}
 
 </section>
@@ -237,6 +224,7 @@
 {% include 'footer.html' %}
 
 <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script src="{{ url_for('static', filename='js/products.js') }}"></script>
 
 </body>
 

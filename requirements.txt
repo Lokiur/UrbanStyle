@@ -3,3 +3,4 @@ PyMySQL
 Werkzeug
 reportlab
 python-dotenv
+Pillow

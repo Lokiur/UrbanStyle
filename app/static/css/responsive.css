@@ -97,8 +97,7 @@ body {
   .contacto .section-title h2,
   .faq .section-title h2,
   .terminos .section-title h2,
-  .carrito .section-title h2,
-  .products .section-title h2 {
+  .carrito .section-title h2 {
     font-size: 38px;
     line-height: 1.15;
   }
@@ -172,8 +171,7 @@ body {
   .contacto .section-title h2,
   .faq .section-title h2,
   .terminos .section-title h2,
-  .carrito .section-title h2,
-  .products .section-title h2 {
+  .carrito .section-title h2 {
     font-size: 27px;
   }
 
