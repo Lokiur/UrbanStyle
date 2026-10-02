@@ -751,12 +751,11 @@ def _obtener_factura(factura_id, user_id=None):
         """
         SELECT df.cantidad, df.precio_unitario, df.subtotal,
                p.nombre AS producto_nombre, p.referencia,
-               t.nombre AS talla, c.nombre AS color, e.sku
+               t.nombre AS talla, e.sku
         FROM detalle_factura df
         JOIN existencias e ON e.id = df.existencia_id
         JOIN productos p ON p.id = e.producto_id
         JOIN tallas t ON t.id = e.talla_id
-        JOIN colores c ON c.id = e.color_id
         WHERE df.factura_id=%s
         ORDER BY df.id
         """,
@@ -787,11 +786,8 @@ def obtener_direcciones(user_id):
 def crear_direccion(user_id, datos):
     """Registra una direccion de envio nueva para el usuario.
 
-    Siempre entra con principal=0: la tabla `direcciones` tiene un
-    trigger BEFORE INSERT que falla con error 1442 si se inserta con
-    principal=1 (bug del propio trigger, ver `_resolver_direccion`). Para
-    marcarla como principal hay que usar `marcar_direccion_principal`
-    despues de crearla.
+    Siempre entra con principal=0; para marcarla como principal se usa
+    `marcar_direccion_principal`, que desmarca las demas del usuario.
     """
     direccion = datos.get("direccion", "").strip()
     ciudad = datos.get("ciudad", "").strip()
@@ -861,8 +857,7 @@ def eliminar_direccion(user_id, direccion_id):
 
 def marcar_direccion_principal(user_id, direccion_id):
     """Marca una direccion como la principal del usuario, quitando ese
-    honor a las demas. No usa el trigger de la tabla (que solo dispara en
-    INSERT): lo hace a mano con dos UPDATE en una transaccion.
+    honor a las demas, con dos UPDATE en una transaccion.
     """
     conexion = conectar()
     cursor = conexion.cursor()
@@ -895,13 +890,12 @@ def historial_compras_cliente(user_id):
         SELECT f.id AS factura_id, f.numero_factura, f.fecha, f.total AS factura_total,
                f.estado AS factura_estado,
                df.cantidad, df.precio_unitario, df.subtotal,
-               p.nombre AS producto_nombre, t.nombre AS talla, c.nombre AS color
+               p.nombre AS producto_nombre, t.nombre AS talla
         FROM facturas f
         JOIN detalle_factura df ON f.id = df.factura_id
         JOIN existencias e ON df.existencia_id = e.id
         JOIN productos p ON e.producto_id = p.id
         JOIN tallas t ON t.id = e.talla_id
-        JOIN colores c ON c.id = e.color_id
         WHERE f.user_id=%s
         ORDER BY f.fecha DESC, f.id DESC, df.id
         """,
@@ -985,11 +979,7 @@ def _resolver_direccion(cursor, user_id, form):
         if not direccion_txt or not ciudad:
             return None
 
-        # nota: la tabla `direcciones` tiene un trigger BEFORE INSERT que
-        # falla con error 1442 si se inserta con principal=1 (bug del propio
-        # trigger, reproducible incluso desde un INSERT plano fuera de esta
-        # app), por lo que las direcciones nuevas siempre entran con
-        # principal=0.
+        # las direcciones nuevas entran con principal=0 (ver crear_direccion)
         cursor.execute(
             """
             INSERT INTO direcciones (user_id, direccion, ciudad, departamento, codigo_postal, principal)

@@ -3,6 +3,7 @@ from flask import Blueprint, Response, abort, render_template, request
 from app.services.products_service import (
     buscar_productos,
     listar_categorias,
+    listar_categorias_vitrina,
     listar_tallas,
     obtener_categoria,
     obtener_detalle_producto,
@@ -36,7 +37,13 @@ def _contexto_filtros():
 
 @productos.route("/categories")
 def categories():
-    return render_template("categories.html", categorias=listar_categorias())
+    categorias = listar_categorias_vitrina()
+    return render_template(
+        "categories.html",
+        categorias=categorias,
+        total_productos=sum(c["total_productos"] for c in categorias),
+        tallas=listar_tallas(),
+    )
 
 
 @productos.route("/producto/<int:id>/imagen")

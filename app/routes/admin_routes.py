@@ -113,6 +113,8 @@ def admin_panel():
         error_producto=session.pop("error_producto", None),
         error_pedido=session.pop("error_pedido", None),
         error_categoria=session.pop("error_categoria", None),
+        error_inventario=session.pop("error_inventario", None),
+        tallas=products_service.listar_tallas(),
         filtro_desde=filtro_desde,
         filtro_hasta=filtro_hasta,
         resumen_ventas=resumen_ventas,
@@ -231,6 +233,16 @@ def eliminar_producto(id):
 # =========================
 # ADMIN - INVENTARIO
 # =========================
+
+
+@admin.route("/existencia", methods=["POST"])
+@admin_required
+def crear_existencia():
+    try:
+        products_service.crear_existencia(request.form)
+    except ValueError as error:
+        session["error_inventario"] = str(error)
+    return redirect(url_for("admin.admin_panel") + "#section-inventario")
 
 
 @admin.route("/existencia/<int:id>/stock", methods=["POST"])

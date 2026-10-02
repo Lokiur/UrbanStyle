@@ -320,52 +320,6 @@ a.pd-tag:hover {
   opacity: 0.8;
 }
 
-/* muestras de color */
-.pd-swatches {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.pd-swatch {
-  position: relative;
-  width: 40px;
-  height: 40px;
-  padding: 0;
-
-  border: 2px solid var(--color-bg-dark);
-  border-radius: 50%;
-  background: var(--swatch);
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
-
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.pd-swatch:hover {
-  transform: scale(1.08);
-}
-
-.pd-swatch.active {
-  box-shadow:
-    0 0 0 2px var(--color-accent),
-    0 0 18px color-mix(in srgb, var(--color-accent) 55%, transparent);
-}
-
-.pd-swatch.sold-out::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 4px;
-  right: 4px;
-  height: 2px;
-
-  background: rgba(255, 255, 255, 0.85);
-  transform: rotate(-45deg);
-  box-shadow: 0 0 2px rgba(0, 0, 0, 0.6);
-}
-
-.pd-swatch:focus-visible,
 .pd-size:focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 3px;

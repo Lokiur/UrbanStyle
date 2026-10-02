@@ -15,10 +15,12 @@
 
   position: relative;
   isolation: isolate;
+  overflow-x: clip; /* los brillos de fondo no generan scroll horizontal */
 
-  max-width: 1320px;
+  /* ocupa el ancho de la pantalla (con un tope para monitores muy anchos) */
+  max-width: 2200px;
   margin: 0 auto;
-  padding: 84px 60px 110px;
+  padding: clamp(48px, 4vw, 80px) clamp(20px, 4.5vw, 110px) clamp(80px, 6vw, 120px);
 }
 
 /* retícula fina que se desvanece hacia los bordes */
@@ -94,7 +96,8 @@
 .vitrina-title {
   grid-area: title;
 
-  font-size: clamp(54px, 8.4vw, 124px);
+  /* crece con el ancho pero sin pasarse del alto disponible */
+  font-size: clamp(54px, min(8.4vw, 13.5vh), 168px);
   line-height: 0.92;
   letter-spacing: -0.045em;
 }
@@ -146,7 +149,7 @@
   flex-direction: column;
   gap: 22px;
 
-  max-width: 300px;
+  max-width: clamp(400px, 26vw, 520px);
   padding-bottom: 10px;
 
   opacity: 0;
@@ -165,13 +168,25 @@
   opacity: 0.7;
 }
 
-.vitrina-count {
-  display: flex;
-  align-items: baseline;
-  gap: 12px;
+.vitrina-stats {
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  justify-content: start;
+  gap: 28px;
 
   padding-top: 18px;
   border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.vitrina-count {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.vitrina-count + .vitrina-count {
+  padding-left: 28px;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .vitrina-count strong {
@@ -182,8 +197,22 @@
   color: var(--color-accent);
 }
 
+.vitrina-count:nth-child(2) strong {
+  color: var(--color-accent-2);
+  text-shadow: 0 0 22px color-mix(in srgb, var(--color-accent-2) 45%, transparent);
+}
+
+.vitrina-count:nth-child(3) strong {
+  color: #fff;
+}
+
+.vitrina-range {
+  font-style: normal;
+}
+
 .vitrina-count span {
-  font-size: 12.5px;
+  white-space: nowrap;
+  font-size: 11.5px;
   font-weight: 600;
   letter-spacing: 1.5px;
   text-transform: uppercase;
@@ -194,13 +223,13 @@
 
 .vitrina-stage {
   position: relative;
-  margin-top: 60px;
+  margin-top: clamp(40px, 4vh, 60px);
 }
 
 .vitrina-row {
   display: flex;
   gap: 10px;
-  height: clamp(420px, 64vh, 620px);
+  height: clamp(440px, 66vh, 860px);
 }
 
 .vitrina-row + .vitrina-row {
@@ -235,6 +264,20 @@
   opacity: 1;
 }
 
+/* brillos de color detrás de los paneles: llenan el fondo oscuro */
+.vitrina-glow {
+  position: absolute;
+  z-index: -1;
+  inset: -80px -120px;
+
+  background:
+    radial-gradient(ellipse 38% 45% at 18% 40%, color-mix(in srgb, var(--color-accent) 22%, transparent), transparent 70%),
+    radial-gradient(ellipse 34% 40% at 82% 60%, color-mix(in srgb, var(--color-accent-2) 20%, transparent), transparent 70%),
+    radial-gradient(ellipse 30% 30% at 50% 100%, rgba(34, 211, 238, 0.1), transparent 70%);
+  filter: blur(30px);
+  pointer-events: none;
+}
+
 /* ---------------- PANEL ---------------- */
 
 .panel {
@@ -243,8 +286,14 @@
   min-width: 0;
   overflow: hidden;
 
+  --tone: var(--color-accent);
+
   border-radius: 18px;
-  background: #0a0e19;
+  isolation: isolate;
+  background:
+    radial-gradient(120% 80% at 50% 0%, color-mix(in srgb, var(--tone) 38%, transparent), transparent 70%),
+    linear-gradient(180deg, color-mix(in srgb, var(--tone) 22%, #0a0e19), #070a14 85%);
+  box-shadow: 0 24px 50px -24px rgba(0, 0, 0, 0.8);
 
   color: #fff;
   text-decoration: none;
@@ -263,6 +312,9 @@
 
 .panel.is-active {
   flex-grow: 4.2;
+  box-shadow:
+    0 30px 70px -28px color-mix(in srgb, var(--tone) 55%, transparent),
+    0 24px 50px -24px rgba(0, 0, 0, 0.8);
 }
 
 /* filo interior: casi invisible en reposo, nítido al activarse */
@@ -279,7 +331,7 @@
 }
 
 .panel.is-active::before {
-  border-color: rgba(255, 255, 255, 0.22);
+  border-color: color-mix(in srgb, var(--tone) 55%, transparent);
 }
 
 .panel:focus-visible::before {
@@ -293,12 +345,18 @@
   inset: 0;
   z-index: 1;
 
-  background: linear-gradient(
-    0deg,
-    rgba(3, 6, 15, 0.92) 0%,
-    rgba(3, 6, 15, 0.35) 38%,
-    transparent 62%
-  );
+  background:
+    linear-gradient(
+      0deg,
+      rgba(3, 6, 15, 0.94) 0%,
+      rgba(3, 6, 15, 0.45) 42%,
+      transparent 66%
+    ),
+    linear-gradient(
+      0deg,
+      color-mix(in srgb, var(--tone) 18%, transparent),
+      transparent 40%
+    );
   pointer-events: none;
 }
 
@@ -310,7 +368,9 @@
   height: 100%;
   object-fit: cover;
 
-  filter: grayscale(1) brightness(0.5) contrast(1.15);
+  filter: grayscale(1) brightness(0.85) contrast(1.1);
+  mix-blend-mode: luminosity;
+  opacity: 0.55;
   transform: scale(1.12);
   transition:
     filter 0.9s ease,
@@ -318,25 +378,93 @@
 }
 
 .panel.is-active img {
-  filter: grayscale(0) brightness(0.88) contrast(1.05);
+  filter: grayscale(0) brightness(0.92) contrast(1.05);
+  mix-blend-mode: normal;
+  opacity: 1;
   transform: scale(1);
 }
 
 .panel:not(.is-active):hover img {
-  filter: grayscale(1) brightness(0.68) contrast(1.15);
+  opacity: 0.8;
 }
 
-/* número de la colección */
-.panel-num {
+/* categoría sin foto propia: la imagen genérica se pinta con el tono
+   de la colección también al abrirse */
+.panel.sin-foto.is-active img {
+  filter: grayscale(1) brightness(1.25) contrast(1.15);
+  mix-blend-mode: luminosity;
+  opacity: 0.9;
+}
+
+/* barra superior: número de la colección + cantidad de prendas */
+.panel-top {
   position: absolute;
   z-index: 2;
-  top: 18px;
-  left: 20px;
+  top: 16px;
+  left: 18px;
+  right: 18px;
 
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.panel-num {
   font-size: 13px;
   font-weight: 800;
   letter-spacing: 1px;
-  color: var(--color-accent);
+  color: var(--tone);
+  text-shadow: 0 0 14px color-mix(in srgb, var(--tone) 60%, transparent);
+}
+
+.panel-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  padding: 5px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  background: rgba(3, 6, 15, 0.45);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.panel-badge i {
+  font-size: 10px;
+  color: var(--tone);
+}
+
+/* número gigante con contorno, decorativo, en el panel abierto */
+.panel-ghost {
+  position: absolute;
+  z-index: 1;
+  top: 34px;
+  right: 22px;
+
+  font-size: clamp(120px, 15vw, 300px);
+  font-weight: 800;
+  line-height: 0.8;
+  letter-spacing: -0.06em;
+  color: transparent;
+  -webkit-text-stroke: 1.5px color-mix(in srgb, var(--tone) 55%, transparent);
+
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.4s ease, transform 0.6s var(--vt-ease);
+  pointer-events: none;
+}
+
+.panel.is-active .panel-ghost {
+  opacity: 0.55;
+  transform: none;
+  transition-delay: 0.25s;
 }
 
 /* nombre en vertical cuando el panel está cerrado */
@@ -366,9 +494,9 @@
 .panel-content {
   position: absolute;
   z-index: 2;
-  left: 30px;
-  right: 30px;
-  bottom: 28px;
+  left: clamp(30px, 2.2vw, 48px);
+  right: clamp(30px, 2.2vw, 48px);
+  bottom: clamp(28px, 2.2vw, 44px);
 
   display: flex;
   flex-direction: column;
@@ -393,10 +521,85 @@
   white-space: nowrap;
   text-overflow: ellipsis;
 
-  font-size: clamp(36px, 4.4vw, 64px);
+  font-size: clamp(36px, 4.4vw, 88px);
   font-weight: 800;
   line-height: 1;
   letter-spacing: -0.04em;
+}
+
+.panel-eyebrow {
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--tone);
+  margin-bottom: -6px;
+}
+
+.panel-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.panel-meta > span {
+  padding: 6px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+
+  font-size: clamp(12.5px, 0.8vw, 15px);
+  color: rgba(255, 255, 255, 0.75);
+  white-space: nowrap;
+}
+
+.panel-meta strong {
+  color: #fff;
+  font-weight: 800;
+}
+
+/* miniaturas de prendas de la colección */
+.panel-thumbs {
+  display: flex;
+  align-items: center;
+}
+
+.panel .panel-thumbs img,
+.panel-thumbs-more {
+  position: relative;
+  inset: auto;
+
+  width: clamp(46px, 3vw, 62px);
+  height: clamp(46px, 3vw, 62px);
+  margin-left: -10px;
+
+  border: 2px solid #0a0e19;
+  border-radius: 12px;
+  object-fit: cover;
+  background: #fff;
+
+  filter: none;
+  mix-blend-mode: normal;
+  opacity: 1;
+  transform: none;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.45);
+}
+
+.panel .panel-thumbs img:first-child {
+  margin-left: 0;
+}
+
+.panel-thumbs-more {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  background: var(--tone);
+  color: #0a0e19;
+  font-size: 13px;
+  font-weight: 800;
 }
 
 .panel-go {
@@ -404,7 +607,7 @@
   align-items: center;
   gap: 12px;
 
-  font-size: 13px;
+  font-size: clamp(13px, 0.8vw, 15px);
   font-weight: 700;
   letter-spacing: 2px;
   text-transform: uppercase;
@@ -423,17 +626,17 @@
 }
 
 .panel.is-active:hover .panel-go {
-  color: var(--color-accent);
+  color: var(--tone);
 }
 
 .panel.is-active:hover .panel-go-line {
   width: 72px;
-  background: var(--color-accent);
+  background: var(--tone);
 }
 
 .panel.is-active:hover .panel-go i {
   transform: translateX(4px);
-  color: var(--color-accent);
+  color: var(--tone);
 }
 
 /* ---------------- PISTA ---------------- */
@@ -500,6 +703,7 @@
   .panel,
   .panel img,
   .panel-content,
+  .panel-ghost,
   .vitrina-index-line {
     transition: none !important;
   }
@@ -530,7 +734,7 @@
   }
 
   .vitrina-head {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
       "index"
       "title"
@@ -539,6 +743,30 @@
 
   .vitrina-aside {
     max-width: none;
+  }
+
+  .vitrina-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .vitrina-count + .vitrina-count {
+    padding-left: 14px;
+  }
+
+  .vitrina-count span {
+    white-space: normal;
+    letter-spacing: 1px;
+  }
+
+  .vitrina-range {
+    display: block;
+    margin-top: 2px;
+    color: var(--color-accent);
+  }
+
+  .vitrina-count strong {
+    font-size: 32px;
   }
 
   .vitrina-stage {
@@ -559,7 +787,7 @@
   }
 
   .panel.is-active {
-    height: 340px;
+    height: 420px;
   }
 
   .panel-vertical {
@@ -585,20 +813,38 @@
     font-size: 40px;
   }
 
-  .panel-go {
+  .panel-go,
+  .panel-eyebrow,
+  .panel-meta,
+  .panel-thumbs {
     max-height: 0;
     overflow: hidden;
     opacity: 0;
     transition: opacity 0.4s ease, max-height 0.4s ease;
   }
 
-  .panel.is-active .panel-go {
+  .panel.is-active .panel-go,
+  .panel.is-active .panel-eyebrow {
     max-height: 30px;
     opacity: 1;
+  }
+
+  .panel.is-active .panel-meta,
+  .panel.is-active .panel-thumbs {
+    max-height: 90px;
+    opacity: 1;
+  }
+
+  .panel-ghost {
+    font-size: 110px;
   }
 
   .vitrina-light,
   .vitrina-hint {
     display: none;
+  }
+
+  .vitrina-glow {
+    inset: -40px -20px;
   }
 }

@@ -63,42 +63,99 @@
   {% set hay_filtros = filtro_talla_id or filtro_precio_min or filtro_precio_max %}
   {% set num_filtros = [filtro_talla_id, filtro_precio_min or filtro_precio_max]|select|list|length %}
 
+  {# mismo tono por colección que en la página de Categorías #}
+  {% set tonos = ['#4da3ff', '#a855f7', '#22d3ee', '#f472b6', '#f59e0b', '#34d399'] %}
+  {% set tono_de = {} %}
+  {% set nombre_de = {} %}
+  {% for c in categorias %}
+  {% set _ = tono_de.update({c.id: tonos[loop.index0 % tonos|length]}) %}
+  {% set _ = nombre_de.update({c.id: c.nombre}) %}
+  {% endfor %}
+  {% set tono_pagina = tono_de.get(categoria.id) if categoria else none %}
+  {% set precios = productos|map(attribute='precio_desde')|select|list %}
+
   <!-- luces de fondo que se desplazan lentamente -->
   <div class="products-aurora" aria-hidden="true">
     <span></span><span></span><span></span>
   </div>
 
   <!-- ENCABEZADO -->
-  <header class="products-hero">
+  <header class="products-hero" {% if tono_pagina %}style="--tone: {{ tono_pagina }}"{% endif %}>
 
-    <div class="products-hero-text">
+    <p class="drop-index">
+      <span class="drop-index-line"></span>
       {% if query %}
-      <div class="badge"><i class="fa-solid fa-magnifying-glass"></i> Búsqueda</div>
-      <h1>Resultados para <span>"{{ query }}"</span></h1>
-      <p>Esto es lo que encontramos en el catálogo para tu búsqueda.</p>
+      <i class="fa-solid fa-magnifying-glass"></i> Búsqueda
       {% elif categoria %}
-      <div class="badge"><i class="fa-solid fa-layer-group"></i> Colección</div>
-      <h1>Lo nuevo en <span>{{ categoria.nombre }}</span></h1>
-      <p>Las últimas prendas de {{ categoria.nombre|lower }}, listas para tu próximo outfit.</p>
+      <i class="fa-solid fa-layer-group"></i> Colección · Drop 2026
       {% else %}
-      <div class="badge"><i class="fa-solid fa-bolt"></i> Recién llegado</div>
-      <h1>Lo más <span>nuevo</span></h1>
-      <p>Prendas seleccionadas para llevar tu estilo urbano al siguiente nivel.</p>
+      <i class="fa-solid fa-bolt"></i> Recién llegado · Drop 2026
       {% endif %}
-    </div>
+    </p>
 
-    <div class="products-hero-stats">
-      <div class="hero-stat">
-        <strong>{{ productos|length }}</strong>
-        <span>{{ 'Prenda' if productos|length == 1 else 'Prendas' }}</span>
-      </div>
-      <div class="hero-stat">
-        <strong>24-48h</strong>
-        <span>Envío nacional</span>
+    <div class="products-hero-main">
+      <h1 class="drop-title">
+        {% if query %}
+        <span>Resultados</span>
+        <span><em>"{{ query }}"</em></span>
+        {% elif categoria %}
+        <span>Lo nuevo en</span>
+        <span><em>{{ categoria.nombre }}.</em></span>
+        {% else %}
+        <span>Lo más</span>
+        <span><em>nuevo.</em></span>
+        {% endif %}
+      </h1>
+
+      <div class="drop-aside">
+        <p>
+          {% if query %}
+          Esto es lo que encontramos en el catálogo para tu búsqueda.
+          {% elif categoria %}
+          Las últimas prendas de {{ categoria.nombre|lower }}, listas para tu próximo outfit.
+          {% else %}
+          Prendas seleccionadas para llevar tu estilo urbano al siguiente nivel.
+          {% endif %}
+        </p>
+
+        <div class="drop-stats">
+          <div class="drop-stat">
+            <strong>{{ "%02d"|format(productos|length) }}</strong>
+            <span>{{ 'prenda' if productos|length == 1 else 'prendas' }}</span>
+          </div>
+          {% if precios %}
+          <div class="drop-stat">
+            <strong><small>$</small>{{ "{:,.0f}".format(precios|min) }}</strong>
+            <span>precio desde</span>
+          </div>
+          {% endif %}
+          <div class="drop-stat">
+            <strong>24–48h</strong>
+            <span>envío nacional</span>
+          </div>
+        </div>
       </div>
     </div>
 
   </header>
+
+  <!-- CINTA: nombres de las colecciones en movimiento -->
+  {% if categorias %}
+  <div class="drop-marquee" aria-hidden="true">
+    <div class="drop-marquee-track">
+      {% for mitad in range(2) %}
+      <span class="drop-marquee-group">
+        {% for vuelta in range(3) %}
+        {% for c in categorias %}
+        <b style="--tone: {{ tono_de[c.id] }}">{{ c.nombre }}</b>
+        <i class="fa-solid fa-asterisk"></i>
+        {% endfor %}
+        {% endfor %}
+      </span>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
 
   <!-- BARRA FIJA: categorías + botón de filtros -->
   <span class="products-toolbar-sentinel" id="toolbarSentinel" aria-hidden="true"></span>
@@ -106,11 +163,15 @@
 
     <div class="cat-pills" role="navigation" aria-label="Categorías">
       <a href="{{ url_for('productos.products') }}" class="cat-pill {{ 'active' if not categoria_actual and not query }}">
-        <i class="fa-solid fa-border-all"></i> Todo
+        <span class="cat-pill-num">00</span> Todo
       </a>
       {% for c in categorias %}
-      <a href="{{ url_for('productos.categoria_productos', id=c.id) }}" class="cat-pill {{ 'active' if categoria_actual == c.id }}">
-        {{ c.nombre }}
+      <a
+        href="{{ url_for('productos.categoria_productos', id=c.id) }}"
+        class="cat-pill {{ 'active' if categoria_actual == c.id }}"
+        style="--tone: {{ tono_de[c.id] }}"
+      >
+        <span class="cat-pill-num">{{ "%02d"|format(loop.index) }}</span> {{ c.nombre }}
       </a>
       {% endfor %}
     </div>
@@ -193,12 +254,25 @@
     </div>
   </div>
 
-  {# el primer producto se muestra en grande cuando hay suficientes para lucirlo #}
-  {% set con_destacado = not query and not hay_filtros and productos|length >= 4 %}
+  {% if productos %}
+  <div class="drop-grid-head">
+    <span class="drop-grid-title">
+      <span class="drop-grid-line"></span>
+      {{ 'Selección' if not query else 'Coincidencias' }}
+    </span>
+    <span class="drop-grid-count">
+      Mostrando <strong>{{ productos|length }}</strong> {{ 'prenda' if productos|length == 1 else 'prendas' }}
+    </span>
+  </div>
+  {% endif %}
 
   <div class="products-grid">
     {% for producto in productos %}
-    {{ product_card(producto, destacado=(con_destacado and loop.first)) }}
+    {{ product_card(
+      producto,
+      tono=tono_de.get(producto.categoria_id),
+      etiqueta=nombre_de.get(producto.categoria_id)
+    ) }}
     {% endfor %}
   </div>
 
