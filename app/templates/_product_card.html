@@ -1,9 +1,15 @@
-{# Tarjeta compacta de producto: toda la tarjeta lleva a la ficha de detalle #}
-{% macro product_card(producto, destacado=false) %}
+{# Tarjeta compacta de producto: toda la tarjeta lleva a la ficha de detalle.
+   tono / etiqueta son opcionales (los usa el catálogo "Nuevo"). #}
+{% macro product_card(producto, destacado=false, tono=none, etiqueta=none) %}
+{% set foto = url_for('productos.imagen_producto', id=producto.id) if producto.tiene_imagen else url_for('static', filename='img/urbanstyle.png') %}
 {% set agotado = not producto.stock_total or producto.stock_total <= 0 %}
 {% set tallas_ok = producto.tallas|selectattr('stock', 'gt', 0)|list %}
 
-<a href="{{ url_for('productos.detalle_producto', id=producto.id) }}" class="product-card {{ 'is-featured' if destacado }}">
+<a
+  href="{{ url_for('productos.detalle_producto', id=producto.id) }}"
+  class="product-card {{ 'is-featured' if destacado }}"
+  {% if tono %}style="--tone: {{ tono }}"{% endif %}
+>
 
   <div class="product-image">
     {% if agotado %}
@@ -22,8 +28,12 @@
     </span>
     {% endif %}
 
+    {# la misma foto, desenfocada, rellena el recuadro detrás de la foto completa #}
+    <img class="product-image-fondo" src="{{ foto }}" alt="" aria-hidden="true" loading="lazy">
+
     <img
-      src="{{ url_for('productos.imagen_producto', id=producto.id) if producto.tiene_imagen else url_for('static', filename='img/urbanstyle.png') }}"
+      class="product-image-foto"
+      src="{{ foto }}"
       alt="{{ producto.nombre }}"
       loading="lazy"
     >
@@ -34,6 +44,10 @@
   </div>
 
   <div class="product-info">
+
+    {% if etiqueta %}
+    <span class="product-cat">{{ etiqueta }}</span>
+    {% endif %}
 
     <h3 title="{{ producto.nombre }}">{{ producto.nombre }}</h3>
 

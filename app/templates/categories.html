@@ -78,9 +78,21 @@
           Cada colección tiene su propio carácter. Recorre los paneles
           y entra a la que vaya contigo.
         </p>
-        <div class="vitrina-count">
-          <strong>{{ "%02d"|format(categorias|length) }}</strong>
-          <span>{{ 'colección' if categorias|length == 1 else 'colecciones' }}</span>
+        <div class="vitrina-stats">
+          <div class="vitrina-count">
+            <strong>{{ "%02d"|format(categorias|length) }}</strong>
+            <span>{{ 'colección' if categorias|length == 1 else 'colecciones' }}</span>
+          </div>
+          <div class="vitrina-count">
+            <strong>{{ "%02d"|format(total_productos) }}</strong>
+            <span>{{ 'prenda' if total_productos == 1 else 'prendas' }}</span>
+          </div>
+          {% if tallas %}
+          <div class="vitrina-count">
+            <strong>{{ tallas|length }}</strong>
+            <span>tallas <em class="vitrina-range">· {{ (tallas|first).nombre }}–{{ (tallas|last).nombre }}</em></span>
+          </div>
+          {% endif %}
         </div>
       </div>
 
@@ -88,30 +100,76 @@
 
     {% if categorias %}
     <!-- GALERÍA DE PANELES: el activo se expande y recupera el color -->
+    {# un tono por colección para que cada panel tenga identidad propia #}
+    {% set tonos = ['#4da3ff', '#a855f7', '#22d3ee', '#f472b6', '#f59e0b', '#34d399'] %}
     <div class="vitrina-stage" id="vitrinaStage">
       <span class="vitrina-light" aria-hidden="true"></span>
+      <span class="vitrina-glow" aria-hidden="true"></span>
 
       {% for fila in categorias|batch(5) %}
       {% set fila_index = loop.index0 %}
       <div class="vitrina-row">
         {% for c in fila %}
         {% set numero = "%02d"|format(fila_index * 5 + loop.index) %}
+        {% set tono = tonos[(fila_index * 5 + loop.index0) % tonos|length] %}
         <a
           href="{{ url_for('productos.categoria_productos', id=c.id) }}"
-          class="panel {{ 'is-active' if loop.first }}"
-          style="--i: {{ loop.index0 }}"
+          class="panel {{ 'is-active' if loop.first }} {{ 'sin-foto' if not c.tiene_imagen }}"
+          style="--i: {{ loop.index0 }}; --tone: {{ tono }}"
         >
           <img
             src="{{ url_for('productos.imagen_categoria', id=c.id) if c.tiene_imagen else url_for('static', filename='img/ropa.png') }}"
             alt="{{ c.nombre }}"
           >
 
-          <span class="panel-num">{{ numero }}</span>
+          <span class="panel-ghost" aria-hidden="true">{{ numero }}</span>
+
+          <span class="panel-top">
+            <span class="panel-num">{{ numero }}</span>
+            <span class="panel-badge">
+              <i class="fa-solid fa-shirt"></i>
+              {{ c.total_productos }}
+            </span>
+          </span>
 
           <span class="panel-vertical" aria-hidden="true">{{ c.nombre }}</span>
 
           <span class="panel-content">
+            <span class="panel-eyebrow">Colección {{ numero }}</span>
             <span class="panel-name">{{ c.nombre }}</span>
+
+            <span class="panel-meta">
+              <span>
+                <strong>{{ c.total_productos }}</strong>
+                {{ 'prenda' if c.total_productos == 1 else 'prendas' }}
+              </span>
+              {% if c.precio_desde %}
+              <span>
+                Desde <strong>${{ "{:,.0f}".format(c.precio_desde) }}</strong>
+              </span>
+              {% endif %}
+              {% if c.stock_total %}
+              <span>
+                <strong>{{ c.stock_total }}</strong> disponibles
+              </span>
+              {% endif %}
+            </span>
+
+            {% if c.miniaturas %}
+            <span class="panel-thumbs">
+              {% for m in c.miniaturas %}
+              <img
+                src="{{ url_for('productos.imagen_producto', id=m.id) }}"
+                alt="{{ m.nombre }}"
+                loading="lazy"
+              >
+              {% endfor %}
+              {% if c.total_productos > c.miniaturas|length %}
+              <span class="panel-thumbs-more">+{{ c.total_productos - c.miniaturas|length }}</span>
+              {% endif %}
+            </span>
+            {% endif %}
+
             <span class="panel-go">
               Explorar
               <span class="panel-go-line"></span>

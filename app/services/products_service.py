@@ -87,8 +87,7 @@ def _consultar_productos(
     tallas_por_producto = {}
     for fila in cursor.fetchall():
         vistas = tallas_por_producto.setdefault(fila["producto_id"], {})
-        # una talla puede tener varios colores: nos quedamos con la primera
-        # existencia (la de menor precio, por el ORDER BY) por cada talla
+        # cada (producto, talla) es una sola existencia (clave unica en la BD)
         vistas.setdefault(
             fila["talla_id"],
             {
@@ -152,7 +151,7 @@ def buscar_productos(query, talla_id=None, precio_min=None, precio_max=None):
 
 def obtener_detalle_producto(id):
     """Ficha completa de un producto activo: categoria, marca y todas sus
-    existencias (talla + color) para la pagina de detalle. Devuelve None
+    existencias (una por talla) para la pagina de detalle. Devuelve None
     si no existe o esta inactivo.
     """
     conexion = conectar()
@@ -175,13 +174,11 @@ def obtener_detalle_producto(id):
         cursor.execute(
             """
             SELECT e.id AS existencia_id, e.precio, e.stock,
-                   t.id AS talla_id, t.nombre AS talla,
-                   co.id AS color_id, co.nombre AS color
+                   t.id AS talla_id, t.nombre AS talla
             FROM existencias e
             JOIN tallas t ON t.id = e.talla_id
-            JOIN colores co ON co.id = e.color_id
             WHERE e.producto_id = %s AND e.estado = 'activo'
-            ORDER BY t.id, co.nombre
+            ORDER BY t.id
             """,
             (id,),
         )
@@ -194,13 +191,9 @@ def obtener_detalle_producto(id):
         producto["precio_desde"] = min(precios) if precios else None
         producto["stock_total"] = sum(e["stock"] for e in existencias)
 
-        # tallas y colores unicos, en el orden de la consulta
-        producto["tallas"] = list(
-            {e["talla_id"]: {"id": e["talla_id"], "nombre": e["talla"]} for e in existencias}.values()
-        )
-        producto["colores"] = list(
-            {e["color_id"]: {"id": e["color_id"], "nombre": e["color"]} for e in existencias}.values()
-        )
+        producto["tallas"] = [
+            {"id": e["talla_id"], "nombre": e["talla"]} for e in existencias
+        ]
 
     conexion.close()
     return producto
@@ -265,10 +258,51 @@ def listar_categorias():
     conexion = conectar()
     cursor = conexion.cursor()
     cursor.execute(
-        "SELECT id, nombre, (imagen IS NOT NULL) AS tiene_imagen FROM categorias"
+        "SELECT id, nombre, (imagen IS NOT NULL) AS tiene_imagen FROM categorias ORDER BY id"
     )
     categorias = cursor.fetchall()
     conexion.close()
+    return categorias
+
+
+def listar_categorias_vitrina(miniaturas=3):
+    """Categorias para la pagina de colecciones, con lo que tienen dentro:
+    cuantos productos activos, precio desde, unidades disponibles y los
+    ids de hasta `miniaturas` productos con foto para mostrarlos.
+    """
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute(
+        """
+        SELECT c.id, c.nombre, (c.imagen IS NOT NULL) AS tiene_imagen,
+               COUNT(DISTINCT p.id) AS total_productos,
+               MIN(e.precio) AS precio_desde,
+               COALESCE(SUM(e.stock), 0) AS stock_total
+        FROM categorias c
+        LEFT JOIN productos p ON p.categoria_id = c.id AND p.estado = 'activo'
+        LEFT JOIN existencias e ON e.producto_id = p.id AND e.estado = 'activo'
+        GROUP BY c.id, c.nombre
+        ORDER BY c.id
+        """
+    )
+    categorias = cursor.fetchall()
+
+    cursor.execute(
+        """
+        SELECT id, nombre, categoria_id FROM productos
+        WHERE estado = 'activo' AND imagen IS NOT NULL
+        ORDER BY created_at DESC, id DESC
+        """
+    )
+    por_categoria = {}
+    for producto in cursor.fetchall():
+        lista = por_categoria.setdefault(producto["categoria_id"], [])
+        if len(lista) < miniaturas:
+            lista.append(producto)
+    conexion.close()
+
+    for categoria in categorias:
+        categoria["miniaturas"] = por_categoria.get(categoria["id"], [])
     return categorias
 
 
@@ -527,12 +561,11 @@ def listar_existencias_producto(producto_id):
     cursor.execute(
         """
         SELECT e.id, e.precio, e.stock, e.estado,
-               t.nombre AS talla, c.nombre AS color
+               t.nombre AS talla
         FROM existencias e
         JOIN tallas t ON t.id = e.talla_id
-        JOIN colores c ON c.id = e.color_id
         WHERE e.producto_id = %s
-        ORDER BY t.id, c.nombre
+        ORDER BY t.id
         """,
         (producto_id,),
     )
@@ -542,7 +575,7 @@ def listar_existencias_producto(producto_id):
 
 
 def listar_inventario():
-    """Inventario completo: cada existencia (producto + talla + color) con
+    """Inventario completo: cada existencia (producto + talla) con
     su stock, para el reporte de "consultar inventario completo".
     """
     conexion = conectar()
@@ -550,12 +583,11 @@ def listar_inventario():
     cursor.execute(
         """
         SELECT e.id, p.nombre AS producto_nombre, p.referencia,
-               t.nombre AS talla, c.nombre AS color, e.precio, e.stock, e.estado
+               t.nombre AS talla, e.precio, e.stock, e.estado
         FROM existencias e
         JOIN productos p ON p.id = e.producto_id
         JOIN tallas t ON t.id = e.talla_id
-        JOIN colores c ON c.id = e.color_id
-        ORDER BY p.nombre, t.id, c.nombre
+        ORDER BY p.nombre, t.id
         """
     )
     inventario = cursor.fetchall()
@@ -563,8 +595,48 @@ def listar_inventario():
     return inventario
 
 
+def crear_existencia(datos):
+    """Agrega una talla a un producto (una existencia nueva) con su precio
+    y stock inicial. El SKU se arma como <referencia>-<talla>.
+    """
+    try:
+        producto_id = int(datos.get("producto_id", ""))
+        talla_id = int(datos.get("talla_id", ""))
+        precio = float(datos.get("precio", ""))
+        stock = int(datos.get("stock", "0") or 0)
+    except ValueError:
+        raise ValueError("Completa producto, talla, precio y stock con valores válidos")
+    if precio <= 0:
+        raise ValueError("El precio debe ser mayor a 0")
+    stock = max(0, stock)
+
+    conexion = conectar()
+    cursor = conexion.cursor()
+    try:
+        cursor.execute(
+            """
+            INSERT INTO existencias (producto_id, talla_id, sku, precio, stock, estado)
+            SELECT p.id, t.id,
+                   IF(p.referencia IS NULL, NULL, CONCAT(p.referencia, '-', t.nombre)),
+                   %s, %s, IF(%s > 0, 'activo', 'agotado')
+            FROM productos p JOIN tallas t ON t.id = %s
+            WHERE p.id = %s
+            """,
+            (precio, stock, stock, talla_id, producto_id),
+        )
+        if cursor.rowcount == 0:
+            conexion.rollback()
+            raise ValueError("El producto o la talla no existen")
+        conexion.commit()
+    except pymysql.err.IntegrityError:
+        conexion.rollback()
+        raise ValueError("Ese producto ya tiene esa talla registrada")
+    finally:
+        conexion.close()
+
+
 def actualizar_stock_existencia(existencia_id, stock):
-    """Actualiza el stock de una existencia puntual (producto+talla+color).
+    """Actualiza el stock de una existencia puntual (producto+talla).
 
     Si el stock queda en 0 la marca como 'agotado'; si vuelve a haber
     stock la reactiva, igual que hace la venta al descontar (ver

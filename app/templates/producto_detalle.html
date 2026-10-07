@@ -57,14 +57,6 @@
 
 {% include 'header.html' %}
 
-{# colores de la BD -> muestra visual; los que no esten aqui usan un degradado neutro #}
-{% set colores_hex = {
-  'negro': '#111827', 'blanco': '#f8fafc', 'azul': '#2563eb', 'rojo': '#dc2626',
-  'gris': '#9ca3af', 'verde': '#16a34a', 'beige': '#d6c7a1', 'amarillo': '#facc15',
-  'rosado': '#f472b6', 'rosa': '#f472b6', 'morado': '#9333ea', 'naranja': '#f97316',
-  'cafe': '#7c4a2d', 'café': '#7c4a2d', 'marron': '#7c4a2d', 'marrón': '#7c4a2d'
-} %}
-
 {% set disponibles = producto.existencias|selectattr('stock', 'gt', 0)|list %}
 {% set inicial = disponibles|first if disponibles else none %}
 {% set precios = producto.existencias|map(attribute='precio')|unique|list %}
@@ -142,29 +134,6 @@
 
         <input type="hidden" name="existencia_id" id="pdExistencia" value="{{ inicial.existencia_id if inicial else '' }}">
 
-        <!-- COLOR -->
-        <div class="pd-option">
-          <div class="pd-option-head">
-            <span>Color</span>
-            <strong id="pdColorName">{{ inicial.color if inicial else '' }}</strong>
-          </div>
-
-          <div class="pd-swatches">
-            {% for c in producto.colores %}
-            {% set hex = colores_hex.get(c.nombre|lower) %}
-            <button
-              type="button"
-              class="pd-swatch {{ 'active' if inicial and inicial.color_id == c.id }}"
-              data-color="{{ c.id }}"
-              data-nombre="{{ c.nombre }}"
-              title="{{ c.nombre }}"
-              aria-label="Color {{ c.nombre }}"
-              style="--swatch: {{ hex or 'linear-gradient(135deg, #64748b, #cbd5e1)' }}"
-            ></button>
-            {% endfor %}
-          </div>
-        </div>
-
         <!-- TALLA -->
         <div class="pd-option">
           <div class="pd-option-head">
@@ -237,7 +206,6 @@
               <li><span>Referencia</span><strong>{{ producto.referencia }}</strong></li>
               {% endif %}
               <li><span>Tallas</span><strong>{{ producto.tallas|map(attribute='nombre')|join(', ') or '—' }}</strong></li>
-              <li><span>Colores</span><strong>{{ producto.colores|map(attribute='nombre')|join(', ') or '—' }}</strong></li>
             </ul>
           </div>
         </details>

@@ -8,7 +8,7 @@ def obtener_items(user_id):
         """
         SELECT dc.id AS detalle_id, dc.cantidad, e.id AS existencia_id, e.precio,
                p.id AS producto_id, p.nombre AS producto_nombre,
-               t.nombre AS talla, col.nombre AS color,
+               t.nombre AS talla,
                (e.precio * dc.cantidad) AS subtotal,
                (p.imagen IS NOT NULL) AS tiene_imagen
         FROM carrito c
@@ -16,7 +16,6 @@ def obtener_items(user_id):
         JOIN existencias e ON e.id = dc.existencia_id
         JOIN productos p ON p.id = e.producto_id
         JOIN tallas t ON t.id = e.talla_id
-        JOIN colores col ON col.id = e.color_id
         WHERE c.user_id = %s
         ORDER BY dc.id
         """,
@@ -45,59 +44,34 @@ def contar_items(user_id):
 
 
 def agregar(user_id, producto_id, existencia_id=None):
-    """Agrega al carrito la existencia pedida (o, si ya no tiene stock, otro
-    color de la misma talla). Nunca sustituye por otra talla en silencio:
-    si no hay nada disponible para lo que se pidio, devuelve un error en
-    vez de agregar cualquier cosa.
+    """Agrega al carrito una unidad de la talla pedida (existencia_id).
+    Nunca la sustituye por otra talla en silencio: si esa talla ya no
+    tiene stock, o el carrito ya tiene todo el stock disponible, devuelve
+    un error en vez de agregar cualquier cosa.
     """
     conexion = conectar()
     cursor = conexion.cursor()
 
-    existencia = None
-    talla_id = None
-
     if existencia_id:
         cursor.execute(
-            "SELECT talla_id FROM existencias WHERE id=%s AND producto_id=%s",
-            (existencia_id, producto_id),
-        )
-        fila_talla = cursor.fetchone()
-        if fila_talla:
-            talla_id = fila_talla["talla_id"]
-
-        cursor.execute(
             """
-            SELECT id FROM existencias
+            SELECT id, stock FROM existencias
             WHERE id=%s AND producto_id=%s AND estado='activo' AND stock>0
             """,
             (existencia_id, producto_id),
         )
-        existencia = cursor.fetchone()
-
-    if not existencia and talla_id:
-        # el color elegido ya no tiene stock: busca otro color de la MISMA talla
-        cursor.execute(
-            """
-            SELECT id FROM existencias
-            WHERE producto_id=%s AND talla_id=%s AND estado='activo' AND stock>0
-            ORDER BY precio ASC LIMIT 1
-            """,
-            (producto_id, talla_id),
-        )
-        existencia = cursor.fetchone()
-
-    if not existencia and not existencia_id:
+    else:
         # no llego ninguna talla (ej. todas se mostraban deshabilitadas):
         # se ofrece cualquier existencia disponible del producto
         cursor.execute(
             """
-            SELECT id FROM existencias
+            SELECT id, stock FROM existencias
             WHERE producto_id=%s AND estado='activo' AND stock>0
             ORDER BY precio ASC LIMIT 1
             """,
             (producto_id,),
         )
-        existencia = cursor.fetchone()
+    existencia = cursor.fetchone()
 
     if not existencia:
         conexion.close()
@@ -116,10 +90,18 @@ def agregar(user_id, producto_id, existencia_id=None):
         carrito_id = cursor.lastrowid
 
     cursor.execute(
-        "SELECT id FROM detalle_carrito WHERE carrito_id=%s AND existencia_id=%s",
+        "SELECT id, cantidad FROM detalle_carrito WHERE carrito_id=%s AND existencia_id=%s",
         (carrito_id, existencia["id"]),
     )
     detalle = cursor.fetchone()
+
+    if detalle and detalle["cantidad"] >= existencia["stock"]:
+        conexion.rollback()
+        conexion.close()
+        return {
+            "ok": False,
+            "error": "Ya tienes en la bolsa todas las unidades disponibles de esa talla.",
+        }
 
     if detalle:
         cursor.execute(
@@ -141,14 +123,16 @@ def agregar(user_id, producto_id, existencia_id=None):
 
 
 def sumar(user_id, detalle_id):
+    """Suma una unidad, sin pasar del stock disponible de esa talla."""
     conexion = conectar()
     cursor = conexion.cursor()
     cursor.execute(
         """
         UPDATE detalle_carrito dc
         JOIN carrito c ON c.id = dc.carrito_id
+        JOIN existencias e ON e.id = dc.existencia_id
         SET dc.cantidad = dc.cantidad + 1
-        WHERE dc.id=%s AND c.user_id=%s
+        WHERE dc.id=%s AND c.user_id=%s AND dc.cantidad < e.stock
         """,
         (detalle_id, user_id),
     )

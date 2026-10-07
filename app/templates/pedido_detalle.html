@@ -142,7 +142,6 @@
             <tr>
               <th>Producto</th>
               <th>Talla</th>
-              <th>Color</th>
               <th>Cantidad</th>
               <th>Precio unitario</th>
               <th>Subtotal</th>
@@ -154,7 +153,6 @@
             <tr>
               <td>{{ item.producto_nombre }}</td>
               <td>{{ item.talla }}</td>
-              <td>{{ item.color }}</td>
               <td>{{ item.cantidad }}</td>
               <td>$ {{ "{:,.0f}".format(item.precio_unitario) }}</td>
               <td>$ {{ "{:,.0f}".format(item.subtotal) }}</td>
@@ -164,19 +162,19 @@
 
           <tfoot>
             <tr>
-              <td colspan="5">Subtotal</td>
+              <td colspan="4">Subtotal</td>
               <td>$ {{ "{:,.0f}".format(pedido.subtotal) }}</td>
             </tr>
             <tr>
-              <td colspan="5">IVA</td>
+              <td colspan="4">IVA</td>
               <td>$ {{ "{:,.0f}".format(pedido.iva) }}</td>
             </tr>
             <tr>
-              <td colspan="5">Envío</td>
+              <td colspan="4">Envío</td>
               <td>$ {{ "{:,.0f}".format(pedido.envio) }}</td>
             </tr>
             <tr>
-              <td colspan="5"><strong>Total</strong></td>
+              <td colspan="4"><strong>Total</strong></td>
               <td><strong>$ {{ "{:,.0f}".format(pedido.total) }}</strong></td>
             </tr>
           </tfoot>

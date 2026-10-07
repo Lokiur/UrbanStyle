@@ -1,11 +1,13 @@
 /* =========================================================
-   PRODUCTS  (pagina "Nuevo" / Nuestra Coleccion)
+   PRODUCTS  (pagina "Nuevo" / coleccion / busqueda)  —  "drop"
    ---------------------------------------------------------
-   Sigue la identidad de la portada: badge con borde en
-   degradado, titulo con palabra resaltada en azul, tarjetas
-   glass (como .hero-stat). Momentos propios: luces que
-   derivan detras del encabezado, entrada desenfocada del
-   titulo, barra de categorias fija y un producto destacado.
+   Hace juego con Categorias sin repetir sus paneles: mismo
+   ancho completo, titulo grande en dos lineas, cifras con
+   divisores y el mismo tono por coleccion (--tone), que
+   aqui viaja a las pestanas, las tarjetas y los precios.
+   Momentos propios: cinta con las colecciones en
+   movimiento, pestanas numeradas y entrada desenfocada
+   del encabezado.
    ========================================================= */
 
 /* responsive.css pone overflow-x:hidden en html y body, lo que
@@ -17,10 +19,12 @@ body {
 }
 
 .products {
+  --ease: cubic-bezier(0.65, 0, 0.35, 1);
+
   position: relative;
-  max-width: 1400px;
+  max-width: 2200px;
   margin: 0 auto;
-  padding: 100px 80px 120px;
+  padding: clamp(48px, 4vw, 80px) clamp(20px, 4.5vw, 110px) clamp(80px, 6vw, 120px);
 }
 
 /* ---------- LUCES DE FONDO ---------- */
@@ -84,28 +88,20 @@ body {
 /* ---------- ENCABEZADO ---------- */
 
 .products-hero {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 40px;
-
-  margin-bottom: 44px;
-}
-
-.products-hero-text {
-  max-width: 720px;
+  --tone: var(--color-accent);
+  margin-bottom: clamp(30px, 3vw, 48px);
 }
 
 /* cada pieza del encabezado entra desenfocada y se aclara */
-.products-hero-text > *,
-.products-hero-stats .hero-stat {
+.drop-index,
+.drop-title > span,
+.drop-aside {
   animation: heroFocus 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
 }
 
-.products-hero-text > :nth-child(2) { animation-delay: 0.1s; }
-.products-hero-text > :nth-child(3) { animation-delay: 0.2s; }
-.products-hero-stats .hero-stat { animation-delay: 0.3s; }
-.products-hero-stats .hero-stat + .hero-stat { animation-delay: 0.4s; }
+.drop-title > span:nth-child(1) { animation-delay: 0.08s; }
+.drop-title > span:nth-child(2) { animation-delay: 0.18s; }
+.drop-aside { animation-delay: 0.32s; }
 
 @keyframes heroFocus {
   from {
@@ -120,49 +116,180 @@ body {
   }
 }
 
-.products-hero .badge {
-  margin-bottom: 24px;
-}
+.drop-index {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 22px;
 
-.products-hero .badge i {
-  color: var(--color-accent);
-}
-
-.products-hero h1 {
-  font-size: 68px;
+  font-size: 12px;
   font-weight: 800;
-  line-height: 1.02;
-  letter-spacing: -1px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--tone);
+}
 
-  margin-bottom: 20px;
+.drop-index-line {
+  width: 48px;
+  height: 2px;
+  background: currentColor;
+}
+
+.drop-index i {
+  font-size: 11px;
+}
+
+.products-hero-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 24px 60px;
+}
+
+.drop-title {
+  display: flex;
+  flex-direction: column;
+
+  font-size: clamp(50px, min(7.2vw, 12vh), 150px);
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.045em;
   overflow-wrap: anywhere;
 }
 
-.products-hero h1 span {
-  color: var(--color-accent);
-  text-shadow: 0 0 25px color-mix(in srgb, var(--color-accent) 50%, transparent);
+.drop-title > span:first-child {
+  color: #fff;
 }
 
-.products-hero p {
-  max-width: 540px;
+/* segunda linea: palabra en el tono de la pagina con brillo */
+.drop-title em {
+  font-style: normal;
+  color: var(--tone);
+  text-shadow: 0 0 28px color-mix(in srgb, var(--tone) 50%, transparent);
+}
 
-  font-size: 18px;
-  line-height: 1.6;
+.drop-aside {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  max-width: clamp(420px, 32vw, 600px);
+  padding-bottom: 10px;
+}
+
+.drop-aside p {
+  font-size: 16px;
+  line-height: 1.7;
   opacity: 0.7;
 }
 
-.products-hero-stats {
+.drop-stats {
   display: flex;
-  gap: 14px;
+  gap: 0;
+
+  padding-top: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.drop-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-right: 26px;
+}
+
+.drop-stat + .drop-stat {
+  padding-left: 26px;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.drop-stat strong {
+  font-size: clamp(26px, 2.2vw, 42px);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -1px;
+  white-space: nowrap;
+  color: var(--tone);
+}
+
+.drop-stat strong small {
+  margin-right: 2px;
+  font-size: 0.55em;
+}
+
+.drop-stat:nth-child(2) strong {
+  color: #fff;
+}
+
+.drop-stat:nth-child(3) strong {
+  color: var(--color-accent-2);
+}
+
+.drop-stat span {
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
+/* ---------- CINTA DE COLECCIONES ---------- */
+
+.drop-marquee {
+  overflow: hidden;
+  margin: 0 calc(-1 * clamp(20px, 4.5vw, 110px)) clamp(26px, 2.6vw, 40px);
+  padding: 16px 0;
+
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(90deg, rgba(77, 163, 255, 0.05), rgba(168, 85, 247, 0.06));
+
+  -webkit-mask: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  mask: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+
+.drop-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: dropMarquee 40s linear infinite;
+}
+
+.drop-marquee:hover .drop-marquee-track {
+  animation-play-state: paused;
+}
+
+.drop-marquee-group {
+  display: flex;
+  align-items: center;
   flex-shrink: 0;
 }
 
-.products-hero-stats .hero-stat {
-  min-width: 140px;
+.drop-marquee b {
+  padding: 0 28px;
+
+  font-size: clamp(26px, 2.6vw, 44px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+
+  color: transparent;
+  -webkit-text-stroke: 1.2px color-mix(in srgb, var(--tone) 75%, transparent);
+  transition: color 0.3s ease;
 }
 
-.products-hero-stats .hero-stat:first-child strong {
-  color: var(--color-accent);
+.drop-marquee b:nth-of-type(odd) {
+  color: var(--tone);
+  -webkit-text-stroke: 0;
+  text-shadow: 0 0 22px color-mix(in srgb, var(--tone) 40%, transparent);
+}
+
+.drop-marquee i {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+@keyframes dropMarquee {
+  to { transform: translateX(-50%); }
 }
 
 /* ---------- BARRA FIJA: CATEGORIAS + FILTROS ---------- */
@@ -237,20 +364,33 @@ body {
   transition: border-color 0.25s, color 0.25s, background 0.25s, box-shadow 0.25s;
 }
 
-.cat-pill i {
-  font-size: 12px;
+.cat-pill {
+  --tone: var(--color-accent);
+}
+
+/* numero de la coleccion, en su tono */
+.cat-pill-num {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: var(--tone);
+  transition: color 0.25s;
 }
 
 .cat-pill:hover {
-  border-color: color-mix(in srgb, var(--color-accent) 60%, transparent);
+  border-color: color-mix(in srgb, var(--tone) 60%, transparent);
   color: #fff;
 }
 
 .cat-pill.active {
-  border-color: var(--color-accent);
-  background: color-mix(in srgb, var(--color-accent) 16%, transparent);
+  border-color: var(--tone);
+  background: color-mix(in srgb, var(--tone) 16%, transparent);
   color: #fff;
-  box-shadow: 0 0 22px color-mix(in srgb, var(--color-accent) 30%, transparent);
+  box-shadow: 0 0 22px color-mix(in srgb, var(--tone) 30%, transparent);
+}
+
+.cat-pill.active .cat-pill-num {
+  color: #fff;
 }
 
 .filters-toggle {
@@ -494,11 +634,132 @@ body {
 
 /* ---------- GRID ---------- */
 
+/* cabecera de la cuadricula */
+.drop-grid-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 22px;
+
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.drop-grid-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #fff;
+}
+
+.drop-grid-line {
+  width: 28px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-2));
+}
+
+.drop-grid-count {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.drop-grid-count strong {
+  color: #fff;
+}
+
 .products-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(clamp(230px, 15vw, 300px), 1fr));
   grid-auto-flow: dense;
-  gap: 24px;
+  gap: clamp(18px, 1.4vw, 28px);
+}
+
+/* ---------- TARJETAS EN EL TONO DE SU COLECCION ---------- */
+/* (solo en esta pagina; la tarjeta base esta en product-card.css) */
+
+.products .product-card {
+  --tone: var(--color-accent);
+  position: relative;
+}
+
+/* filo superior en el tono de la coleccion */
+.products .product-card::before {
+  content: "";
+  position: absolute;
+  z-index: 3;
+  top: 0;
+  left: 18px;
+  right: 18px;
+  height: 2px;
+
+  border-radius: 0 0 4px 4px;
+  background: var(--tone);
+  box-shadow: 0 0 14px var(--tone);
+  opacity: 0.75;
+  transition: left 0.4s var(--ease), right 0.4s var(--ease), opacity 0.3s;
+}
+
+.products .product-card:hover::before {
+  left: 0;
+  right: 0;
+  opacity: 1;
+}
+
+.products .product-card:hover,
+.products .product-card:focus-visible {
+  border-color: color-mix(in srgb, var(--tone) 50%, transparent);
+  box-shadow:
+    0 24px 50px rgba(0, 0, 0, 0.45),
+    0 0 0 1px color-mix(in srgb, var(--tone) 22%, transparent),
+    0 18px 40px -20px var(--tone);
+}
+
+.products .product-image {
+  background:
+    radial-gradient(120% 120% at 50% 0%, color-mix(in srgb, var(--tone) 22%, transparent), transparent 60%),
+    rgba(255, 255, 255, 0.03);
+}
+
+.product-cat {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--tone);
+  margin-bottom: -4px;
+}
+
+.products .price {
+  color: var(--tone);
+  text-shadow: 0 0 22px color-mix(in srgb, var(--tone) 35%, transparent);
+}
+
+.products .product-meta i {
+  color: var(--tone);
+}
+
+.products .product-card:hover .product-cart {
+  background: var(--tone);
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--tone) 40%, transparent);
+  color: #0a0e19;
+}
+
+/* destacado: filo mas marcado */
+.products .product-card.is-featured {
+  border-color: color-mix(in srgb, var(--tone) 35%, transparent);
+  background:
+    radial-gradient(120% 80% at 0% 100%, color-mix(in srgb, var(--tone) 12%, transparent), transparent 60%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+}
+
+.products .product-card.is-featured h3 {
+  font-size: clamp(24px, 1.8vw, 34px);
+}
+
+.products .product-card.is-featured .price {
+  font-size: clamp(30px, 2.2vw, 40px);
 }
 
 /* ---------- SIN RESULTADOS ---------- */
@@ -552,8 +813,10 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .products-aurora span,
-  .products-hero-text > *,
-  .products-hero-stats .hero-stat {
+  .drop-index,
+  .drop-title > span,
+  .drop-aside,
+  .drop-marquee-track {
     animation: none;
   }
 
@@ -565,9 +828,12 @@ body {
 /* ---------- RESPONSIVE ---------- */
 
 @media (max-width: 1100px) {
-  .products-hero {
-    flex-direction: column;
-    align-items: flex-start;
+  .products-hero-main {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .drop-aside {
+    max-width: none;
   }
 
   .products-filters-fields {
@@ -576,40 +842,53 @@ body {
 }
 
 @media (max-width: 900px) {
-  .products {
-    padding: 80px 40px 100px;
-  }
-
-  .products-hero h1 {
-    font-size: 50px;
+  .drop-marquee {
+    margin-left: -40px;
+    margin-right: -40px;
   }
 }
 
 @media (max-width: 600px) {
-  .products {
-    padding: 60px 20px 80px;
-  }
-
   .products-hero {
-    gap: 28px;
-    margin-bottom: 32px;
+    margin-bottom: 26px;
   }
 
-  .products-hero h1 {
-    font-size: 40px;
+  .drop-title {
+    font-size: 44px;
   }
 
-  .products-hero p {
-    font-size: 16px;
+  .drop-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .products-hero-stats {
-    width: 100%;
+  .drop-stat {
+    padding-right: 10px;
   }
 
-  .products-hero-stats .hero-stat {
-    flex: 1;
-    min-width: 0;
+  .drop-stat + .drop-stat {
+    padding-left: 12px;
+  }
+
+  .drop-stat strong {
+    font-size: clamp(18px, 5.4vw, 24px);
+    letter-spacing: -0.5px;
+  }
+
+  .drop-stat span {
+    font-size: 10px;
+    letter-spacing: 1px;
+  }
+
+  .drop-marquee {
+    margin-left: -20px;
+    margin-right: -20px;
+    padding: 12px 0;
+  }
+
+  .drop-grid-head {
+    font-size: 10.5px;
+    letter-spacing: 1.2px;
   }
 
   .products-toolbar {
@@ -660,7 +939,7 @@ body {
 }
 
 @media (max-width: 400px) {
-  .products-hero h1 {
-    font-size: 32px;
+  .drop-title {
+    font-size: 36px;
   }
 }

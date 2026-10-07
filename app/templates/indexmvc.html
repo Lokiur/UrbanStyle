@@ -892,8 +892,46 @@
                     <div>
                         <h1 class="admin-page-title">Inventario</h1>
                         <p class="admin-page-subtitle">
-                            Consulta y actualiza el stock de cada talla y color por producto.
+                            Consulta y actualiza el stock de cada talla por producto.
                         </p>
+                    </div>
+
+                    <div class="section-card">
+                        <div class="section-card-header">
+                            <h2>Agregar talla a un producto</h2>
+                        </div>
+
+                        {% if error_inventario %}
+                        <div class="admin-error">
+                            <i class="fa-solid fa-circle-exclamation"></i>
+                            <span>{{ error_inventario }}</span>
+                        </div>
+                        {% endif %}
+
+                        <form
+                            action="{{ url_for('admin.crear_existencia') }}"
+                            method="POST"
+                            class="admin-form-grid"
+                        >
+                            <select name="producto_id" required>
+                                <option value="" disabled selected>Producto</option>
+                                {% for p in productos %}
+                                <option value="{{ p.id }}">{{ p.nombre }} ({{ p.referencia }})</option>
+                                {% endfor %}
+                            </select>
+
+                            <select name="talla_id" required>
+                                <option value="" disabled selected>Talla</option>
+                                {% for t in tallas %}
+                                <option value="{{ t.id }}">{{ t.nombre }}</option>
+                                {% endfor %}
+                            </select>
+
+                            <input type="number" name="precio" placeholder="Precio" min="1" step="0.01" required />
+                            <input type="number" name="stock" placeholder="Stock inicial" min="0" required />
+
+                            <button class="primary-btn">Agregar talla</button>
+                        </form>
                     </div>
 
                     <div class="section-card">
@@ -910,7 +948,6 @@
                                         <th>Producto</th>
                                         <th>Referencia</th>
                                         <th>Talla</th>
-                                        <th>Color</th>
                                         <th>Precio</th>
                                         <th>Estado</th>
                                         <th>Stock</th>
@@ -922,7 +959,6 @@
                                         <td>{{ e.producto_nombre }}</td>
                                         <td>{{ e.referencia }}</td>
                                         <td>{{ e.talla }}</td>
-                                        <td>{{ e.color }}</td>
                                         <td>$ {{ "{:,.0f}".format(e.precio) }}</td>
                                         <td>
                                             <span class="badge-estado {{ e.estado }}">{{ e.estado }}</span>

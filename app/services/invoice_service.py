@@ -167,7 +167,7 @@ def _datos_cliente(factura, estilos):
 
 def _detalle(factura, estilos):
     """Tabla de productos comprados."""
-    filas = [["Producto", "Talla / Color", "Cant.", "Precio unit.", "Subtotal"]]
+    filas = [["Producto", "Talla", "Cant.", "Precio unit.", "Subtotal"]]
 
     for item in factura["items"]:
         filas.append(
@@ -178,7 +178,7 @@ def _detalle(factura, estilos):
                     ),
                     estilos["texto"],
                 ),
-                "{} / {}".format(item["talla"], item["color"]),
+                item["talla"],
                 str(item["cantidad"]),
                 _pesos(item["precio_unitario"]),
                 _pesos(item["subtotal"]),
