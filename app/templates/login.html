@@ -73,6 +73,11 @@
                     <i class="bi bi-exclamation-triangle-fill"></i>
                     <span>{{ message }}</span>
                 </div>
+                {% elif request.args.get('restablecida') %}
+                <div class="auth-alert is-ok">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <span>Contraseña actualizada. Ya puedes iniciar sesión.</span>
+                </div>
                 {% endif %}
 
                 <form class="auth-form" action="{{ url_for('auth.login') }}" method="POST" novalidate>

@@ -610,6 +610,8 @@ def actualizar_estado_pedido(factura_id, nuevo_estado):
 
     conexion = conectar()
     cursor = conexion.cursor()
+    # conectar() usa autocommit: sin begin() el rollback no desharia nada
+    conexion.begin()
 
     try:
         cursor.execute(
@@ -656,6 +658,8 @@ def cancelar_pedido_cliente(user_id, factura_id):
     """
     conexion = conectar()
     cursor = conexion.cursor()
+    # conectar() usa autocommit: sin begin() el rollback no desharia nada
+    conexion.begin()
 
     try:
         cursor.execute(
@@ -861,6 +865,8 @@ def marcar_direccion_principal(user_id, direccion_id):
     """
     conexion = conectar()
     cursor = conexion.cursor()
+    # conectar() usa autocommit: sin begin() el rollback no desharia nada
+    conexion.begin()
     try:
         cursor.execute(
             "UPDATE direcciones SET principal=0 WHERE user_id=%s", (user_id,)
@@ -1054,6 +1060,8 @@ def crear_pedido(user_id, form, metodo_pago_id):
 
     conexion = conectar()
     cursor = conexion.cursor()
+    # conectar() usa autocommit: sin begin() el rollback no desharia nada
+    conexion.begin()
 
     try:
         cursor.execute(

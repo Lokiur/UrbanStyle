@@ -46,14 +46,14 @@
                 <div class="auth-brand-mid">
                     <h2>Recupera<br /><em>tu acceso</em></h2>
                     <p>
-                        Verifica tu identidad con tu usuario y tu documento
-                        para definir una contraseña nueva.
+                        Te enviaremos un enlace a tu correo para que
+                        definas una contraseña nueva.
                     </p>
 
                     <ul class="auth-points">
-                        <li><i class="bi bi-shield-lock"></i> Verificación por documento</li>
-                        <li><i class="bi bi-key"></i> Nueva contraseña al instante</li>
-                        <li><i class="bi bi-shield-check"></i> Proceso 100&nbsp;% cifrado</li>
+                        <li><i class="bi bi-envelope-check"></i> Verificación por correo</li>
+                        <li><i class="bi bi-hourglass-split"></i> Enlace válido 30 minutos</li>
+                        <li><i class="bi bi-shield-check"></i> Un solo uso por enlace</li>
                     </ul>
                 </div>
 
@@ -65,8 +65,18 @@
 
                 <header class="auth-head">
                     <h1>Recuperar contraseña</h1>
-                    <p>Confirma tus datos para continuar.</p>
+                    <p>Escribe el correo con el que te registraste.</p>
                 </header>
+
+                {% if enviado %}
+                <div class="auth-alert is-ok">
+                    <i class="bi bi-envelope-check-fill"></i>
+                    <span>
+                        Si <strong>{{ email }}</strong> está registrado, te enviamos un enlace
+                        para restablecer tu contraseña. Revisa también la carpeta de spam.
+                    </span>
+                </div>
+                {% else %}
 
                 {% if message %}
                 <div class="auth-alert">
@@ -87,30 +97,8 @@
                     />
 
                     <label class="field">
-                        <span class="field-label"><i class="bi bi-person"></i> Usuario</span>
-                        <input type="text" name="username" placeholder="Tu usuario" autocomplete="username" required />
-                    </label>
-
-                    <label class="field">
-                        <span class="field-label"><i class="bi bi-credit-card-2-front"></i> Documento de identidad</span>
-                        <input type="text" name="documento_identidad" placeholder="Tu documento" inputmode="numeric" required />
-                    </label>
-
-                    <label class="field">
-                        <span class="field-label"><i class="bi bi-lock"></i> Nueva contraseña</span>
-                        <span class="field-control">
-                            <input
-                                type="password"
-                                name="nueva_password"
-                                id="pw"
-                                placeholder="Mínimo 8 caracteres, con letras y números"
-                                autocomplete="new-password"
-                                required
-                            />
-                            <button type="button" class="field-toggle" data-target="pw" aria-label="Mostrar u ocultar contraseña">
-                                <i class="bi bi-eye"></i>
-                            </button>
-                        </span>
+                        <span class="field-label"><i class="bi bi-envelope"></i> Correo electrónico</span>
+                        <input type="email" name="email" value="{{ email or '' }}" placeholder="tucorreo@ejemplo.com" autocomplete="email" required />
                     </label>
 
                     <!-- CAPTCHA -->
@@ -139,10 +127,11 @@
                     </div>
 
                     <button type="submit" class="auth-submit" {{ 'disabled' if captcha_bloqueado }}>
-                        Actualizar contraseña
+                        Enviar enlace
                     </button>
 
                 </form>
+                {% endif %}
 
                 <div class="auth-links">
                     <span>¿Ya la recordaste?</span>
@@ -152,20 +141,6 @@
             </section>
 
         </main>
-
-        <script>
-            document.querySelectorAll(".field-toggle").forEach(function (btn) {
-                btn.addEventListener("click", function () {
-                    var input = document.getElementById(btn.dataset.target);
-                    if (!input) return;
-                    var toText = input.type === "password";
-                    input.type = toText ? "text" : "password";
-                    btn.querySelector("i").className = toText
-                        ? "bi bi-eye-slash"
-                        : "bi bi-eye";
-                });
-            });
-        </script>
 
     </body>
 </html>
