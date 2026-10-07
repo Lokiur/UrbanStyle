@@ -5,8 +5,8 @@
    ancho completo, titulo grande en dos lineas, cifras con
    divisores y el mismo tono por coleccion (--tone), que
    aqui viaja a las pestanas, las tarjetas y los precios.
-   Momentos propios: cinta con las colecciones en
-   movimiento, pestanas numeradas y entrada desenfocada
+   Momentos propios: riel con las prendas recien
+   llegadas (foto, coleccion y precio), pestanas numeradas y entrada desenfocada
    del encabezado.
    ========================================================= */
 
@@ -232,63 +232,152 @@ body {
   opacity: 0.6;
 }
 
-/* ---------- CINTA DE COLECCIONES ---------- */
+/* ---------- RIEL DE RECIÉN LLEGADOS ---------- */
+/* en vez de palabras sueltas, pasan las prendas de verdad:
+   foto, nombre, colección y precio en el tono de su colección */
 
-.drop-marquee {
-  overflow: hidden;
-  margin: 0 calc(-1 * clamp(20px, 4.5vw, 110px)) clamp(26px, 2.6vw, 40px);
-  padding: 16px 0;
-
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  background: linear-gradient(90deg, rgba(77, 163, 255, 0.05), rgba(168, 85, 247, 0.06));
-
-  -webkit-mask: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
-  mask: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
-}
-
-.drop-marquee-track {
+.drop-rail {
   display: flex;
-  width: max-content;
-  animation: dropMarquee 40s linear infinite;
+  align-items: stretch;
+  gap: 10px;
+
+  margin-bottom: clamp(26px, 2.6vw, 40px);
+  padding: 8px;
+
+  border: 1px solid var(--color-surface-border);
+  border-radius: 24px;
+  background:
+    linear-gradient(90deg, rgba(77, 163, 255, 0.06), rgba(168, 85, 247, 0.06)),
+    var(--color-surface);
+  backdrop-filter: blur(10px);
 }
 
-.drop-marquee:hover .drop-marquee-track {
-  animation-play-state: paused;
-}
-
-.drop-marquee-group {
-  display: flex;
+/* etiqueta fija a la izquierda, con el degradado de los botones del sitio */
+.drop-rail-label {
+  display: inline-flex;
   align-items: center;
+  gap: 10px;
   flex-shrink: 0;
-}
 
-.drop-marquee b {
-  padding: 0 28px;
+  padding: 0 22px;
 
-  font-size: clamp(26px, 2.6vw, 44px);
+  border-radius: 18px;
+  background: linear-gradient(135deg, var(--color-accent-strong), var(--color-accent));
+  box-shadow: 0 10px 26px color-mix(in srgb, var(--color-accent) 28%, transparent);
+
+  color: #fff;
+  font-size: 12px;
   font-weight: 800;
-  letter-spacing: -0.02em;
+  letter-spacing: 2px;
   text-transform: uppercase;
   white-space: nowrap;
-
-  color: transparent;
-  -webkit-text-stroke: 1.2px color-mix(in srgb, var(--tone) 75%, transparent);
-  transition: color 0.3s ease;
 }
 
-.drop-marquee b:nth-of-type(odd) {
-  color: var(--tone);
-  -webkit-text-stroke: 0;
-  text-shadow: 0 0 22px color-mix(in srgb, var(--tone) 40%, transparent);
+.drop-rail-label i {
+  color: #fff;
+  animation: railPulse 1.8s ease-in-out infinite;
 }
 
-.drop-marquee i {
+@keyframes railPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+
+.drop-rail-window {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+
+  -webkit-mask: linear-gradient(90deg, transparent, #000 5%, #000 92%, transparent);
+  mask: linear-gradient(90deg, transparent, #000 5%, #000 92%, transparent);
+}
+
+.drop-rail-track {
+  display: flex;
+  width: max-content;
+  animation: dropRail 50s linear infinite;
+  will-change: transform;
+}
+
+.drop-rail-group {
+  display: flex;
+  flex-shrink: 0;
+  gap: 10px;
+  padding-right: 10px;
+}
+
+.drop-rail-item {
+  --tone: var(--color-accent);
+
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+
+  padding: 7px 18px 7px 7px;
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.035);
+
+  transition: border-color 0.25s, background 0.25s;
+}
+
+.drop-rail-item:hover {
+  border-color: color-mix(in srgb, var(--tone) 55%, transparent);
+  background: color-mix(in srgb, var(--tone) 10%, transparent);
+}
+
+.drop-rail-item img {
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+
+  border-radius: 12px;
+  object-fit: cover;
+  background:
+    radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--tone) 30%, transparent), transparent 70%),
+    rgba(255, 255, 255, 0.06);
+}
+
+.drop-rail-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  max-width: 190px;
+}
+
+.drop-rail-name {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.35);
+  font-weight: 700;
+  color: #fff;
 }
 
-@keyframes dropMarquee {
+.drop-rail-cat {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--tone);
+}
+
+.drop-rail-item b {
+  padding-left: 14px;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  white-space: nowrap;
+  color: var(--tone);
+  text-shadow: 0 0 18px color-mix(in srgb, var(--tone) 35%, transparent);
+}
+
+@keyframes dropRail {
   to { transform: translateX(-50%); }
 }
 
@@ -816,7 +905,8 @@ body {
   .drop-index,
   .drop-title > span,
   .drop-aside,
-  .drop-marquee-track {
+  .drop-rail-track,
+  .drop-rail-label i {
     animation: none;
   }
 
@@ -838,13 +928,6 @@ body {
 
   .products-filters-fields {
     justify-content: flex-start;
-  }
-}
-
-@media (max-width: 900px) {
-  .drop-marquee {
-    margin-left: -40px;
-    margin-right: -40px;
   }
 }
 
@@ -880,10 +963,26 @@ body {
     letter-spacing: 1px;
   }
 
-  .drop-marquee {
-    margin-left: -20px;
-    margin-right: -20px;
-    padding: 12px 0;
+  .drop-rail {
+    flex-direction: column;
+    padding: 6px;
+    border-radius: 20px;
+  }
+
+  .drop-rail-label {
+    justify-content: center;
+    padding: 9px 16px;
+    border-radius: 14px;
+    font-size: 11px;
+  }
+
+  .drop-rail-item img {
+    width: 40px;
+    height: 40px;
+  }
+
+  .drop-rail-text {
+    max-width: 140px;
   }
 
   .drop-grid-head {

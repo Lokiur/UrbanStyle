@@ -139,20 +139,42 @@
 
   </header>
 
-  <!-- CINTA: nombres de las colecciones en movimiento -->
-  {% if categorias %}
-  <div class="drop-marquee" aria-hidden="true">
-    <div class="drop-marquee-track">
-      {% for mitad in range(2) %}
-      <span class="drop-marquee-group">
-        {% for vuelta in range(3) %}
-        {% for c in categorias %}
-        <b style="--tone: {{ tono_de[c.id] }}">{{ c.nombre }}</b>
-        <i class="fa-solid fa-asterisk"></i>
+  <!-- RIEL: las prendas de la página pasando con su foto y precio
+       (no en búsquedas: ahí no son "recién llegadas") -->
+  {% if productos and not query %}
+  {% set riel = productos[:10] %}
+  {# se repiten hasta sumar unas 10 por mitad, así llenan pantallas anchas
+     y el bucle no deja un hueco vacío cuando hay pocas prendas #}
+  {% set vueltas = ((10 / riel|length)|round(0, 'ceil'))|int %}
+  <div class="drop-rail" aria-hidden="true">
+    <span class="drop-rail-label">
+      <i class="fa-solid fa-bolt"></i>
+      Acaba de llegar
+    </span>
+    <div class="drop-rail-window">
+      <div class="drop-rail-track">
+        {% for mitad in range(2) %}
+        <span class="drop-rail-group">
+          {% for vuelta in range(vueltas) %}
+          {% for p in riel %}
+          <span class="drop-rail-item" style="--tone: {{ tono_de.get(p.categoria_id, '#4da3ff') }}">
+            <img
+              src="{{ url_for('productos.imagen_producto', id=p.id) if p.tiene_imagen else url_for('static', filename='img/urbanstyle.png') }}"
+              alt=""
+            >
+            <span class="drop-rail-text">
+              <span class="drop-rail-name">{{ p.nombre }}</span>
+              <span class="drop-rail-cat">{{ nombre_de.get(p.categoria_id, 'Colección') }}</span>
+            </span>
+            {% if p.precio_desde %}
+            <b>${{ "{:,.0f}".format(p.precio_desde) }}</b>
+            {% endif %}
+          </span>
+          {% endfor %}
+          {% endfor %}
+        </span>
         {% endfor %}
-        {% endfor %}
-      </span>
-      {% endfor %}
+      </div>
     </div>
   </div>
   {% endif %}
