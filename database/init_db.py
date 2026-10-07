@@ -9,14 +9,13 @@ def conectar():
     Si no se puede conectar, el error se propaga en vez de devolver None
     (ningun servicio sabria que hacer con una conexion None).
     """
-    return pymysql.conne
-        host="127.0.0.1",# Cambiar 'localhost' por '127.0.0.1' evita problemas
-de DNS en Windows
+    return pymysql.connect(
+        host="127.0.0.1",  # Cambiar 'localhost' por '127.0.0.1' evita problemas de DNS en Windows
         user="root",
         password="",
         database="urbanstyle",
-        port=3306,# ¡Vere es el 3306 o el 3307!
+        port=3306,  # Verificar si es el 3306 o el 3307
         charset="utf8mb4",
-        cursorclass=pymy
+        cursorclass=pymysql.cursors.DictCursor,
         autocommit=False,
     )
