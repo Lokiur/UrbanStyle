@@ -13,7 +13,16 @@ def index():
 
 @home.route("/offers")
 def offers():
-    return render_template("offers.html")
+    # el titular sale de los descuentos que el admin tenga asignados:
+    # si cambian o se quitan, la pagina cambia sola (no hay textos fijos)
+    ofertas = products_service.obtener_ofertas()
+    descuentos = {p["descuento"] for p in ofertas}
+    return render_template(
+        "offers.html",
+        ofertas=ofertas,
+        descuento_max=max(descuentos, default=0),
+        descuento_variable=len(descuentos) > 1,
+    )
 
 
 @home.route("/about")

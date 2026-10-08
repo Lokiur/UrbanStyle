@@ -107,4 +107,10 @@ document.addEventListener("DOMContentLoaded", () => {
   if (target) {
     showAdminSection(requested, target);
   }
+
+  // tras eliminar/desactivar, lleva la vista al aviso sobre el listado
+  const aviso = document.getElementById("avisoListaProductos");
+  if (aviso) {
+    aviso.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
 });

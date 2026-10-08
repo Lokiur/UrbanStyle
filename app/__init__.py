@@ -28,6 +28,14 @@ def create_app():
     # antes de guardarlas (ver products_service._leer_imagen)
     app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024
 
+    # bases creadas antes de las ofertas no tienen productos.descuento
+    from app.services import products_service
+
+    try:
+        products_service.asegurar_columna_descuento()
+    except Exception as error:  # MySQL apagado: la app arranca igual
+        app.logger.warning("No se pudo verificar productos.descuento: %s", error)
+
     from app.routes.admin_routes import admin
     from app.routes.auth_routes import auth
     from app.routes.cart_routes import carrito

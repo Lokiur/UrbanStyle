@@ -102,7 +102,13 @@
           <div class="carrito-item-info">
             <h4>{{ item.producto_nombre }}</h4>
             <p>Talla {{ item.talla }}</p>
-            <span class="carrito-item-precio">$ {{ "{:,.0f}".format(item.precio) }}</span>
+            <span class="carrito-item-precio">
+              $ {{ "{:,.0f}".format(item.precio) }}
+              {% if item.descuento %}
+              <s>$ {{ "{:,.0f}".format(item.precio_original) }}</s>
+              <em>-{{ item.descuento }}%</em>
+              {% endif %}
+            </span>
           </div>
 
           <div class="qty-control">

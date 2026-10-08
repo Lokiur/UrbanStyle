@@ -579,7 +579,7 @@
                             enctype="multipart/form-data"
                             class="admin-form-grid"
                         >
-                            <input name="referencia" placeholder="Referencia" required />
+                            {# la referencia (REF + id) se asigna sola al guardar #}
                             <input name="nombre" placeholder="Nombre" required />
 
                             <select name="categoria_id" required>
@@ -601,6 +601,28 @@
                                 style="grid-column: 1/4"
                             />
 
+                            <label class="admin-descuento">
+                                Descuento (%)
+                                <input
+                                    type="number"
+                                    name="descuento"
+                                    min="0"
+                                    max="90"
+                                    step="1"
+                                    value="0"
+                                    list="descuentos-sugeridos"
+                                />
+                                <small>0 = sin oferta · con descuento aparece en Ofertas</small>
+                            </label>
+
+                            <datalist id="descuentos-sugeridos">
+                                <option value="0"></option>
+                                <option value="10"></option>
+                                <option value="20"></option>
+                                <option value="30"></option>
+                                <option value="50"></option>
+                            </datalist>
+
                             <label style="grid-column: 1/4">
                                 Imagen del producto
                                 <input type="file" name="imagen" accept="image/*" />
@@ -616,6 +638,13 @@
                             <span>{{ total_productos }} en total</span>
                         </div>
 
+                        {% if aviso_lista_productos %}
+                        <div class="{{ 'admin-ok' if aviso_lista_productos.ok else 'admin-error' }}" id="avisoListaProductos">
+                            <i class="fa-solid {{ 'fa-circle-check' if aviso_lista_productos.ok else 'fa-circle-exclamation' }}"></i>
+                            <span>{{ aviso_lista_productos.texto }}</span>
+                        </div>
+                        {% endif %}
+
                         <div class="table-container">
                             <table class="admin-table">
                                 <thead>
@@ -626,6 +655,7 @@
                                         <th>Nombre</th>
                                         <th>Categoría</th>
                                         <th>Marca</th>
+                                        <th>Oferta</th>
                                         <th>Estado</th>
                                         <th>Acciones</th>
                                     </tr>
@@ -633,7 +663,7 @@
 
                                 <tbody>
                                     {% for p in productos %}
-                                    <tr>
+                                    <tr class="{{ 'fila-inactiva' if p.estado == 'inactivo' }}">
                                         <td>{{ p.id }}</td>
                                         <td>
                                             {% if p.tiene_imagen %}
@@ -651,9 +681,19 @@
                                         <td>{{ p.categoria_nombre }}</td>
                                         <td>{{ p.marca_nombre }}</td>
                                         <td>
+                                            {% if p.descuento %}
+                                            <span class="badge-oferta">-{{ p.descuento }}%</span>
+                                            {% else %}
+                                            <span style="opacity: .5">—</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
                                             <span class="badge-estado {{ p.estado }}">
                                                 {{ p.estado }}
                                             </span>
+                                            {% if p.estado == 'inactivo' %}
+                                            <small class="nota-estado">oculto en la tienda</small>
+                                            {% endif %}
                                         </td>
 
                                         <td>
@@ -665,12 +705,28 @@
                                                     Editar
                                                 </button>
 
-                                                <a
-                                                    href="{{ url_for('admin.eliminar_producto', id=p.id) }}"
-                                                    style="color: #ff4d4d"
+                                                {# con ventas no se puede borrar (dañaria las facturas): se desactiva #}
+                                                {% if not p.ventas %}
+                                                <form
+                                                    action="{{ url_for('admin.eliminar_producto', id=p.id) }}"
+                                                    method="POST"
+                                                    onsubmit='return confirm({{ ("¿Eliminar \"" ~ p.nombre ~ "\"? Se borrará del todo.")|tojson }})'
                                                 >
-                                                    Eliminar
-                                                </a>
+                                                    <button type="submit" class="link-danger">Eliminar</button>
+                                                </form>
+                                                {% elif p.estado == 'activo' %}
+                                                <form
+                                                    action="{{ url_for('admin.eliminar_producto', id=p.id) }}"
+                                                    method="POST"
+                                                    onsubmit='return confirm({{ ("\"" ~ p.nombre ~ "\" tiene ventas, así que no se puede borrar sin dañar las facturas. ¿Desactivarlo? Dejará de verse en la tienda.")|tojson }})'
+                                                >
+                                                    <button type="submit" class="link-danger">Desactivar</button>
+                                                </form>
+                                                {% else %}
+                                                <span class="nota-estado" title="Tiene ventas en facturas: no se puede borrar">
+                                                    Con ventas · no se borra
+                                                </span>
+                                                {% endif %}
                                             </div>
                                         </td>
                                     </tr>
@@ -685,10 +741,10 @@
                                                 method="POST"
                                                 enctype="multipart/form-data"
                                             >
-                                                <input
-                                                    name="referencia"
-                                                    value="{{ p.referencia }}"
-                                                />
+                                                <label>
+                                                    Referencia (automática)
+                                                    <input value="{{ p.referencia or 'Sin referencia' }}" readonly disabled />
+                                                </label>
                                                 <input name="nombre" value="{{ p.nombre }}" />
                                                 <input
                                                     name="descripcion"
@@ -733,6 +789,20 @@
                                                     <option value="activo" {% if p.estado == 'activo' %}selected{% endif %}>Activo</option>
                                                     <option value="inactivo" {% if p.estado == 'inactivo' %}selected{% endif %}>Inactivo</option>
                                                 </select>
+
+                                                <label class="admin-descuento">
+                                                    Descuento (%)
+                                                    <input
+                                                        type="number"
+                                                        name="descuento"
+                                                        min="0"
+                                                        max="90"
+                                                        step="1"
+                                                        value="{{ p.descuento or 0 }}"
+                                                        list="descuentos-sugeridos"
+                                                    />
+                                                    <small>0 = sin oferta · con descuento aparece en Ofertas</small>
+                                                </label>
 
                                                 <button class="primary-btn">Guardar</button>
                                             </form>
@@ -898,13 +968,25 @@
 
                     <div class="section-card">
                         <div class="section-card-header">
-                            <h2>Agregar talla a un producto</h2>
+                            <h2>Agregar stock o talla</h2>
                         </div>
+
+                        <p class="admin-form-hint">
+                            Si el producto ya tiene esa talla, las unidades se suman a su stock
+                            (el precio no cambia). Si es una talla nueva, se crea con el precio indicado.
+                        </p>
 
                         {% if error_inventario %}
                         <div class="admin-error">
                             <i class="fa-solid fa-circle-exclamation"></i>
                             <span>{{ error_inventario }}</span>
+                        </div>
+                        {% endif %}
+
+                        {% if ok_inventario %}
+                        <div class="admin-ok">
+                            <i class="fa-solid fa-circle-check"></i>
+                            <span>{{ ok_inventario }}</span>
                         </div>
                         {% endif %}
 
@@ -927,10 +1009,10 @@
                                 {% endfor %}
                             </select>
 
-                            <input type="number" name="precio" placeholder="Precio" min="1" step="0.01" required />
-                            <input type="number" name="stock" placeholder="Stock inicial" min="0" required />
+                            <input type="number" name="precio" placeholder="Precio (solo si la talla es nueva)" min="1" step="0.01" />
+                            <input type="number" name="stock" placeholder="Unidades a agregar" min="0" required />
 
-                            <button class="primary-btn">Agregar talla</button>
+                            <button class="primary-btn">Agregar al inventario</button>
                         </form>
                     </div>
 

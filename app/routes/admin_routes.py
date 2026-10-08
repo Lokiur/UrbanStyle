@@ -111,9 +111,11 @@ def admin_panel():
         total_mensajes=len(mensajes),
         mensajes_nuevos=sum(1 for m in mensajes if m["estado"] == "nuevo"),
         error_producto=session.pop("error_producto", None),
+        aviso_lista_productos=session.pop("aviso_lista_productos", None),
         error_pedido=session.pop("error_pedido", None),
         error_categoria=session.pop("error_categoria", None),
         error_inventario=session.pop("error_inventario", None),
+        ok_inventario=session.pop("ok_inventario", None),
         tallas=products_service.listar_tallas(),
         filtro_desde=filtro_desde,
         filtro_hasta=filtro_hasta,
@@ -223,11 +225,18 @@ def editar_producto(id):
     return redirect(url_for("admin.admin_panel") + "#section-productos")
 
 
-@admin.route("/producto/eliminar/<int:id>")
+@admin.route("/producto/eliminar/<int:id>", methods=["POST"])
 @admin_required
 def eliminar_producto(id):
-    products_service.eliminar_producto(id)
-    return redirect(url_for("admin.admin_panel"))
+    # el aviso se muestra sobre el listado, donde esta el boton
+    try:
+        session["aviso_lista_productos"] = {
+            "ok": True,
+            "texto": products_service.eliminar_producto(id),
+        }
+    except ValueError as error:
+        session["aviso_lista_productos"] = {"ok": False, "texto": str(error)}
+    return redirect(url_for("admin.admin_panel") + "#section-productos")
 
 
 # =========================
@@ -239,7 +248,7 @@ def eliminar_producto(id):
 @admin_required
 def crear_existencia():
     try:
-        products_service.crear_existencia(request.form)
+        session["ok_inventario"] = products_service.crear_existencia(request.form)
     except ValueError as error:
         session["error_inventario"] = str(error)
     return redirect(url_for("admin.admin_panel") + "#section-inventario")

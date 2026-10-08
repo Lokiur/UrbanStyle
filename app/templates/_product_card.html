@@ -1,5 +1,6 @@
 {# Tarjeta compacta de producto: toda la tarjeta lleva a la ficha de detalle.
-   tono / etiqueta son opcionales (los usa el catálogo "Nuevo"). #}
+   tono / etiqueta son opcionales (los usa el catálogo). La etiqueta
+   "Nuevo" solo sale si el producto es reciente (ver DIAS_NUEVO). #}
 {% macro product_card(producto, destacado=false, tono=none, etiqueta=none) %}
 {% set foto = url_for('productos.imagen_producto', id=producto.id) if producto.tiene_imagen else url_for('static', filename='img/urbanstyle.png') %}
 {% set agotado = not producto.stock_total or producto.stock_total <= 0 %}
@@ -14,6 +15,10 @@
   <div class="product-image">
     {% if agotado %}
     <span class="product-badge out">Agotado</span>
+    {% elif producto.descuento %}
+    <span class="product-badge sale">
+      <i class="fa-solid fa-tag"></i> -{{ producto.descuento }}%
+    </span>
     {% elif destacado %}
     <span class="product-badge featured">
       <i class="fa-solid fa-star"></i> Destacado
@@ -22,7 +27,7 @@
     <span class="product-badge low">
       <i class="fa-solid fa-fire"></i> Últimas unidades
     </span>
-    {% else %}
+    {% elif producto.es_nuevo %}
     <span class="product-badge">
       <i class="fa-solid fa-bolt"></i> Nuevo
     </span>
@@ -59,6 +64,9 @@
       {% if producto.precio_desde %}
       <div class="price">
         <small>$</small>{{ "{:,.0f}".format(producto.precio_desde) }}
+        {% if producto.descuento and producto.precio_original_desde %}
+        <s class="price-before">${{ "{:,.0f}".format(producto.precio_original_desde) }}</s>
+        {% endif %}
       </div>
       {% else %}
       <div class="price muted">Sin precio</div>

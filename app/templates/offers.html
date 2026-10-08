@@ -56,47 +56,107 @@
 
   {% include 'header.html' %}
 
+  {# Tarjeta de oferta tipo cupón: foto, corte perforado y precio con el
+     ahorro. Propia de esta página (el catálogo usa _product_card.html). #}
+  {% macro oferta_card(p) %}
+  {% set foto = url_for('productos.imagen_producto', id=p.id) if p.tiene_imagen else url_for('static', filename='img/urbanstyle.png') %}
+  {% set agotado = not p.stock_total or p.stock_total <= 0 %}
+  {% set tallas_ok = p.tallas|selectattr('stock', 'gt', 0)|list %}
+  <a
+    href="{{ url_for('productos.detalle_producto', id=p.id) }}"
+    class="oferta {{ 'is-out' if agotado }}"
+  >
+    <div class="oferta-foto">
+      <img src="{{ foto }}" alt="{{ p.nombre }}" loading="lazy">
+
+      <span class="oferta-sello" aria-label="{{ p.descuento }} % de descuento">
+        <b>-{{ p.descuento }}<small>%</small></b>
+        <em>off</em>
+      </span>
+
+      {% if agotado %}
+      <span class="oferta-agotado">Agotado</span>
+      {% endif %}
+    </div>
+
+    <div class="oferta-corte" aria-hidden="true"></div>
+
+    <div class="oferta-info">
+      <h3 title="{{ p.nombre }}">{{ p.nombre }}</h3>
+
+      <div class="oferta-precios">
+        <span class="oferta-ahora"><small>$</small>{{ "{:,.0f}".format(p.precio_desde) }}</span>
+        <s>${{ "{:,.0f}".format(p.precio_original_desde) }}</s>
+      </div>
+
+      <span class="oferta-tallas">
+        {% if agotado %}
+        <i class="fa-solid fa-ban"></i> Sin stock por ahora
+        {% else %}
+        <i class="fa-solid fa-ruler-horizontal"></i>
+        {% for t in tallas_ok %}{{ t.nombre }}{{ ' · ' if not loop.last }}{% endfor %}
+        {% endif %}
+      </span>
+
+      <div class="oferta-pie">
+        {% if not agotado %}
+        <span class="oferta-ahorro">
+          Ahorras ${{ "{:,.0f}".format(p.precio_original_desde - p.precio_desde) }}
+        </span>
+        {% endif %}
+        <span class="oferta-ir" aria-hidden="true"><i class="fa-solid fa-arrow-right"></i></span>
+      </div>
+    </div>
+  </a>
+  {% endmacro %}
+
   <!-- OFERTAS -->
 
   <section class="promo">
 
-    <div class="promo-ghost" aria-hidden="true">-30%</div>
+    {# todo el titular depende de los descuentos asignados en el panel #}
+    {% if ofertas %}
+    <div class="promo-ghost" aria-hidden="true">-{{ descuento_max }}%</div>
+    {% endif %}
 
     <div class="promo-main">
 
       <p class="promo-eyebrow">
         <span class="promo-dot"></span>
-        Oferta por tiempo limitado
+        {% if ofertas %}
+        {{ ofertas|length }} {{ 'prenda' if ofertas|length == 1 else 'prendas' }} con descuento
+        {% else %}
+        Sin ofertas activas por ahora
+        {% endif %}
       </p>
 
       <h1 class="promo-title">
-        La Nueva Colección<br>
-        <em>con 30&nbsp;% de descuento</em>
+        {% if ofertas %}
+        Ofertas UrbanStyle<br>
+        <em>{{ 'hasta ' if descuento_variable }}{{ descuento_max }}&nbsp;% de descuento</em>
+        {% else %}
+        Pronto, nuevas ofertas<br>
+        <em>vuelve a revisar</em>
+        {% endif %}
       </h1>
 
       <p class="promo-sub">
-        Streetwear premium de la nueva temporada. Envío gratis en
-        compras superiores a $150.000.
+        {% if ofertas %}
+        Precios rebajados en prendas seleccionadas, hasta agotar existencias.
+        {% else %}
+        Mientras tanto, descubre toda la colección.
+        {% endif %}
+        Envío gratis en compras superiores a $150.000.
       </p>
 
       <div class="promo-actions">
-        <a href="{{ url_for('productos.products') }}" class="primary-btn">
+        <a href="{{ '#prendas-oferta' if ofertas else url_for('productos.products') }}" class="primary-btn">
           <i class="fa-solid fa-bag-shopping"></i>
           Comprar ahora
         </a>
         <a href="{{ url_for('productos.categories') }}" class="secondary-btn">
           Ver categorías
         </a>
-      </div>
-
-      <div class="promo-countdown" id="ofertaTimer" aria-label="Tiempo restante de la oferta">
-        <span class="promo-countdown-label">Termina en</span>
-        <span class="promo-countdown-time">
-          <b data-cd="d">00</b>d <i>:</i>
-          <b data-cd="h">00</b>h <i>:</i>
-          <b data-cd="m">00</b>m <i>:</i>
-          <b data-cd="s">00</b>s
-        </span>
       </div>
 
     </div>
@@ -118,47 +178,43 @@
 
   </section>
 
+  <!-- PRENDAS EN OFERTA: las que el admin marcó con descuento -->
+
+  <section class="promo-productos" id="prendas-oferta">
+
+    <div class="promo-productos-head">
+      <div>
+        <p class="promo-productos-kicker"><i class="fa-solid fa-scissors"></i> Recorta el precio</p>
+        <h2>Prendas en oferta</h2>
+      </div>
+      {% if ofertas %}
+      <span class="promo-productos-count">
+        <b>{{ ofertas|length }}</b> {{ 'prenda' if ofertas|length == 1 else 'prendas' }}
+      </span>
+      {% endif %}
+    </div>
+
+    {% if ofertas %}
+    <div class="promo-productos-grid">
+      {% for producto in ofertas %}
+      {{ oferta_card(producto) }}
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="promo-productos-vacio">
+      <i class="fa-solid fa-tags"></i>
+      <p>Pronto habrá prendas en oferta. Mientras tanto, mira toda la colección.</p>
+      <a href="{{ url_for('productos.products') }}" class="secondary-btn">Ver colección</a>
+    </div>
+    {% endif %}
+
+  </section>
+
   <!-- FOOTER -->
 
   {% include 'footer.html' %}
 
   <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-
-  <script>
-    (function () {
-      var timer = document.getElementById("ofertaTimer");
-      if (!timer) return;
-
-      // Fin del mes actual. Si quedan menos de 2 días, pasa al mes siguiente
-      // para que la cuenta regresiva nunca se vea "vacía".
-      var ahora = new Date();
-      var objetivo = new Date(ahora.getFullYear(), ahora.getMonth() + 1, 1);
-      if (objetivo - ahora < 2 * 864e5) {
-        objetivo = new Date(ahora.getFullYear(), ahora.getMonth() + 2, 1);
-      }
-
-      var d = timer.querySelector('[data-cd="d"]');
-      var h = timer.querySelector('[data-cd="h"]');
-      var m = timer.querySelector('[data-cd="m"]');
-      var s = timer.querySelector('[data-cd="s"]');
-
-      function pad(n) {
-        return (n < 10 ? "0" : "") + n;
-      }
-
-      function tick() {
-        var falta = Math.max(0, objetivo - new Date());
-        var seg = Math.floor(falta / 1000);
-        d.textContent = pad(Math.floor(seg / 86400));
-        h.textContent = pad(Math.floor((seg % 86400) / 3600));
-        m.textContent = pad(Math.floor((seg % 3600) / 60));
-        s.textContent = pad(seg % 60);
-      }
-
-      tick();
-      setInterval(tick, 1000);
-    })();
-  </script>
 
 </body>
 

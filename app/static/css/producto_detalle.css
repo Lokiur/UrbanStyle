@@ -257,6 +257,23 @@ a.pd-tag:hover {
   text-shadow: none;
 }
 
+/* oferta: precio de lista tachado + porcentaje */
+.pd-price-before {
+  font-size: 20px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.pd-price-off {
+  padding: 4px 10px;
+  border-radius: 50px;
+  background: rgba(244, 114, 182, 0.14);
+  color: #f472b6;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
 .pd-price-note {
   font-size: 13px;
   opacity: 0.5;

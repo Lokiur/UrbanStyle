@@ -479,6 +479,30 @@ select {
     background: color-mix(in srgb, var(--color-accent) 15%, transparent);
 }
 
+/* descuento asignado al producto (Productos > listado) */
+.badge-oferta {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 50px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #f472b6;
+    background: rgba(244, 114, 182, 0.12);
+}
+
+/* campo "Descuento (%)" del formulario de producto */
+.admin-descuento {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 13px;
+}
+
+.admin-descuento small {
+    font-size: 11px;
+    opacity: 0.55;
+}
+
 .badge-estado.leido {
     color: rgba(255, 255, 255, 0.6);
     background: rgba(255, 255, 255, 0.06);
@@ -1056,6 +1080,64 @@ select {
 
     color: #fca5a5;
     font-size: 14px;
+}
+
+/* confirmacion (ej. "Se sumaron 5 unidades...") */
+.admin-ok {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    margin: 0 0 20px;
+    padding: 14px 18px;
+
+    background: rgba(74, 222, 128, .1);
+    border: 1px solid rgba(74, 222, 128, .35);
+    border-radius: 12px;
+
+    color: #86efac;
+    font-size: 14px;
+}
+
+/* boton "Eliminar" con aspecto de enlace (es un form POST) */
+.link-danger {
+    padding: 0;
+    border: none;
+    background: none;
+    color: #ff4d4d;
+    font: inherit;
+    cursor: pointer;
+}
+
+.link-danger:hover {
+    text-decoration: underline;
+}
+
+/* producto inactivo en el listado: atenuado, con nota */
+.fila-inactiva td {
+    opacity: .55;
+}
+
+.fila-inactiva td:last-child {
+    opacity: 1;
+}
+
+.nota-estado {
+    display: block;
+    margin-top: 4px;
+    font-size: 11px;
+    opacity: .7;
+}
+
+.action-btns .nota-estado {
+    margin-top: 0;
+    white-space: nowrap;
+}
+
+.admin-form-hint {
+    margin: -6px 0 18px;
+    font-size: 13px;
+    opacity: .6;
 }
 
 /* =========================
