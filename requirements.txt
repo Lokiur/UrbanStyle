@@ -1,5 +1,6 @@
 Flask
 PyMySQL
+DBUtils
 Werkzeug
 reportlab
 python-dotenv

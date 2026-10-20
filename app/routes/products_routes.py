@@ -1,4 +1,4 @@
-from flask import Blueprint, Response, abort, render_template, request
+from flask import Blueprint, abort, render_template, request
 
 from app.services.products_service import (
     buscar_productos,
@@ -12,6 +12,7 @@ from app.services.products_service import (
     obtener_productos,
     obtener_relacionados,
 )
+from app.utils.http import respuesta_imagen
 
 productos = Blueprint("productos", __name__)
 
@@ -51,7 +52,7 @@ def imagen_producto(id):
     fila = obtener_imagen_producto(id)
     if not fila or not fila["imagen"]:
         abort(404)
-    return Response(fila["imagen"], mimetype=fila["imagen_mime"] or "image/jpeg")
+    return respuesta_imagen(fila["imagen"], fila["imagen_mime"])
 
 
 @productos.route("/categoria/<int:id>/imagen")
@@ -59,7 +60,7 @@ def imagen_categoria(id):
     fila = obtener_imagen_categoria(id)
     if not fila or not fila["imagen"]:
         abort(404)
-    return Response(fila["imagen"], mimetype=fila["imagen_mime"] or "image/jpeg")
+    return respuesta_imagen(fila["imagen"], fila["imagen_mime"])
 
 
 @productos.route("/products")

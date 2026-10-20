@@ -1,16 +1,8 @@
-from flask import (
-    Blueprint,
-    Response,
-    abort,
-    redirect,
-    render_template,
-    request,
-    session,
-    url_for,
-)
+from flask import Blueprint, abort, redirect, render_template, request, session, url_for
 
 from app.services import orders_service, users_service
 from app.utils.decorators import login_required
+from app.utils.http import respuesta_imagen
 
 usuario = Blueprint("usuario", __name__)
 
@@ -54,7 +46,7 @@ def avatar_imagen():
     fila = users_service.obtener_imagen_avatar(session["user_id"])
     if not fila or not fila["avatar_imagen"]:
         abort(404)
-    return Response(fila["avatar_imagen"], mimetype=fila["avatar_mime"] or "image/jpeg")
+    return respuesta_imagen(fila["avatar_imagen"], fila["avatar_mime"])
 
 
 @usuario.route("/perfil/direcciones", methods=["POST"])
