@@ -89,6 +89,21 @@
   font-size:14px;
 }
 
+/* producto en oferta: precio de lista tachado + porcentaje */
+.carrito-item-precio s{
+  margin-left:6px;
+  color:rgba(255,255,255,0.45);
+  font-size:12px;
+}
+
+.carrito-item-precio em{
+  margin-left:6px;
+  color:#f472b6;
+  font-size:12px;
+  font-style:normal;
+  font-weight:700;
+}
+
 /* QTY CONTROL */
 
 .qty-control{

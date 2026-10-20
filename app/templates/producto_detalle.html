@@ -81,9 +81,11 @@
       <div class="pd-media" id="pdMedia">
         {% if not disponibles %}
         <span class="product-badge out">Agotado</span>
+        {% elif producto.descuento %}
+        <span class="product-badge sale"><i class="fa-solid fa-tag"></i> -{{ producto.descuento }}%</span>
         {% elif producto.stock_total <= 5 %}
         <span class="product-badge low"><i class="fa-solid fa-fire"></i> Últimas unidades</span>
-        {% else %}
+        {% elif producto.es_nuevo %}
         <span class="product-badge"><i class="fa-solid fa-bolt"></i> Nuevo</span>
         {% endif %}
 
@@ -112,14 +114,15 @@
       {% endif %}
 
       <div class="pd-price-box">
-        {% if inicial %}
+        {% set mostrado = inicial or (producto.existencias|first if producto.existencias else none) %}
+        {% if mostrado %}
         <div class="pd-price">
-          <small>$</small><span id="pdPrice">{{ "{:,.0f}".format(inicial.precio) }}</span>
+          <small>$</small><span id="pdPrice">{{ "{:,.0f}".format(mostrado.precio) }}</span>
         </div>
-        {% elif producto.precio_desde %}
-        <div class="pd-price">
-          <small>$</small><span id="pdPrice">{{ "{:,.0f}".format(producto.precio_desde) }}</span>
-        </div>
+        {% if producto.descuento %}
+        <s class="pd-price-before">$<span id="pdPriceBefore">{{ "{:,.0f}".format(mostrado.precio_original) }}</span></s>
+        <span class="pd-price-off">-{{ producto.descuento }}%</span>
+        {% endif %}
         {% else %}
         <div class="pd-price muted">Precio no disponible</div>
         {% endif %}

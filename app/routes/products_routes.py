@@ -1,6 +1,7 @@
 from flask import Blueprint, Response, abort, render_template, request
 
 from app.services.products_service import (
+    DIAS_NUEVO,
     buscar_productos,
     listar_categorias,
     listar_categorias_vitrina,
@@ -9,11 +10,15 @@ from app.services.products_service import (
     obtener_detalle_producto,
     obtener_imagen_categoria,
     obtener_imagen_producto,
+    obtener_nuevos,
     obtener_productos,
     obtener_relacionados,
 )
 
 productos = Blueprint("productos", __name__)
+
+# prendas que muestra /nuevo cuando no llego nada en los ultimos DIAS_NUEVO dias
+ULTIMOS_INGRESOS = 8
 
 
 def _filtros_desde_request():
@@ -69,6 +74,41 @@ def products():
         "products.html",
         productos=obtener_productos(talla_id, precio_min, precio_max),
         **_contexto_filtros(),
+    )
+
+
+@productos.route("/nuevo")
+def nuevo():
+    """Lo que llego en los ultimos DIAS_NUEVO dias. Las pildoras de
+    categoria filtran dentro de las novedades (?categoria=<id>) y solo
+    aparecen las categorias que tienen alguna. Si no hay ninguna novedad
+    se muestran los ultimos ingresos, sin presentarlos como nuevos.
+    """
+    talla_id, precio_min, precio_max = _filtros_desde_request()
+    categoria_id = request.args.get("categoria", type=int)
+
+    novedades = obtener_nuevos()
+    contexto = _contexto_filtros()
+    con_novedades = {p["categoria_id"] for p in novedades}
+    contexto["categorias_nuevo"] = [
+        c for c in contexto["categorias"] if c["id"] in con_novedades
+    ]
+
+    if not novedades:
+        productos_pagina = obtener_productos()[:ULTIMOS_INGRESOS]
+    elif categoria_id or talla_id or precio_min or precio_max:
+        productos_pagina = obtener_nuevos(categoria_id, talla_id, precio_min, precio_max)
+    else:
+        productos_pagina = novedades
+
+    return render_template(
+        "products.html",
+        modo="nuevo",
+        sin_novedades=not novedades,
+        dias_nuevo=DIAS_NUEVO,
+        productos=productos_pagina,
+        categoria_actual=categoria_id,
+        **contexto,
     )
 
 

@@ -1,4 +1,4 @@
-// Catálogo ("Nuevo"): panel de filtros plegable y barra de categorías fija.
+// Catálogo, categorías y "Nuevo": panel de filtros plegable y barra de categorías fija.
 document.addEventListener("DOMContentLoaded", function() {
     // ---------- FILTROS PLEGABLES ----------
     const toggle = document.getElementById("filtersToggle");

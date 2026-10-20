@@ -1,15 +1,22 @@
 from database.init_db import conectar
+from app.services.products_service import PRECIO_FINAL_SQL
 
 
 def obtener_items(user_id):
+    """Lineas del carrito con el precio ya rebajado si el producto esta en
+    oferta: `precio` y `subtotal` son los que se cobran (y los que
+    `orders_service.crear_pedido` guarda en la factura).
+    """
     conexion = conectar()
     cursor = conexion.cursor()
     cursor.execute(
-        """
-        SELECT dc.id AS detalle_id, dc.cantidad, e.id AS existencia_id, e.precio,
+        f"""
+        SELECT dc.id AS detalle_id, dc.cantidad, e.id AS existencia_id,
+               {PRECIO_FINAL_SQL} AS precio, e.precio AS precio_original,
+               p.descuento,
                p.id AS producto_id, p.nombre AS producto_nombre,
                t.nombre AS talla,
-               (e.precio * dc.cantidad) AS subtotal,
+               ({PRECIO_FINAL_SQL} * dc.cantidad) AS subtotal,
                (p.imagen IS NOT NULL) AS tiene_imagen
         FROM carrito c
         JOIN detalle_carrito dc ON dc.carrito_id = c.id

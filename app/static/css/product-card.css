@@ -161,6 +161,20 @@
   color: #f5a623;
 }
 
+/* producto en oferta (descuento asignado desde el panel) */
+.product-badge.sale {
+  background:
+    linear-gradient(
+      color-mix(in srgb, var(--color-bg-dark) 78%, transparent),
+      color-mix(in srgb, var(--color-bg-dark) 78%, transparent)
+    ) padding-box,
+    linear-gradient(120deg, #f472b6, var(--color-accent-2)) border-box;
+}
+
+.product-badge.sale i {
+  color: #f472b6;
+}
+
 .product-badge.out {
   background: rgba(15, 23, 42, 0.85);
   border-color: rgba(255, 255, 255, 0.15);
@@ -241,6 +255,16 @@
   margin-right: 2px;
   font-size: 0.6em;
   font-weight: 700;
+}
+
+/* precio sin descuento, tachado al lado del precio de oferta */
+.price-before {
+  margin-left: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0;
+  color: rgba(255, 255, 255, 0.45);
+  text-shadow: none;
 }
 
 .price.muted {

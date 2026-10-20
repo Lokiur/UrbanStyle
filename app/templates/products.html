@@ -59,6 +59,9 @@
 
 <section class="products">
 
+  {# modo "nuevo" = /nuevo (solo lo de los últimos días); si no, es la
+     colección completa, una categoría o una búsqueda #}
+  {% set es_nuevo_pagina = modo == 'nuevo' %}
   {% set categoria = categorias|selectattr('id', 'equalto', categoria_actual)|first if categoria_actual else none %}
   {% set hay_filtros = filtro_talla_id or filtro_precio_min or filtro_precio_max %}
   {% set num_filtros = [filtro_talla_id, filtro_precio_min or filtro_precio_max]|select|list|length %}
@@ -86,10 +89,14 @@
       <span class="drop-index-line"></span>
       {% if query %}
       <i class="fa-solid fa-magnifying-glass"></i> Búsqueda
+      {% elif es_nuevo_pagina and sin_novedades %}
+      <i class="fa-solid fa-clock-rotate-left"></i> Novedades
+      {% elif es_nuevo_pagina %}
+      <i class="fa-solid fa-bolt"></i> Recién llegado · últimos {{ dias_nuevo }} días
       {% elif categoria %}
-      <i class="fa-solid fa-layer-group"></i> Colección · Drop 2026
+      <i class="fa-solid fa-layer-group"></i> Categoría
       {% else %}
-      <i class="fa-solid fa-bolt"></i> Recién llegado · Drop 2026
+      <i class="fa-solid fa-layer-group"></i> Colección
       {% endif %}
     </p>
 
@@ -98,12 +105,21 @@
         {% if query %}
         <span>Resultados</span>
         <span><em>"{{ query }}"</em></span>
-        {% elif categoria %}
+        {% elif es_nuevo_pagina and sin_novedades %}
+        <span>Últimos</span>
+        <span><em>ingresos.</em></span>
+        {% elif es_nuevo_pagina and categoria %}
         <span>Lo nuevo en</span>
         <span><em>{{ categoria.nombre }}.</em></span>
-        {% else %}
+        {% elif es_nuevo_pagina %}
         <span>Lo más</span>
         <span><em>nuevo.</em></span>
+        {% elif categoria %}
+        <span>Colección</span>
+        <span><em>{{ categoria.nombre }}.</em></span>
+        {% else %}
+        <span>Toda la</span>
+        <span><em>colección.</em></span>
         {% endif %}
       </h1>
 
@@ -111,8 +127,14 @@
         <p>
           {% if query %}
           Esto es lo que encontramos en el catálogo para tu búsqueda.
+          {% elif es_nuevo_pagina and sin_novedades %}
+          No hay lanzamientos en los últimos {{ dias_nuevo }} días. Estas son las
+          prendas que llegaron más recientemente.
+          {% elif es_nuevo_pagina %}
+          Lo que llegó a la tienda en los últimos {{ dias_nuevo }} días{{ ' en ' ~ categoria.nombre|lower if categoria }},
+          de lo más reciente a lo más antiguo.
           {% elif categoria %}
-          Las últimas prendas de {{ categoria.nombre|lower }}, listas para tu próximo outfit.
+          Todas las prendas de {{ categoria.nombre|lower }}, con lo más reciente primero.
           {% else %}
           Prendas seleccionadas para llevar tu estilo urbano al siguiente nivel.
           {% endif %}
@@ -139,10 +161,10 @@
 
   </header>
 
-  <!-- RIEL: las prendas de la página pasando con su foto y precio
-       (no en búsquedas: ahí no son "recién llegadas") -->
-  {% if productos and not query %}
-  {% set riel = productos[:10] %}
+  <!-- RIEL "Acaba de llegar": solo las prendas de la página que de verdad
+       son nuevas (no en búsquedas; si no hay ninguna nueva, no aparece) -->
+  {% set riel = (productos|selectattr('es_nuevo')|list)[:10] %}
+  {% if riel and not query %}
   {# se repiten hasta sumar unas 10 por mitad, así llenan pantallas anchas
      y el bucle no deja un hueco vacío cuando hay pocas prendas #}
   {% set vueltas = ((10 / riel|length)|round(0, 'ceil'))|int %}
@@ -179,11 +201,29 @@
   </div>
   {% endif %}
 
+  {# sin novedades no hay nada que filtrar: solo se listan los últimos ingresos #}
+  {% if not (es_nuevo_pagina and sin_novedades) %}
+
   <!-- BARRA FIJA: categorías + botón de filtros -->
   <span class="products-toolbar-sentinel" id="toolbarSentinel" aria-hidden="true"></span>
   <div class="products-toolbar" id="productsToolbar">
 
     <div class="cat-pills" role="navigation" aria-label="Categorías">
+      {% if es_nuevo_pagina %}
+      {# en Nuevo filtran dentro de las novedades, y solo las categorías que tienen alguna #}
+      <a href="{{ url_for('productos.nuevo') }}" class="cat-pill {{ 'active' if not categoria_actual }}">
+        <span class="cat-pill-num">00</span> Todo lo nuevo
+      </a>
+      {% for c in categorias_nuevo %}
+      <a
+        href="{{ url_for('productos.nuevo', categoria=c.id) }}"
+        class="cat-pill {{ 'active' if categoria_actual == c.id }}"
+        style="--tone: {{ tono_de[c.id] }}"
+      >
+        <span class="cat-pill-num">{{ "%02d"|format(loop.index) }}</span> {{ c.nombre }}
+      </a>
+      {% endfor %}
+      {% else %}
       <a href="{{ url_for('productos.products') }}" class="cat-pill {{ 'active' if not categoria_actual and not query }}">
         <span class="cat-pill-num">00</span> Todo
       </a>
@@ -196,6 +236,7 @@
         <span class="cat-pill-num">{{ "%02d"|format(loop.index) }}</span> {{ c.nombre }}
       </a>
       {% endfor %}
+      {% endif %}
     </div>
 
     <button
@@ -219,6 +260,9 @@
         <form method="GET" action="{{ request.path }}" class="products-filters">
           {% if query %}
           <input type="hidden" name="q" value="{{ query }}">
+          {% endif %}
+          {% if es_nuevo_pagina and categoria_actual %}
+          <input type="hidden" name="categoria" value="{{ categoria_actual }}">
           {% endif %}
 
           <div class="products-filters-title">
@@ -267,7 +311,10 @@
           </span>
           {% endif %}
 
-          <a href="{{ request.path }}{{ '?q=' ~ query if query else '' }}" class="products-filters-clear">
+          <a
+            href="{{ url_for('productos.nuevo', categoria=categoria_actual) if es_nuevo_pagina else request.path ~ ('?q=' ~ query|urlencode if query else '') }}"
+            class="products-filters-clear"
+          >
             <i class="fa-solid fa-xmark"></i> Quitar filtros
           </a>
         </div>
@@ -276,11 +323,13 @@
     </div>
   </div>
 
+  {% endif %}
+
   {% if productos %}
   <div class="drop-grid-head">
     <span class="drop-grid-title">
       <span class="drop-grid-line"></span>
-      {{ 'Selección' if not query else 'Coincidencias' }}
+      {% if query %}Coincidencias{% elif es_nuevo_pagina and sin_novedades %}Últimos ingresos{% else %}Selección{% endif %}
     </span>
     <span class="drop-grid-count">
       Mostrando <strong>{{ productos|length }}</strong> {{ 'prenda' if productos|length == 1 else 'prendas' }}

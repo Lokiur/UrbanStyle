@@ -38,6 +38,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const tallas = form.querySelectorAll(".pd-size");
     const campoExistencia = document.getElementById("pdExistencia");
     const precio = document.getElementById("pdPrice");
+    const precioAntes = document.getElementById("pdPriceBefore"); // solo si esta en oferta
     const stock = document.getElementById("pdStock");
     const boton = document.getElementById("pdBuy");
     const textoBoton = boton.querySelector("span");
@@ -63,6 +64,7 @@ document.addEventListener("DOMContentLoaded", function() {
         });
 
         if (actual && precio) precio.textContent = formatoPrecio.format(actual.precio);
+        if (actual && precioAntes) precioAntes.textContent = formatoPrecio.format(actual.precio_original);
 
         campoExistencia.value = disponible ? actual.existencia_id : "";
         boton.disabled = !disponible;
