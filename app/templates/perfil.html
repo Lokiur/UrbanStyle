@@ -59,6 +59,13 @@
     </div>
     {% endif %}
 
+    {% if error_avatar %}
+    <div class="admin-error">
+      <i class="fa-solid fa-circle-exclamation"></i>
+      <span>{{ error_avatar }}</span>
+    </div>
+    {% endif %}
+
     <form method="POST" enctype="multipart/form-data">
 
       <!-- ================= RESUMEN ================= -->

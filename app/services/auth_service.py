@@ -16,7 +16,12 @@ def login(username, password):
     cursor = conexion.cursor()
 
     cursor.execute(
-        "SELECT * FROM users WHERE username=%s AND estado='activo'",
+        """
+        SELECT id, username, name, apellidos, documento_identidad, email,
+               password, celular, fechanaci, rol, estado, created_at, updated_at,
+               (avatar_imagen IS NOT NULL) AS tiene_avatar
+        FROM users WHERE username=%s AND estado='activo'
+        """,
         (username,),
     )
     usuario = cursor.fetchone()

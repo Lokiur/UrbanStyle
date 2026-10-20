@@ -4,3 +4,4 @@ Werkzeug
 reportlab
 python-dotenv
 Pillow
+gunicorn

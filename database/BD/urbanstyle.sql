@@ -1005,7 +1005,8 @@ CREATE TABLE `users` (
   `email` varchar(120) NOT NULL,
   `password` varchar(255) NOT NULL,
   `celular` varchar(20) DEFAULT NULL,
-  `avatar` varchar(255) DEFAULT NULL,
+  `avatar_imagen` longblob DEFAULT NULL,
+  `avatar_mime` varchar(100) DEFAULT NULL,
   `fechanaci` date DEFAULT NULL,
   `rol` enum('admin','usuario') DEFAULT 'usuario',
   `estado` enum('activo','inactivo') DEFAULT 'activo',
@@ -1017,17 +1018,17 @@ CREATE TABLE `users` (
 -- Volcado de datos para la tabla `users`
 --
 
-INSERT INTO `users` (`id`, `username`, `name`, `apellidos`, `documento_identidad`, `email`, `password`, `celular`, `avatar`, `fechanaci`, `rol`, `estado`, `created_at`, `updated_at`) VALUES
-(1, 'Lokiur', 'Lokiur', 'Admin', NULL, 'test@test.com', 'scrypt:32768:8:1$kYqmQzP6Au9Wrayp$a1426501c392799a940c2a1c008ceb89d90151d8efacd31700ff3d262baa337ed946f8704f88fb199c5a0bfa305bd5eb9fb3f4e4bcbd61034d54f025920d337b', NULL, NULL, NULL, 'admin', 'activo', '2026-07-20 18:41:44', '2026-07-20 18:41:44'),
-(2, 'jperez', 'Juan', 'Pérez', NULL, 'juan.perez@example.com', 'scrypt:32768:8:1$TAbX0lYjvkdXAqbb$e5af19db0bfa531b633df0c4f0e05db4a9c2a8132130d848c34c838efae55ded02e6afb097997b6158794bc798355d3fd3cdebf5169e6dbfdfb62116ccf593b4', '3001234567', NULL, '1995-03-14', 'usuario', 'activo', '2026-07-20 18:41:44', '2026-10-02 13:45:14'),
-(3, 'mrodriguez', 'María', 'Rodríguez', NULL, 'maria.rodriguez@example.com', 'scrypt:32768:8:1$TAbX0lYjvkdXAqbb$e5af19db0bfa531b633df0c4f0e05db4a9c2a8132130d848c34c838efae55ded02e6afb097997b6158794bc798355d3fd3cdebf5169e6dbfdfb62116ccf593b4', '3009876543', NULL, '1998-07-22', 'usuario', 'activo', '2026-07-20 18:41:44', '2026-10-02 13:45:14'),
-(4, 'clopez', 'Carlos', 'López', NULL, 'carlos.lopez@example.com', 'scrypt:32768:8:1$TAbX0lYjvkdXAqbb$e5af19db0bfa531b633df0c4f0e05db4a9c2a8132130d848c34c838efae55ded02e6afb097997b6158794bc798355d3fd3cdebf5169e6dbfdfb62116ccf593b4', '3112345678', NULL, '1992-11-05', 'usuario', 'activo', '2026-07-20 18:41:44', '2026-10-02 13:45:14'),
-(5, 'agomez', 'Ana', 'Gómez', NULL, 'ana.gomez@example.com', 'scrypt:32768:8:1$TAbX0lYjvkdXAqbb$e5af19db0bfa531b633df0c4f0e05db4a9c2a8132130d848c34c838efae55ded02e6afb097997b6158794bc798355d3fd3cdebf5169e6dbfdfb62116ccf593b4', '3157654321', NULL, '2000-01-30', 'usuario', 'activo', '2026-07-20 18:41:44', '2026-10-02 13:45:14'),
-(6, 'sfernandez', 'Sofía', 'Fernández', NULL, 'sofia.fernandez@example.com', 'scrypt:32768:8:1$TAbX0lYjvkdXAqbb$e5af19db0bfa531b633df0c4f0e05db4a9c2a8132130d848c34c838efae55ded02e6afb097997b6158794bc798355d3fd3cdebf5169e6dbfdfb62116ccf593b4', '3201112233', NULL, '1997-09-18', 'usuario', 'activo', '2026-07-20 18:41:44', '2026-10-02 13:45:14'),
-(7, 'dmartinez', 'Diego', 'Martínez', NULL, 'diego.martinez@example.com', 'scrypt:32768:8:1$TAbX0lYjvkdXAqbb$e5af19db0bfa531b633df0c4f0e05db4a9c2a8132130d848c34c838efae55ded02e6afb097997b6158794bc798355d3fd3cdebf5169e6dbfdfb62116ccf593b4', '3223334455', NULL, '1994-05-27', 'usuario', 'inactivo', '2026-07-20 18:41:44', '2026-10-02 13:45:14'),
-(8, 'juan01', 'Juan', 'Pérez', NULL, 'juan@gmail.com', 'scrypt:32768:8:1$J3xkFiLuYZd2DKp7$34b7aec64e447d09ae0df305c309b48dfea206278e78a14c8367e328f8b6dbc6cba65bd1e49f70d7ef6b3bda5bce82b7b50ebd5380b5cdaacb68cf8e7fe7a2e9', '3001234567', NULL, NULL, 'usuario', 'activo', '2026-07-24 12:38:33', '2026-07-24 12:38:33'),
-(11, 'juan10', 'Juan', 'Pérez', NULL, 'juan_@gmail.com', 'scrypt:32768:8:1$J3xkFiLuYZd2DKp7$34b7aec64e447d09ae0df305c309b48dfea206278e78a14c8367e328f8b6dbc6cba65bd1e49f70d7ef6b3bda5bce82b7b50ebd5380b5cdaacb68cf8e7fe7a2e9', '3001234567', NULL, NULL, 'usuario', 'activo', '2026-07-24 13:37:40', '2026-07-24 13:37:40'),
-(12, 'Tuki', 'Tuk', 'Usuario', '1231312', 'test@tes.com', 'scrypt:32768:8:1$aEckb5raKo8aGhO7$07b0d708122015113afa014b4f9043ad91564957ab607565bb6f8b3a65ada43e70309332afa544d5e3b97b00e68fcf83f1d8eb930bc1617e957c2e3bacad638e', NULL, NULL, NULL, 'admin', 'activo', '2026-08-23 21:08:12', '2026-08-23 21:09:44');
+INSERT INTO `users` (`id`, `username`, `name`, `apellidos`, `documento_identidad`, `email`, `password`, `celular`, `avatar_imagen`, `avatar_mime`, `fechanaci`, `rol`, `estado`, `created_at`, `updated_at`) VALUES
+(1, 'Lokiur', 'Lokiur', 'Admin', NULL, 'test@test.com', 'scrypt:32768:8:1$kYqmQzP6Au9Wrayp$a1426501c392799a940c2a1c008ceb89d90151d8efacd31700ff3d262baa337ed946f8704f88fb199c5a0bfa305bd5eb9fb3f4e4bcbd61034d54f025920d337b', NULL, NULL, NULL, NULL, 'admin', 'activo', '2026-07-20 18:41:44', '2026-07-20 18:41:44'),
+(2, 'jperez', 'Juan', 'Pérez', NULL, 'juan.perez@example.com', 'scrypt:32768:8:1$TAbX0lYjvkdXAqbb$e5af19db0bfa531b633df0c4f0e05db4a9c2a8132130d848c34c838efae55ded02e6afb097997b6158794bc798355d3fd3cdebf5169e6dbfdfb62116ccf593b4', '3001234567', NULL, NULL, '1995-03-14', 'usuario', 'activo', '2026-07-20 18:41:44', '2026-10-02 13:45:14'),
+(3, 'mrodriguez', 'María', 'Rodríguez', NULL, 'maria.rodriguez@example.com', 'scrypt:32768:8:1$TAbX0lYjvkdXAqbb$e5af19db0bfa531b633df0c4f0e05db4a9c2a8132130d848c34c838efae55ded02e6afb097997b6158794bc798355d3fd3cdebf5169e6dbfdfb62116ccf593b4', '3009876543', NULL, NULL, '1998-07-22', 'usuario', 'activo', '2026-07-20 18:41:44', '2026-10-02 13:45:14'),
+(4, 'clopez', 'Carlos', 'López', NULL, 'carlos.lopez@example.com', 'scrypt:32768:8:1$TAbX0lYjvkdXAqbb$e5af19db0bfa531b633df0c4f0e05db4a9c2a8132130d848c34c838efae55ded02e6afb097997b6158794bc798355d3fd3cdebf5169e6dbfdfb62116ccf593b4', '3112345678', NULL, NULL, '1992-11-05', 'usuario', 'activo', '2026-07-20 18:41:44', '2026-10-02 13:45:14'),
+(5, 'agomez', 'Ana', 'Gómez', NULL, 'ana.gomez@example.com', 'scrypt:32768:8:1$TAbX0lYjvkdXAqbb$e5af19db0bfa531b633df0c4f0e05db4a9c2a8132130d848c34c838efae55ded02e6afb097997b6158794bc798355d3fd3cdebf5169e6dbfdfb62116ccf593b4', '3157654321', NULL, NULL, '2000-01-30', 'usuario', 'activo', '2026-07-20 18:41:44', '2026-10-02 13:45:14'),
+(6, 'sfernandez', 'Sofía', 'Fernández', NULL, 'sofia.fernandez@example.com', 'scrypt:32768:8:1$TAbX0lYjvkdXAqbb$e5af19db0bfa531b633df0c4f0e05db4a9c2a8132130d848c34c838efae55ded02e6afb097997b6158794bc798355d3fd3cdebf5169e6dbfdfb62116ccf593b4', '3201112233', NULL, NULL, '1997-09-18', 'usuario', 'activo', '2026-07-20 18:41:44', '2026-10-02 13:45:14'),
+(7, 'dmartinez', 'Diego', 'Martínez', NULL, 'diego.martinez@example.com', 'scrypt:32768:8:1$TAbX0lYjvkdXAqbb$e5af19db0bfa531b633df0c4f0e05db4a9c2a8132130d848c34c838efae55ded02e6afb097997b6158794bc798355d3fd3cdebf5169e6dbfdfb62116ccf593b4', '3223334455', NULL, NULL, '1994-05-27', 'usuario', 'inactivo', '2026-07-20 18:41:44', '2026-10-02 13:45:14'),
+(8, 'juan01', 'Juan', 'Pérez', NULL, 'juan@gmail.com', 'scrypt:32768:8:1$J3xkFiLuYZd2DKp7$34b7aec64e447d09ae0df305c309b48dfea206278e78a14c8367e328f8b6dbc6cba65bd1e49f70d7ef6b3bda5bce82b7b50ebd5380b5cdaacb68cf8e7fe7a2e9', '3001234567', NULL, NULL, NULL, 'usuario', 'activo', '2026-07-24 12:38:33', '2026-07-24 12:38:33'),
+(11, 'juan10', 'Juan', 'Pérez', NULL, 'juan_@gmail.com', 'scrypt:32768:8:1$J3xkFiLuYZd2DKp7$34b7aec64e447d09ae0df305c309b48dfea206278e78a14c8367e328f8b6dbc6cba65bd1e49f70d7ef6b3bda5bce82b7b50ebd5380b5cdaacb68cf8e7fe7a2e9', '3001234567', NULL, NULL, NULL, 'usuario', 'activo', '2026-07-24 13:37:40', '2026-07-24 13:37:40'),
+(12, 'Tuki', 'Tuk', 'Usuario', '1231312', 'test@tes.com', 'scrypt:32768:8:1$aEckb5raKo8aGhO7$07b0d708122015113afa014b4f9043ad91564957ab607565bb6f8b3a65ada43e70309332afa544d5e3b97b00e68fcf83f1d8eb930bc1617e957c2e3bacad638e', NULL, NULL, NULL, NULL, 'admin', 'activo', '2026-08-23 21:08:12', '2026-08-23 21:09:44');
 
 -- --------------------------------------------------------
 

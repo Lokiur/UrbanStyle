@@ -1,10 +1,7 @@
-import os
-import uuid
-
 from flask import (
     Blueprint,
+    Response,
     abort,
-    current_app,
     redirect,
     render_template,
     request,
@@ -17,51 +14,26 @@ from app.utils.decorators import login_required
 
 usuario = Blueprint("usuario", __name__)
 
-AVATAR_EXTENSIONS = {"png", "jpg", "jpeg", "webp", "gif"}
-
-
-def _extension_valida(filename):
-    return "." in filename and filename.rsplit(".", 1)[1].lower() in AVATAR_EXTENSIONS
-
-
-def _avatar_folder():
-    ruta = os.path.join(current_app.static_folder, "img", "avatars")
-    os.makedirs(ruta, exist_ok=True)
-    return ruta
-
-
-def _guardar_avatar(archivo, user_id):
-    extension = archivo.filename.rsplit(".", 1)[1].lower()
-    nombre_archivo = f"user_{user_id}_{uuid.uuid4().hex}.{extension}"
-
-    carpeta = _avatar_folder()
-    archivo.save(os.path.join(carpeta, nombre_archivo))
-
-    avatar_anterior = session.get("avatar")
-    if avatar_anterior:
-        ruta_anterior = os.path.join(carpeta, avatar_anterior)
-        if os.path.isfile(ruta_anterior):
-            os.remove(ruta_anterior)
-
-    return nombre_archivo
-
 
 @usuario.route("/perfil", methods=["GET", "POST"])
 @login_required
 def perfil():
     guardado = False
+    error_avatar = None
 
     if request.method == "POST":
         users_service.actualizar_perfil(session["user_id"], request.form)
         session["name"] = request.form["name"]
 
         avatar_file = request.files.get("avatar")
-        if avatar_file and avatar_file.filename and _extension_valida(avatar_file.filename):
-            nombre_archivo = _guardar_avatar(avatar_file, session["user_id"])
-            users_service.actualizar_avatar(session["user_id"], nombre_archivo)
-            session["avatar"] = nombre_archivo
+        if avatar_file and avatar_file.filename:
+            try:
+                users_service.actualizar_avatar(session["user_id"], avatar_file)
+                session["avatar"] = True
+            except ValueError as error:
+                error_avatar = str(error)
 
-        guardado = True
+        guardado = error_avatar is None
 
     datos = users_service.obtener_usuario(session["user_id"])
     direcciones = orders_service.obtener_direcciones(session["user_id"])
@@ -72,7 +44,17 @@ def perfil():
         guardado=guardado,
         direcciones=direcciones,
         error_direccion=session.pop("error_direccion", None),
+        error_avatar=error_avatar,
     )
+
+
+@usuario.route("/perfil/avatar")
+@login_required
+def avatar_imagen():
+    fila = users_service.obtener_imagen_avatar(session["user_id"])
+    if not fila or not fila["avatar_imagen"]:
+        abort(404)
+    return Response(fila["avatar_imagen"], mimetype=fila["avatar_mime"] or "image/jpeg")
 
 
 @usuario.route("/perfil/direcciones", methods=["POST"])

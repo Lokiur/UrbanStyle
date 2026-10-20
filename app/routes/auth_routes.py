@@ -86,7 +86,7 @@ def login():
             session["user_id"] = usuario["id"]
             session["name"] = usuario["name"]
             session["rol"] = usuario["rol"]
-            session["avatar"] = usuario.get("avatar")
+            session["avatar"] = bool(usuario.get("tiene_avatar"))
             return redirect(url_for("home.index"))
 
         return render_template(

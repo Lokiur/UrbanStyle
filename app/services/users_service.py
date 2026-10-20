@@ -4,14 +4,24 @@
 
 import pymysql
 
+from app.services.products_service import _leer_imagen
 from app.utils.security import password_service
 from database.init_db import conectar
+
+# columnas de `users` sin `avatar_imagen`: es un longblob y listarla en
+# bloque (SELECT *) traeria la foto de cada usuario completa solo para
+# mostrar una tabla o rellenar un formulario que no la necesita.
+_COLUMNAS_USUARIO = """
+    id, username, name, apellidos, documento_identidad, email, password,
+    celular, avatar_mime, fechanaci, rol, estado, created_at, updated_at,
+    (avatar_imagen IS NOT NULL) AS tiene_avatar
+"""
 
 
 def listar_usuarios():
     conexion = conectar()
     cursor = conexion.cursor()
-    cursor.execute("SELECT * FROM users")
+    cursor.execute(f"SELECT {_COLUMNAS_USUARIO} FROM users")
     usuarios = cursor.fetchall()
     conexion.close()
     return usuarios
@@ -34,7 +44,7 @@ def listar_clientes():
 def obtener_usuario(id):
     conexion = conectar()
     cursor = conexion.cursor()
-    cursor.execute("SELECT * FROM users WHERE id=%s", (id,))
+    cursor.execute(f"SELECT {_COLUMNAS_USUARIO} FROM users WHERE id=%s", (id,))
     usuario = cursor.fetchone()
     conexion.close()
     return usuario
@@ -129,15 +139,43 @@ def actualizar(id, datos):
     conexion.close()
 
 
-def actualizar_avatar(id, nombre_archivo):
+def actualizar_avatar(id, archivo_imagen):
+    """Guarda la foto de perfil como BLOB (igual que las imagenes de
+    producto/categoria): sobrevive a un redeploy con disco efimero.
+
+    Lanza ValueError si el archivo no es una imagen valida (ver
+    `products_service._leer_imagen`).
+    """
+    imagen, mime = _leer_imagen(archivo_imagen)
+    if imagen is None:
+        return
+
+    conexion = conectar()
+    cursor = conexion.cursor()
+    try:
+        cursor.execute(
+            "UPDATE users SET avatar_imagen=%s, avatar_mime=%s WHERE id=%s",
+            (imagen, mime, id),
+        )
+        conexion.commit()
+    except pymysql.err.OperationalError:
+        conexion.rollback()
+        raise ValueError(
+            "No se pudo guardar la imagen en la base de datos, prueba con una más liviana"
+        )
+    finally:
+        conexion.close()
+
+
+def obtener_imagen_avatar(id):
     conexion = conectar()
     cursor = conexion.cursor()
     cursor.execute(
-        "UPDATE users SET avatar=%s WHERE id=%s",
-        (nombre_archivo, id),
+        "SELECT avatar_imagen, avatar_mime FROM users WHERE id=%s", (id,)
     )
-    conexion.commit()
+    fila = cursor.fetchone()
     conexion.close()
+    return fila
 
 
 def actualizar_perfil(id, datos):

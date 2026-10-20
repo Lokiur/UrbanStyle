@@ -63,8 +63,8 @@ def create_app():
 
     @app.context_processor
     def inject_avatar_url():
-        avatar = session.get("avatar")
-        filename = f"img/avatars/{avatar}" if avatar else "img/user.png"
-        return dict(avatar_url=url_for("static", filename=filename))
+        if session.get("avatar") and "user_id" in session:
+            return dict(avatar_url=url_for("usuario.avatar_imagen"))
+        return dict(avatar_url=url_for("static", filename="img/user.png"))
 
     return app
